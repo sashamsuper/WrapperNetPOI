@@ -6,6 +6,7 @@
     using NPOI.XSSF.UserModel;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.IO;
     using System.Linq;
     using System.Threading.Tasks;
@@ -312,7 +313,7 @@
         /// </summary>
         public override void GetValue()
         {
-            Console.WriteLine("blinn null");
+            //Console.WriteLine("blinn null");
             if (ActiveSheet != null)
             {
                 Console.WriteLine(ActiveSheet.SheetName);
@@ -493,11 +494,11 @@
             switch (exchangeClass.ExchangeTypeEnum)
             {
                 case ExchangeType.Add:
-                    Console.WriteLine("Add");
+                    //Console.WriteLine("Add");
                     AddValue();
                     break;
                 case ExchangeType.Get:
-                    Console.WriteLine("Find");
+                    //Console.WriteLine("Find");
                     GetValue();
                     break;
                 case ExchangeType.Update:
@@ -536,7 +537,15 @@
                 tmpStream = dc.GetDataStream(nfs);
             }
 
-            Workbook = WorkbookFactory.Create(tmpStream);
+            if (addNewWorkbook == true)
+            {
+                Workbook = new XSSFWorkbook();
+            }
+            else
+            { 
+                Workbook = WorkbookFactory.Create(tmpStream);
+            }
+            
             int SheetsCount = Workbook.NumberOfSheets;
             bool getValue = false;
             for (int i = 0; i < Workbook.NumberOfSheets; i++)
@@ -649,11 +658,19 @@
         /// <param name="values">The values<see cref="List{string[]}"/>.</param>
         public static void TaskAddToExcel(string pathToFile, string sheetName, List<string[]> values)
         {
-            Task AddValueToExcel = Task.Run(() =>
+            try
             {
-                TaskAddToExcel(pathToFile, sheetName, values);
-            });
-            AddValueToExcel.Start();
+                Task AddValueToExcel = Task.Run(() =>
+                  {
+                      AddToExcel(pathToFile, sheetName, values);
+                  });
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message); 
+            }
+
+            //AddValueToExcel.Start();
         }
 
         /// <summary>
@@ -703,7 +720,7 @@
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
         /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
         /// <returns>The <see cref="ReturnType"/>.</returns>
-        public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName,int firstRow=0, int firstCol=0) where ReturnType : new()
+        public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName,int firstRow=0, int firstCol = 0) where ReturnType : new()
         {
             ExchangeClass exchangeClass;
             ReturnType returnValue = new();
@@ -713,24 +730,21 @@
                 {
                     FirstCol=firstCol,
                     FirstRow=firstRow
-                    //ExchangeValue = returnValue
                 };
             }
             else if (returnValue is Dictionary<string, string[]> rD)
             {
                 exchangeClass = new DictionaryView(ExchangeType.Get, sheetName, rD)
                 {
-                    FirstCol=firstCol,
-                    FirstRow=firstRow
-                    //ExchangeValue = returnValue
+                    FirstCol = firstCol,
+                    FirstRow = firstRow
                 };
             }
             else if (returnValue is List<string[]> rM)
                 exchangeClass = new MatrixView(ExchangeType.Get, sheetName, rM)
                 {
-                   FirstCol=firstCol,
-                   FirstRow=firstRow
-                   //ExchangeValue = returnValue
+                    FirstCol = firstCol,
+                    FirstRow = firstRow
                 };
             else
             {
@@ -739,6 +753,7 @@
 
             WrapperNpoi wrapper = new(pathToFile, exchangeClass)
             {
+                
                 //ActiveSheetName = sheetName,
                 //exchangeClass = exchangeClass
             };

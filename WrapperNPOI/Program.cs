@@ -57,14 +57,22 @@ namespace WrappperNPOI
 
             //string pathToFile = @"C:\Users\Александр\source\repos\WrapperNPOI\WrapperNPOI\documents\book.xlsx";
 
-            string path = @"/storage/F07E-171B/Downloads/TAX_REPORT.xlsx";
+            string path = @"B:\dudu.xlsx";
+            string[] df1 = { "23", "424", "33" };
+            string[] df2 = { "23423", "234424", "2433" };
+            string[] df3 = { "2a3423", "2d34424", "2sdf433" };
+            List<string[]> outV = new(new[] { df1, df2, df3 });
+            ExcelExchange.AddToExcel(path, "Лист1", outV);
+
             //string pathToFile = @"B:\document.xlsx";
             //string pathToFile = @"D:\tmp\Печорская\21.01.22.docx";
+            /*
             var d=ExcelExchange.GetFromExcel<List<string[]>>(path,"Лист1");
             foreach (var x in d)
             {
             	Console.WriteLine(String.Join(";",x));
             }
+            */
             //GetFromWord getFromWord = new GetFromWord();
             //getFromWord.OpenFile(pathToFile);
             //Console.WriteLine(getFromWord.Tables);
