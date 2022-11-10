@@ -3,9 +3,8 @@
 // </copyright>
 // <date>10.10.2021</date>
 
-namespace WrappperNPOI
+namespace WrapperNetPOI
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -39,12 +38,12 @@ namespace WrappperNPOI
         public static int[] FirstColumns(List<string[]> list)
         {
             List<int> intL = new();
-            for (int i = 0; i<list[6].Length; i++)
+            for (int i = 0; i < list[6].Length; i++)
             {
-                if (list[6][i].Contains("Отчётные")|| list[6][i].Contains("Отчетные"))
+                if (list[6][i].Contains("Отчётные") || list[6][i].Contains("Отчетные"))
                 {
                     intL.Add(i);
-                }    
+                }
             }
             return intL.ToArray();
         }

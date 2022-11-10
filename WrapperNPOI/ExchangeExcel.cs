@@ -1,4 +1,4 @@
-﻿namespace WrappperNPOI
+﻿namespace WrapperNetPOI
 {
     using NPOI.HSSF.UserModel;
     using NPOI.POIFS.Crypt;
@@ -81,13 +81,17 @@
             return day + "." + mounth + "." + year;
         }
 
+       
+
+
+
+
         public static string GetCellValue(ICell cell)
         {
             string returnValue = default;
             if (cell != null)
 
             {
-
                 if (cell.IsMergedCell)
                 {
                     cell = GetFirstCellInMergedRegion(cell);
@@ -542,10 +546,10 @@
                 Workbook = new XSSFWorkbook();
             }
             else
-            { 
+            {
                 Workbook = WorkbookFactory.Create(tmpStream);
             }
-            
+
             int SheetsCount = Workbook.NumberOfSheets;
             bool getValue = false;
             for (int i = 0; i < Workbook.NumberOfSheets; i++)
@@ -667,7 +671,7 @@
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message); 
+                Debug.WriteLine(e.Message);
             }
 
             //AddValueToExcel.Start();
@@ -720,7 +724,7 @@
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
         /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
         /// <returns>The <see cref="ReturnType"/>.</returns>
-        public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName,int firstRow=0, int firstCol = 0) where ReturnType : new()
+        public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName, int firstRow = 0, int firstCol = 0) where ReturnType : new()
         {
             ExchangeClass exchangeClass;
             ReturnType returnValue = new();
@@ -728,8 +732,8 @@
             {
                 exchangeClass = new ListView(ExchangeType.Get, sheetName, rL)
                 {
-                    FirstCol=firstCol,
-                    FirstRow=firstRow
+                    FirstCol = firstCol,
+                    FirstRow = firstRow
                 };
             }
             else if (returnValue is Dictionary<string, string[]> rD)
@@ -753,7 +757,7 @@
 
             WrapperNpoi wrapper = new(pathToFile, exchangeClass)
             {
-                
+
                 //ActiveSheetName = sheetName,
                 //exchangeClass = exchangeClass
             };
