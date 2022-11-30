@@ -596,7 +596,7 @@
                     FileMode.Create,
                     FileAccess.Write,
                     FileShare.ReadWrite);
-            Workbook.Write(fs);
+            Workbook.Write(fs,false);
             fs.Close();
         }
 
@@ -620,7 +620,7 @@
                     FileMode.Create,
                     FileAccess.Write,
                     FileShare.ReadWrite);
-            Workbook.Write(fs);
+            Workbook.Write(fs,false);
             fs.Close();
         }
     }
