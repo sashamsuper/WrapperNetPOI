@@ -4,6 +4,8 @@
     using NPOI.POIFS.Crypt;
     using NPOI.SS.UserModel;
     using NPOI.XSSF.UserModel;
+    using Serilog;
+    using Serilog.Data;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -24,6 +26,7 @@
     /// </summary>
     public abstract class ExchangeClass
     {
+        internal static ILogger Logger { set; get; }
         /// <summary>
         /// Initializes a new instance of the <see cref="ExchangeClass"/> class.
         /// </summary>
@@ -88,46 +91,55 @@
 
         public static string GetCellValue(ICell cell)
         {
-            string returnValue = default;
-            if (cell != null)
-
+            try
             {
-                if (cell.IsMergedCell)
+                string returnValue = default;
+                if (cell != null)
+
                 {
-                    cell = GetFirstCellInMergedRegion(cell);
-                }
-                if (cell?.CellType == CellType.Numeric
-                  && cell.NumericCellValue > 36526 &&
-                  cell.NumericCellValue < 47484)
-                {
-                    returnValue = ExchangeClass.
-                        ReturnStringDate(cell.DateCellValue);
-                }
-                else if (cell?.CellType == CellType.Numeric
-                && cell.ToString()?.Split('.').Length >= 3)
-                {
-                    returnValue = ExchangeClass.ReturnStringDate(cell.DateCellValue);
-                }
-                else if (cell?.CellType == CellType.Formula)
-                {
-                    if (cell?.CachedFormulaResultType == CellType.Numeric
-                  && cell.NumericCellValue > 36526 &&
-                  cell.NumericCellValue < 47484)
+                    if (cell.IsMergedCell)
+                    {
+                        cell = GetFirstCellInMergedRegion(cell);
+                    }
+                    if (cell?.CellType == CellType.Numeric
+                      && cell.NumericCellValue > 36526 &&
+                      cell.NumericCellValue < 47484)
                     {
                         returnValue = ExchangeClass.
                             ReturnStringDate(cell.DateCellValue);
                     }
-                    else if (cell?.CachedFormulaResultType == CellType.Numeric)
+                    else if (cell?.CellType == CellType.Numeric
+                    && cell.ToString()?.Split('.').Length >= 3)
                     {
-                        returnValue = cell?.NumericCellValue.ToString();
+                        returnValue = ExchangeClass.ReturnStringDate(cell.DateCellValue);
+                    }
+                    else if (cell?.CellType == CellType.Formula)
+                    {
+                        if (cell?.CachedFormulaResultType == CellType.Numeric
+                      && cell.NumericCellValue > 36526 &&
+                      cell.NumericCellValue < 47484)
+                        {
+                            returnValue = ExchangeClass.
+                                ReturnStringDate(cell.DateCellValue);
+                        }
+                        else if (cell?.CachedFormulaResultType == CellType.Numeric)
+                        {
+                            returnValue = cell?.NumericCellValue.ToString();
+                        }
+                    }
+                    else
+                    {
+                        returnValue = cell?.ToString();
                     }
                 }
-                else
-                {
-                    returnValue = cell?.ToString();
-                }
+                return returnValue;
             }
-            return returnValue;
+            catch (Exception e)
+            {
+                Logger.Error(e.Message);
+                Logger.Error(e.StackTrace);
+                return default;
+            }
 
         }
 
@@ -444,6 +456,7 @@
     /// </summary>
     public class WrapperNpoi
     {
+        internal static ILogger Logger { set; get; }
         // главный класс для обновления
         /// <summary>
         /// Gets or sets the PathToFile.
@@ -478,19 +491,47 @@
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
         public WrapperNpoi(string pathToFile, ExchangeClass exchangeClass)
         {
+
+            var stringDate = ReturnTechFileName("Log","log");
+            Logger = new LoggerConfiguration()
+             .MinimumLevel.Verbose() // ставим минимальный уровень в Verbose для теста, по умолчанию стоит Information 
+             //.WriteTo.Console()  // выводим данные на консоль
+             .WriteTo.File(@$"C:\Logs\Log-{stringDate}.txt") // а также пишем лог файл, разбивая его по дате
+             .CreateLogger();
             PathToFile = pathToFile;
             //ActiveSheetName=exchangeClass.activeSheetName;
             if (exchangeClass != null)
             {
                 this.exchangeClass = exchangeClass;
-
+                ExchangeClass.Logger = Logger; 
                 ActiveSheetName = exchangeClass.ActiveSheetName;
             }
             else
             {
+                Logger.Error(pathToFile, nameof(exchangeClass));
                 throw new ArgumentNullException(nameof(exchangeClass));
             }
 
+        }
+
+        public string ReturnTechFileName(string predict,string extension)
+        {
+            int i = 0;
+            string rnd = "";
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, predict);
+            if (Directory.Exists(dir) == false)
+            {
+                Directory.CreateDirectory(dir);
+            }
+            string path;
+            do
+            {
+                path = Path.Combine(dir, $"{predict}{DateTime.Now:yyMMddHHmmss}{rnd}.{extension}");
+                i += 1;
+                rnd = i.ToString();
+            }
+            while (File.Exists(path));
+            return path;
         }
 
         public void Exchange()
@@ -509,6 +550,7 @@
                     UpdateValue();
                     break;
                 default:
+                    Logger.Error("exchangeClass.ExchangeTypeEnum");    
                     throw (new ArgumentOutOfRangeException("exchangeClass.ExchangeTypeEnum"));
             }
         }
