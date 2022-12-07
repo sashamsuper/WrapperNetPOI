@@ -1,18 +1,17 @@
-﻿namespace WrapperNetPOI
-{
-    using NPOI.HSSF.UserModel;
-    using NPOI.POIFS.Crypt;
-    using NPOI.SS.UserModel;
-    using NPOI.XSSF.UserModel;
-    using Serilog;
-    using Serilog.Data;
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.IO;
-    using System.Linq;
-    using System.Threading.Tasks;
+﻿using NPOI.HSSF.UserModel;
+using NPOI.POIFS.Crypt;
+using NPOI.SS.UserModel;
+using NPOI.XSSF.UserModel;
+using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
+namespace WrapperNetPOI
+{
     public enum ExchangeType
     {
         Get,
@@ -26,6 +25,8 @@
     /// </summary>
     public abstract class ExchangeClass
     {
+        public IProgress<double> progress; 
+
         internal static ILogger Logger { set; get; }
         /// <summary>
         /// Initializes a new instance of the <see cref="ExchangeClass"/> class.
@@ -85,11 +86,15 @@
         }
 
        
+        /*public IProgress<int> ExProgress()
+        { 
+
+        }
+        */
 
 
 
-
-        public static string GetCellValue(ICell cell)
+        public string GetCellValue(ICell cell)
         {
             try
             {
@@ -254,6 +259,7 @@
                 {
                     ICell cell = row.CreateCell(j);
                     cell.SetCellValue(ExchangeValue[i][j]);
+                    progress.Report((i+j - startRow) / (ExchangeValue.Count-1 -startRow));
                 }
             }
         }
@@ -269,6 +275,8 @@
                 for (int j = 0; j < ExchangeValue[i].Length; j++)
                 {
                     SetCellValue(ActiveSheet, i, j, ExchangeValue[i][j]);
+                    double d = ((double)(i + j)) / ((double)(ExchangeValue.Count - 1));
+                    progress.Report(d);
                 }
             }
         }
@@ -342,6 +350,7 @@
                     {
 
                         value1 = GetCellValue(row.GetCell(ValueColumn));
+                        progress.Report((i-FirstRow)/(lastRow- FirstRow));
                     }
                     ExchangeValue.Add(value1);
                 }
@@ -447,6 +456,7 @@
                 var element = tmpExchangeValue.ElementAtOrDefault(i - FirstRow);
                 SetCellValue(ActiveSheet, i, KeyColumn, element?.ElementAtOrDefault(0));
                 SetCellValue(ActiveSheet, i, ValueColumn, element?.ElementAtOrDefault(1));
+                progress.Report((i- FirstRow) /(lastRow- FirstRow));
             }
         }
     }
@@ -454,7 +464,7 @@
     /// <summary>
     /// Defines the <see cref="WrapperNpoi" />.
     /// </summary>
-    public class WrapperNpoi
+    public class Wrapper
     {
         internal static ILogger Logger { set; get; }
         // главный класс для обновления
@@ -489,10 +499,10 @@
         /// Initializes a new instance of the <see cref="WrapperNpoi"/> class.
         /// </summary>
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        public WrapperNpoi(string pathToFile, ExchangeClass exchangeClass)
+        public Wrapper(string pathToFile, ExchangeClass exchangeClass)
         {
 
-            var stringDate = ReturnTechFileName("Log","log");
+            var stringDate = Wrapper.ReturnTechFileName("Log","log");
             Logger = new LoggerConfiguration()
              .MinimumLevel.Verbose() // ставим минимальный уровень в Verbose для теста, по умолчанию стоит Information 
              //.WriteTo.Console()  // выводим данные на консоль
@@ -514,7 +524,7 @@
 
         }
 
-        public string ReturnTechFileName(string predict,string extension)
+        public static string ReturnTechFileName(string predict,string extension)
         {
             int i = 0;
             string rnd = "";
@@ -687,7 +697,7 @@
                 {
                     ExchangeValue = values
                 };
-                WrapperNpoi wrapper = new(pathToFile, listView)
+                Wrapper wrapper = new(pathToFile, listView)
                 {
                     //ActiveSheetName = sheetName,
                     //exchangeClass = listView
@@ -719,6 +729,21 @@
             //AddValueToExcel.Start();
         }
 
+        public static async Task TaskAddToExcelAsync(string pathToFile, string sheetName, List<string[]> values)
+        {
+                await  Task.Run(() =>
+                {
+                    AddToExcel(pathToFile, sheetName, values);
+                });
+            //AddValueToExcel.Start();
+        }
+
+
+
+
+
+
+
         /// <summary>
         /// The AddToExcel
         /// </summary>
@@ -731,7 +756,7 @@
             {
                 ExchangeValue = values
             };
-            WrapperNpoi wrapper = new(pathToFile, listView)
+            Wrapper wrapper = new(pathToFile, listView)
             {
                 //ActiveSheetName = sheetName,
                 //exchangeClass = listView
@@ -751,7 +776,7 @@
             {
                 ExchangeValue = values
             };
-            WrapperNpoi wrapper = new(pathToFile, listView)
+            Wrapper wrapper = new(pathToFile, listView)
             {
                 //ActiveSheetName = sheetName,
                 //exchangeClass = listView
@@ -797,7 +822,7 @@
                 throw new TypeUnloadedException("Для указанного типа нет обработчика");
             }
 
-            WrapperNpoi wrapper = new(pathToFile, exchangeClass)
+            Wrapper wrapper = new(pathToFile, exchangeClass)
             {
 
                 //ActiveSheetName = sheetName,
