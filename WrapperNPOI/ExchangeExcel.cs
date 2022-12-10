@@ -221,6 +221,46 @@ namespace WrapperNetPOI
         }
     }
 
+    public class RangeView : ExchangeClass
+    {
+        public RangeView(ExchangeType exchangeType, string activeSheetName, ICellRange<ICell> exchangeValue) : base(exchangeType, activeSheetName)
+        {
+            
+            ExchangeValue = exchangeValue;
+            ValueColumn = 0;
+        }
+        
+        public override void AddValue()
+        {
+            base.AddValue();
+        }
+
+        public override void GetValue()
+        {
+            for (int i = 0; i < ExchangeValue.Count; i++)
+            {
+                IRow row = ActiveSheet.CreateRow(i);
+                for (int j = 0; j < ExchangeValue[i].Length; j++)
+                {
+                    ICell cell = row.GetCell(ValueColumn);
+                            if (ValueColumn <= row.LastCellNum - 1)// -1 это особенность NPOI
+                            {
+                                //tmpListString.Add(GetCellValue(cell));
+                            }
+                    ExchangeValue[i][j]=cell;
+                }
+                double d = (i) / ((double)(ExchangeValue.Count - 1))*100.0;
+                progress?.Report(d);
+            }
+        }
+
+        public override void UpdateValue()
+        {
+            base.UpdateValue();
+        }
+    }
+
+
     /// <summary>
     /// Defines the <see cref="MatrixView" />.
     /// </summary>
@@ -259,8 +299,9 @@ namespace WrapperNetPOI
                 {
                     ICell cell = row.CreateCell(j);
                     cell.SetCellValue(ExchangeValue[i][j]);
-                    progress.Report((i+j - startRow) / (ExchangeValue.Count-1 -startRow));
                 }
+                double d = (i) / ((double)(ExchangeValue.Count - 1))*100.0;
+                progress?.Report(d);
             }
         }
 
@@ -275,9 +316,9 @@ namespace WrapperNetPOI
                 for (int j = 0; j < ExchangeValue[i].Length; j++)
                 {
                     SetCellValue(ActiveSheet, i, j, ExchangeValue[i][j]);
-                    double d = ((double)(i + j)) / ((double)(ExchangeValue.Count - 1));
-                    progress.Report(d);
                 }
+                double d = (i) / ((double)(ExchangeValue.Count - 1))*100.0;
+                progress?.Report(d);
             }
         }
 
@@ -305,6 +346,7 @@ namespace WrapperNetPOI
                             {
                                 tmpListString.Add(GetCellValue(cell));
                             }
+                            progress?.Report((i-FirstRow)/(lastRow- FirstRow)*100.0);
                         }
                     }
                     ExchangeValue.Add(tmpListString.ToArray());
@@ -337,7 +379,6 @@ namespace WrapperNetPOI
         /// </summary>
         public override void GetValue()
         {
-            //Console.WriteLine("blinn null");
             if (ActiveSheet != null)
             {
                 Console.WriteLine(ActiveSheet.SheetName);
@@ -348,10 +389,9 @@ namespace WrapperNetPOI
                     var row = ActiveSheet.GetRow(i);
                     if (ValueColumn <= row.LastCellNum - 1)// -1 это особенность NPOI
                     {
-
                         value1 = GetCellValue(row.GetCell(ValueColumn));
-                        progress.Report((i-FirstRow)/(lastRow- FirstRow));
                     }
+                    progress?.Report((i-FirstRow)/(lastRow- FirstRow)*100.0);
                     ExchangeValue.Add(value1);
                 }
             }
@@ -368,7 +408,9 @@ namespace WrapperNetPOI
             {
                 string element = ((List<string>)ExchangeValue).ElementAtOrDefault(i);
                 SetCellValue(ActiveSheet, i, ValueColumn, element);
+                progress?.Report(((i-FirstRow)/(lastRow-FirstRow))*100.0);
             }
+
         }
     }
 
@@ -410,8 +452,6 @@ namespace WrapperNetPOI
                 int lastRow = ActiveSheet.LastRowNum;
                 for (int i = FirstRow; i <= lastRow; i++)
                 {
-                    //string keyValue = ActiveSheet.GetRow(i).GetCell(KeyColumn).ToString();
-                    //string valValue = ActiveSheet.GetRow(i).GetCell(ValueColumn).ToString();
                     string keyValue = GetCellValue(ActiveSheet.GetRow(i).GetCell(KeyColumn));
                     string valValue = GetCellValue(ActiveSheet.GetRow(i).GetCell(ValueColumn));
                     if (tmpExchangeValue.ContainsKey(keyValue))
@@ -456,13 +496,13 @@ namespace WrapperNetPOI
                 var element = tmpExchangeValue.ElementAtOrDefault(i - FirstRow);
                 SetCellValue(ActiveSheet, i, KeyColumn, element?.ElementAtOrDefault(0));
                 SetCellValue(ActiveSheet, i, ValueColumn, element?.ElementAtOrDefault(1));
-                progress.Report((i- FirstRow) /(lastRow- FirstRow));
+                progress?.Report(((i- FirstRow) /(lastRow- FirstRow))*100.0);
             }
         }
     }
 
     /// <summary>
-    /// Defines the <see cref="WrapperNpoi" />.
+    /// Defines the <see cref="Wrapper" />.
     /// </summary>
     public class Wrapper
     {
@@ -502,14 +542,13 @@ namespace WrapperNetPOI
         public Wrapper(string pathToFile, ExchangeClass exchangeClass)
         {
 
-            var stringDate = Wrapper.ReturnTechFileName("Log","log");
+            var pathLog = Wrapper.ReturnTechFileName("Log","log");
             Logger = new LoggerConfiguration()
              .MinimumLevel.Verbose() // ставим минимальный уровень в Verbose для теста, по умолчанию стоит Information 
              //.WriteTo.Console()  // выводим данные на консоль
-             .WriteTo.File(@$"C:\Logs\Log-{stringDate}.txt") // а также пишем лог файл, разбивая его по дате
+             .WriteTo.File(pathLog) // а также пишем лог файл, разбивая его по дате
              .CreateLogger();
             PathToFile = pathToFile;
-            //ActiveSheetName=exchangeClass.activeSheetName;
             if (exchangeClass != null)
             {
                 this.exchangeClass = exchangeClass;
@@ -549,11 +588,9 @@ namespace WrapperNetPOI
             switch (exchangeClass.ExchangeTypeEnum)
             {
                 case ExchangeType.Add:
-                    //Console.WriteLine("Add");
                     AddValue();
                     break;
                 case ExchangeType.Get:
-                    //Console.WriteLine("Find");
                     GetValue();
                     break;
                 case ExchangeType.Update:
@@ -828,11 +865,11 @@ namespace WrapperNetPOI
                 //ActiveSheetName = sheetName,
                 //exchangeClass = exchangeClass
             };
-            Console.WriteLine(exchangeClass.ExchangeValue.Count);
+            //Console.WriteLine(exchangeClass.ExchangeValue.Count);
             wrapper.Exchange();
-            Console.WriteLine(exchangeClass.ExchangeValue.Count);
+            //Console.WriteLine(exchangeClass.ExchangeValue.Count);
             //string json = JsonSerializer.Serialize(wrapper);
-            Console.WriteLine(exchangeClass);
+            //Console.WriteLine(exchangeClass);
 
             //RoslynSoftDebugger.HitBreakpoint(); 
             //RoslynSoftDebugger.Debug(()=> n);
