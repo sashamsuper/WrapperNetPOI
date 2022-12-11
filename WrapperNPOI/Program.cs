@@ -15,8 +15,9 @@ namespace WrapperNetPOI
     using System.Linq;
     using System.IO;
     using System;
+    using System.Globalization;
 
-
+    
 
 
     /// <summary>
@@ -74,10 +75,16 @@ namespace WrapperNetPOI
             string[] df3 = { "2a3423", "2d34424", "2sdf433" };
             List<string[]> outV = new(new[] { df1, df2, df3 });
 
+
+            //SwapCellRange cells = new SwapCellRange(10, 10);
+            Console.WriteLine(22);
+            
+
+
             //if (File.Exists(path))
             //{
             //    File.Delete(path);
-            //}
+            }
 
 
             //Console.Write("Сколько строк сначала строки пропустить? ");
@@ -86,49 +93,14 @@ namespace WrapperNetPOI
             //var fileInfos=directoryInfo.GetFiles("*.xls*",SearchOption.TopDirectoryOnly);
             //Wrapper mainWrapper=new Wrapper("",ExchangeType.Update)
 
-        class SwapCellRange<TCell> : ICellRange<TCell> where TCell : ICell
-        {
-            public int Width { get; }
-            public int Height { get; }
-            public int Size { get; }
-            public string ReferenceText { get; }
-            public TCell TopLeftCell { get; }
-            public TCell[] FlattenedCells { get; }
-            public TCell[][] Cells { get; }
-
-            public TCell GetCell(int relativeRowIndex, int relativeColumnIndex)
-            {
-                return default;
-            }
-
-            public SwapCellRange()
-            {
-            }
-
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-            {
-                return Cells.GetEnumerator();
-            }
-
-            public IEnumerator<TCell> GetEnumerator()
-            {
-                var x=Cells.SelectMany(x=>x);
-                foreach (var z in x)
-                {
-                    yield return z;
-                }
-                
-            }
-
-            
-        }
+        
 
 
 
-        ICellRange<ICell> ddfdf = new Cell();
+        //ICellRange<ICell> ddfdf = new Cell();
 
 
-        RangeView rangeView = new RangeView(ExchangeType.Get, "Лист1",);
+        //RangeView rangeView = new RangeView(ExchangeType.Get, "Лист1",);
 
 
 
@@ -169,4 +141,4 @@ namespace WrapperNetPOI
         Console.WriteLine(list);*/
     }
 }
-}
+

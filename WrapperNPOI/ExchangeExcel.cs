@@ -1,6 +1,9 @@
-﻿using NPOI.HSSF.UserModel;
+﻿using MathNet.Numerics.Optimization.LineSearch;
+using NPOI.HSSF.UserModel;
 using NPOI.POIFS.Crypt;
+using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
+using NPOI.Util;
 using NPOI.XSSF.UserModel;
 using Serilog;
 using System;
@@ -221,9 +224,27 @@ namespace WrapperNetPOI
         }
     }
 
-    public class RangeView : ExchangeClass
+
+    public class SwapRows
     {
-        public RangeView(ExchangeType exchangeType, string activeSheetName, ICellRange<ICell> exchangeValue) : base(exchangeType, activeSheetName)
+        public int CountRows { get; }
+        public int Top { get; set; } = 0;
+        public string Path { get; }
+        public List<IRow> Rows { set; get; }
+        private IWorkbook Workbook {set;get;}
+
+        public SwapRows(string path, int countRows)
+        {
+            
+            Path = path;
+            CountRows = countRows;
+        }
+    }
+
+    public class RowsView : ExchangeClass
+    {
+
+        public RowsView(ExchangeType exchangeType, string activeSheetName, SwapRows exchangeValue) : base(exchangeType, activeSheetName)
         {
             
             ExchangeValue = exchangeValue;
@@ -232,31 +253,42 @@ namespace WrapperNetPOI
         
         public override void AddValue()
         {
-            base.AddValue();
+            //base.AddValue();
         }
 
         public override void GetValue()
         {
-            for (int i = 0; i < ExchangeValue.Count; i++)
+            /*
+            Wrapper mainWrapper = new (ExchangeValue.Path, null);
+            FileStream fs = new(ExchangeValue.Path,
+                    fileMode,
+                    fileAccess,
+                    FileShare.ReadWrite);
+            Stream tmpStream = fs;
+            mainWrapper.OpenWorkbookStream(fs, true);
+
+            */
+            //((SwapRows)exchangeValue).Rows.Add
+            for (int i = 0; i < ExchangeValue.CountRows; i++)
             {
-                IRow row = ActiveSheet.CreateRow(i);
-                for (int j = 0; j < ExchangeValue[i].Length; j++)
-                {
-                    ICell cell = row.GetCell(ValueColumn);
-                            if (ValueColumn <= row.LastCellNum - 1)// -1 это особенность NPOI
-                            {
-                                //tmpListString.Add(GetCellValue(cell));
-                            }
-                    ExchangeValue[i][j]=cell;
-                }
-                double d = (i) / ((double)(ExchangeValue.Count - 1))*100.0;
-                progress?.Report(d);
+                ExchangeValue.Rows.Add(ActiveSheet.GetRow(i));
             }
         }
 
         public override void UpdateValue()
         {
-            base.UpdateValue();
+            /*
+            Wrapper mainWrapper = new Wrapper(ExchangeValue.Path,null);
+            FileStream fs = new(ExchangeValue.Path,
+                    fileMode,
+                    fileAccess,
+                    FileShare.ReadWrite);
+            Stream tmpStream = fs;
+            mainWrapper.OpenWorkbookStream(fs,true);
+            */
+
+            CellCopyPolicy cellCopyPolicy = new ();
+            ((XSSFSheet)base.ActiveSheet).CopyRows(ExchangeValue.Rows, FirstRow, cellCopyPolicy);
         }
     }
 
@@ -542,17 +574,17 @@ namespace WrapperNetPOI
         public Wrapper(string pathToFile, ExchangeClass exchangeClass)
         {
 
-            var pathLog = Wrapper.ReturnTechFileName("Log","log");
+            var pathLog = Wrapper.ReturnTechFileName("Log", "log");
             Logger = new LoggerConfiguration()
              .MinimumLevel.Verbose() // ставим минимальный уровень в Verbose для теста, по умолчанию стоит Information 
-             //.WriteTo.Console()  // выводим данные на консоль
+                                     //.WriteTo.Console()  // выводим данные на консоль
              .WriteTo.File(pathLog) // а также пишем лог файл, разбивая его по дате
              .CreateLogger();
             PathToFile = pathToFile;
             if (exchangeClass != null)
             {
                 this.exchangeClass = exchangeClass;
-                ExchangeClass.Logger = Logger; 
+                ExchangeClass.Logger = Logger;
                 ActiveSheetName = exchangeClass.ActiveSheetName;
             }
             else
@@ -563,7 +595,7 @@ namespace WrapperNetPOI
 
         }
 
-        public static string ReturnTechFileName(string predict,string extension)
+        public static string ReturnTechFileName(string predict, string extension)
         {
             int i = 0;
             string rnd = "";
@@ -597,7 +629,7 @@ namespace WrapperNetPOI
                     UpdateValue();
                     break;
                 default:
-                    Logger.Error("exchangeClass.ExchangeTypeEnum");    
+                    Logger.Error("exchangeClass.ExchangeTypeEnum");
                     throw (new ArgumentOutOfRangeException("exchangeClass.ExchangeTypeEnum"));
             }
         }
@@ -616,6 +648,12 @@ namespace WrapperNetPOI
                     fileAccess,
                     FileShare.ReadWrite);
             Stream tmpStream = fs;
+            OpenWorkbookStream(fs,addNewWorkbook);
+        }
+
+        public void OpenWorkbookStream(Stream tmpStream, bool addNewWorkbook)
+        {
+            FileStream fs=default;
             if (Password == null)
             {
 
@@ -670,7 +708,7 @@ namespace WrapperNetPOI
                     ActiveSheet = (XSSFSheet)Workbook.GetSheet(ActiveSheetName);
                 }
             exchangeClass.ActiveSheet = ActiveSheet;
-            Console.WriteLine(exchangeClass.ExchangeValueFunc);
+            //Console.WriteLine(exchangeClass.ExchangeValueFunc);
             exchangeClass.ExchangeValueFunc();
         }
 
