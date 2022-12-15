@@ -11,6 +11,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Reflection;
+using NPOI.Util.ArrayExtensions;
 
 namespace WrapperNetPOI
 {
@@ -31,7 +33,7 @@ namespace WrapperNetPOI
         int FirstRow { set; get; }
         ISheet ActiveSheet { set; get; }
         Action ExchangeValueFunc { set; get; }
-        bool CloseStream {get;}
+        bool CloseStream { get; set; }
         void GetValue();
         void AddValue();
         void UpdateValue();
@@ -45,13 +47,8 @@ namespace WrapperNetPOI
     {
         
 
-        public virtual bool CloseStream
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public virtual bool CloseStream { set; get; }
+        
         public IProgress<double> ProgressValue { set; get; }
 
         public ILogger Logger { set; get; }
@@ -242,9 +239,9 @@ namespace WrapperNetPOI
     public class RowsView : ExchangeClass<IList<IRow>>
     {
         public int CountRows { get; set; }
-        public string Path { get; set; }
+        public string PathSource { get; set; }
         //public List<IRow> Rows { set; get; } = new();
-        public override bool CloseStream => false;
+        public override bool CloseStream => true;
 
         public RowsView(ExchangeOperation exchangeType, string activeSheetName, IList<IRow> exchangeValue) : base(exchangeType, activeSheetName)
         {
@@ -270,23 +267,155 @@ namespace WrapperNetPOI
             {
                 CountRows = this.CountRows
             };
-            Wrapper wrapper = new(Path, rowsView);
-            wrapper.Exchange();
-            /*if (wrapper.ActiveSheet is XSSFSheet xsSheet)
+            rowsView.CloseStream = false;
+            Wrapper tmpWrapper = new(PathSource, rowsView);
+            tmpWrapper.Exchange();
+            /*
+            if (this.ActiveSheet is XSSFSheet xsSheet)
             {
-                /*CellCopyPolicy cellCopyPolicy = new ();
-                if (rowsView.ExchangeValue is List<XSSFRow> xSSFRows)
+                CellCopyPolicy cellCopyPolicy = new();
+                cellCopyPolicy.IsCopyCellStyle = false;
+                var rr = rowsView.ExchangeValue.Select(x => (XSSFRow)x).Where(y=>y!=null).ToList();
+                //if (rowsView.ExchangeValue is List<XSSFRow> xSSFRows)
+                //{
+                    xsSheet.CopyRows(rr, FirstRow+1, cellCopyPolicy);
+                //}
+            }
+            
+            else
+            */
+            {
+                rowsView.CloseStream = true;
+
+                for (int i = 0; i < CountRows; i++)
                 {
-                    xsSheet.CopyRows(xSSFRows, FirstRow, cellCopyPolicy);
+                    var row = rowsView.ActiveSheet.GetRow(i);
+                    if (row != null)
+                    {
+                        //ActiveSheet.Workbook.GetCellStyleAt()
+                        CopyRow2(rowsView.ActiveSheet, i, this.ActiveSheet, i);
+                    }
                 }
             }
-            else 
-            {*/
-                for (int i=0;i<CountRows;i++)
-                {
-                    SheetUtil.CopyRow(rowsView.ActiveSheet, i, wrapper.ActiveSheet, i);
-                }
             
+        }
+
+        public static void CopyStyle(ICellStyle source, ICellStyle recipient)
+        {
+            var propertiesS = source.GetType().GetProperties();
+            foreach(var propertyS in propertiesS) 
+            { 
+                var sourceValue=propertyS.GetValue(source, null);
+                var sourceName= propertyS.Name;
+                var sourceValueType = propertyS.PropertyType;
+                var propertiesR = recipient.GetType().GetProperties();
+
+                foreach (var propertyR in propertiesR)
+                {
+                    if (propertyR.Name == propertyS.Name)
+                    {
+                        if (propertyR.SetMethod != null)
+                        {
+                            propertyR.SetValue(recipient, sourceValue);
+                        }
+                    }
+                }
+            }
+            
+        }
+
+
+        public static IRow CopyRow2(ISheet sourceSheet, int sourceRowIndex, ISheet targetSheet, int targetRowIndex)
+        {
+            // Get the source / new row
+            IRow newRow = targetSheet.GetRow(targetRowIndex);
+            IRow sourceRow = sourceSheet.GetRow(sourceRowIndex);
+
+            // If the row exist in destination, push down all rows by 1 else create a new row
+            if (newRow != null)
+            {
+                targetSheet.RemoveRow(newRow);
+            }
+            newRow = targetSheet.CreateRow(targetRowIndex);
+            if (sourceRow == null)
+                throw new ArgumentNullException("source row doesn't exist");
+            // Loop through source columns to add to new row
+            for (int i = sourceRow.FirstCellNum; i < sourceRow.LastCellNum; i++)
+            {
+                // Grab a copy of the old/new cell
+                ICell oldCell = sourceRow.GetCell(i);
+
+                // If the old cell is null jump to next cell
+                if (oldCell == null)
+                {
+                    continue;
+                }
+                ICell newCell = newRow.CreateCell(i);
+
+                if (oldCell.CellStyle != null)
+                {
+                    // apply style from old cell to new cell 
+                    //newCell.CellStyle = oldCell.CellStyle;
+
+                    CopyStyle(oldCell.CellStyle, newCell.CellStyle);
+                }
+
+                // If there is a cell comment, copy
+                if (oldCell.CellComment != null)
+                {
+                    newCell.CellComment = oldCell.CellComment;
+                }
+
+                // If there is a cell hyperlink, copy
+                if (oldCell.Hyperlink != null)
+                {
+                    newCell.Hyperlink = oldCell.Hyperlink;
+                }
+
+                // Set the cell data type
+                newCell.SetCellType(oldCell.CellType);
+
+                // Set the cell data value
+                switch (oldCell.CellType)
+                {
+                    case CellType.Blank:
+                        newCell.SetCellValue(oldCell.StringCellValue);
+                        break;
+                    case CellType.Boolean:
+                        newCell.SetCellValue(oldCell.BooleanCellValue);
+                        break;
+                    case CellType.Error:
+                        newCell.SetCellErrorValue(oldCell.ErrorCellValue);
+                        break;
+                    case CellType.Formula:
+                        newCell.SetCellFormula(oldCell.CellFormula);
+                        break;
+                    case CellType.Numeric:
+                        newCell.SetCellValue(oldCell.NumericCellValue);
+                        break;
+                    case CellType.String:
+                        newCell.SetCellValue(oldCell.RichStringCellValue);
+                        break;
+                }
+            }
+
+            // If there are are any merged regions in the source row, copy to new row
+            for (int i = 0; i < sourceSheet.NumMergedRegions; i++)
+            {
+                CellRangeAddress cellRangeAddress = sourceSheet.GetMergedRegion(i);
+
+                if (cellRangeAddress != null && cellRangeAddress.FirstRow == sourceRow.RowNum)
+                {
+                    CellRangeAddress newCellRangeAddress = new CellRangeAddress(newRow.RowNum,
+                            (newRow.RowNum +
+                                    (cellRangeAddress.LastRow - cellRangeAddress.FirstRow
+                                            )),
+                            cellRangeAddress.FirstColumn,
+                            cellRangeAddress.LastColumn);
+                    targetSheet.AddMergedRegion(newCellRangeAddress);
+                }
+            }
+            return newRow;
         }
     }
 
@@ -719,7 +848,6 @@ namespace WrapperNetPOI
                     ActiveSheet = (XSSFSheet)Workbook.GetSheet(ActiveSheetName);
                 }
             exchangeClass.ActiveSheet = ActiveSheet;
-            //Console.WriteLine(exchangeClass.ExchangeValueFunc);
             exchangeClass.ExchangeValueFunc();
         }
 
