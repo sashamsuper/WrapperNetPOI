@@ -3,23 +3,12 @@
 // </copyright>
 // <date>10.10.2021</date>
 
-using NPOI.HSSF.UserModel;
-using NPOI.POIFS.Crypt;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace WrapperNetPOI
 {
-    using Serilog;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.IO;
-    using System;
-    using System.Globalization;
-
-    
-
-
     /// <summary>
     /// Defines the <see cref="Program" />.
     /// </summary>
@@ -78,22 +67,22 @@ namespace WrapperNetPOI
 
             //SwapCellRange cells = new SwapCellRange(10, 10);
             Console.WriteLine(22);
-            
+
 
 
             //if (File.Exists(path))
             //{
             //    File.Delete(path);
-            }
+        }
 
 
-            //Console.Write("Сколько строк сначала строки пропустить? ");
-            //int.TryParse(Console.ReadLine(),out int propusk);
-            //DirectoryInfo directoryInfo = new DirectoryInfo(Environment.CurrentDirectory);
-            //var fileInfos=directoryInfo.GetFiles("*.xls*",SearchOption.TopDirectoryOnly);
-            //Wrapper mainWrapper=new Wrapper("",ExchangeType.Update)
+        //Console.Write("Сколько строк сначала строки пропустить? ");
+        //int.TryParse(Console.ReadLine(),out int propusk);
+        //DirectoryInfo directoryInfo = new DirectoryInfo(Environment.CurrentDirectory);
+        //var fileInfos=directoryInfo.GetFiles("*.xls*",SearchOption.TopDirectoryOnly);
+        //Wrapper mainWrapper=new Wrapper("",ExchangeType.Update)
 
-        
+
 
 
 

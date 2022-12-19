@@ -2,21 +2,17 @@
 using NPOI.POIFS.Crypt;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using NPOI.SS.Util;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Reflection;
-using NPOI.Util.ArrayExtensions;
 
 namespace WrapperNetPOI
 {
-    
+
     public enum ExchangeOperation
     {
         Get,
@@ -45,10 +41,10 @@ namespace WrapperNetPOI
     /// </summary>
     public abstract class ExchangeClass<Tout> : IExchange
     {
-        
+
 
         public virtual bool CloseStream { set; get; }
-        
+
         public IProgress<double> ProgressValue { set; get; }
 
         public ILogger Logger { set; get; }
@@ -157,10 +153,7 @@ namespace WrapperNetPOI
                 Logger.Error(e.StackTrace);
                 return default;
             }
-
         }
-
-
 
         /// <summary>
         /// The FindValue.
@@ -240,7 +233,6 @@ namespace WrapperNetPOI
     {
         public int CountRows { get; set; }
         public string PathSource { get; set; }
-        //public List<IRow> Rows { set; get; } = new();
         public override bool CloseStream => true;
 
         public RowsView(ExchangeOperation exchangeType, string activeSheetName, IList<IRow> exchangeValue) : base(exchangeType, activeSheetName)
@@ -256,171 +248,39 @@ namespace WrapperNetPOI
             }
 
         }
-        public void AddValue() 
-        { 
-
+        public override void AddValue()
+        {
+            UpdateValue(this.CountRows);
         }
-        
+
         public override void UpdateValue()
+        {
+            UpdateValue(0);
+        }
+
+
+        public void UpdateValue(int StartRow = 0)
         {
             RowsView rowsView = new(ExchangeOperation.Get, this.ActiveSheetName, new List<IRow>())
             {
-                CountRows = this.CountRows
+                CountRows = this.CountRows,
+                CloseStream = false
             };
-            rowsView.CloseStream = false;
-            Wrapper tmpWrapper = new(PathSource, rowsView);
+            Wrapper tmpWrapper = new(PathSource, rowsView, Logger);
             tmpWrapper.Exchange();
-            /*
-            if (this.ActiveSheet is XSSFSheet xsSheet)
-            {
-                CellCopyPolicy cellCopyPolicy = new();
-                cellCopyPolicy.IsCopyCellStyle = false;
-                var rr = rowsView.ExchangeValue.Select(x => (XSSFRow)x).Where(y=>y!=null).ToList();
-                //if (rowsView.ExchangeValue is List<XSSFRow> xSSFRows)
-                //{
-                    xsSheet.CopyRows(rr, FirstRow+1, cellCopyPolicy);
-                //}
-            }
-            
-            else
-            */
             {
                 rowsView.CloseStream = true;
-
                 for (int i = 0; i < CountRows; i++)
                 {
                     var row = rowsView.ActiveSheet.GetRow(i);
                     if (row != null)
                     {
-                        //ActiveSheet.Workbook.GetCellStyleAt()
-                        CopyRow2(rowsView.ActiveSheet, i, this.ActiveSheet, i);
+                        ChangedNPOI.ChangedCopyRow(rowsView.ActiveSheet, i, this.ActiveSheet, StartRow + i);
                     }
                 }
             }
-            
-        }
-
-        public static void CopyStyle(ICellStyle source, ICellStyle recipient)
-        {
-            var propertiesS = source.GetType().GetProperties();
-            foreach(var propertyS in propertiesS) 
-            { 
-                var sourceValue=propertyS.GetValue(source, null);
-                var sourceName= propertyS.Name;
-                var sourceValueType = propertyS.PropertyType;
-                var propertiesR = recipient.GetType().GetProperties();
-
-                foreach (var propertyR in propertiesR)
-                {
-                    if (propertyR.Name == propertyS.Name)
-                    {
-                        if (propertyR.SetMethod != null)
-                        {
-                            propertyR.SetValue(recipient, sourceValue);
-                        }
-                    }
-                }
-            }
-            
-        }
-
-
-        public static IRow CopyRow2(ISheet sourceSheet, int sourceRowIndex, ISheet targetSheet, int targetRowIndex)
-        {
-            // Get the source / new row
-            IRow newRow = targetSheet.GetRow(targetRowIndex);
-            IRow sourceRow = sourceSheet.GetRow(sourceRowIndex);
-
-            // If the row exist in destination, push down all rows by 1 else create a new row
-            if (newRow != null)
-            {
-                targetSheet.RemoveRow(newRow);
-            }
-            newRow = targetSheet.CreateRow(targetRowIndex);
-            if (sourceRow == null)
-                throw new ArgumentNullException("source row doesn't exist");
-            // Loop through source columns to add to new row
-            for (int i = sourceRow.FirstCellNum; i < sourceRow.LastCellNum; i++)
-            {
-                // Grab a copy of the old/new cell
-                ICell oldCell = sourceRow.GetCell(i);
-
-                // If the old cell is null jump to next cell
-                if (oldCell == null)
-                {
-                    continue;
-                }
-                ICell newCell = newRow.CreateCell(i);
-
-                if (oldCell.CellStyle != null)
-                {
-                    // apply style from old cell to new cell 
-                    //newCell.CellStyle = oldCell.CellStyle;
-
-                    CopyStyle(oldCell.CellStyle, newCell.CellStyle);
-                }
-
-                // If there is a cell comment, copy
-                if (oldCell.CellComment != null)
-                {
-                    newCell.CellComment = oldCell.CellComment;
-                }
-
-                // If there is a cell hyperlink, copy
-                if (oldCell.Hyperlink != null)
-                {
-                    newCell.Hyperlink = oldCell.Hyperlink;
-                }
-
-                // Set the cell data type
-                newCell.SetCellType(oldCell.CellType);
-
-                // Set the cell data value
-                switch (oldCell.CellType)
-                {
-                    case CellType.Blank:
-                        newCell.SetCellValue(oldCell.StringCellValue);
-                        break;
-                    case CellType.Boolean:
-                        newCell.SetCellValue(oldCell.BooleanCellValue);
-                        break;
-                    case CellType.Error:
-                        newCell.SetCellErrorValue(oldCell.ErrorCellValue);
-                        break;
-                    case CellType.Formula:
-                        newCell.SetCellFormula(oldCell.CellFormula);
-                        break;
-                    case CellType.Numeric:
-                        newCell.SetCellValue(oldCell.NumericCellValue);
-                        break;
-                    case CellType.String:
-                        newCell.SetCellValue(oldCell.RichStringCellValue);
-                        break;
-                }
-            }
-
-            // If there are are any merged regions in the source row, copy to new row
-            for (int i = 0; i < sourceSheet.NumMergedRegions; i++)
-            {
-                CellRangeAddress cellRangeAddress = sourceSheet.GetMergedRegion(i);
-
-                if (cellRangeAddress != null && cellRangeAddress.FirstRow == sourceRow.RowNum)
-                {
-                    CellRangeAddress newCellRangeAddress = new CellRangeAddress(newRow.RowNum,
-                            (newRow.RowNum +
-                                    (cellRangeAddress.LastRow - cellRangeAddress.FirstRow
-                                            )),
-                            cellRangeAddress.FirstColumn,
-                            cellRangeAddress.LastColumn);
-                    targetSheet.AddMergedRegion(newCellRangeAddress);
-                }
-            }
-            return newRow;
         }
     }
-
-
-
 
     /// <summary>
     /// Defines the <see cref="MatrixView" />.
@@ -443,7 +303,7 @@ namespace WrapperNetPOI
             ValueColumn = 0;
         }
 
-                
+
         /// <summary>
         /// The AddValue.
         /// </summary>
@@ -657,7 +517,7 @@ namespace WrapperNetPOI
     /// <summary>
     /// Defines the <see cref="Wrapper" />.
     /// </summary>
-    public class Wrapper:IDisposable
+    public class Wrapper : IDisposable
     {
         // To detect redundant calls
         private bool disposed = false;
@@ -696,15 +556,9 @@ namespace WrapperNetPOI
         /// Initializes a new instance of the <see cref="WrapperNpoi"/> class.
         /// </summary>
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        public Wrapper(string pathToFile, IExchange exchangeClass)
+        public Wrapper(string pathToFile, IExchange exchangeClass, ILogger logger)
         {
-
-            var pathLog = Wrapper.ReturnTechFileName("Log", "log");
-            Logger = new LoggerConfiguration()
-             .MinimumLevel.Verbose() // ставим минимальный уровень в Verbose для теста, по умолчанию стоит Information 
-                                     //.WriteTo.Console()  // выводим данные на консоль
-             .WriteTo.File(pathLog) // а также пишем лог файл, разбивая его по дате
-             .CreateLogger();
+            Logger = logger;
             PathToFile = pathToFile;
             if (exchangeClass != null)
             {
@@ -770,14 +624,12 @@ namespace WrapperNetPOI
         {
             if (closeStream == true)
             {
-                using (FileStream fs = new(PathToFile,
+                using FileStream fs = new(PathToFile,
                     fileMode,
                     fileAccess,
-                    FileShare.ReadWrite))
-                {
-                    Stream tmpStream = fs;
-                    OpenWorkbookStream(fs, addNewWorkbook);
-                }
+                    FileShare.ReadWrite);
+                Stream tmpStream = fs;
+                OpenWorkbookStream(fs, addNewWorkbook);
             }
             else
             {
@@ -842,11 +694,14 @@ namespace WrapperNetPOI
                 // поиск в первой если не найдено по наименованию страницы
             }
             if (ActiveSheet == null)
+            {
                 if (addNewWorkbook)
                 {
                     Workbook.CreateSheet(ActiveSheetName);
                     ActiveSheet = (XSSFSheet)Workbook.GetSheet(ActiveSheetName);
                 }
+            }
+
             exchangeClass.ActiveSheet = ActiveSheet;
             exchangeClass.ExchangeValueFunc();
         }
@@ -857,7 +712,7 @@ namespace WrapperNetPOI
         private void AddValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.AddValue;
-            ViewWorkbook(FileMode.CreateNew, FileAccess.ReadWrite, true,exchangeClass.CloseStream);
+            ViewWorkbook(FileMode.CreateNew, FileAccess.ReadWrite, true, exchangeClass.CloseStream);
             using FileStream fs = new(PathToFile,
                     FileMode.Create,
                     FileAccess.Write,
@@ -872,7 +727,7 @@ namespace WrapperNetPOI
         private void GetValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.GetValue;
-            ViewWorkbook(FileMode.Open, FileAccess.Read, false,exchangeClass.CloseStream);
+            ViewWorkbook(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
         }
 
         /// <summary>
@@ -881,7 +736,7 @@ namespace WrapperNetPOI
         private void UpdateValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.UpdateValue;
-            ViewWorkbook(FileMode.Open, FileAccess.Read, true,exchangeClass.CloseStream);
+            ViewWorkbook(FileMode.Open, FileAccess.Read, true, exchangeClass.CloseStream);
             using FileStream fs = new(PathToFile,
                     FileMode.Create,
                     FileAccess.Write,
@@ -899,8 +754,8 @@ namespace WrapperNetPOI
                     // Освобождаем управляемые ресурсы
                     Logger = null;
                     ActiveSheet = null;
-                    Workbook=null;
-                    Password=null;
+                    Workbook = null;
+                    Password = null;
                 }
                 fileStream?.Close();
             }
@@ -925,7 +780,7 @@ namespace WrapperNetPOI
             Dispose(false);
         }
     }
-    
+
 
     /// <summary>
     /// Defines the <see cref="ExchangeExcel" />.
@@ -947,7 +802,7 @@ namespace WrapperNetPOI
                 {
                     ExchangeValue = values
                 };
-                Wrapper wrapper = new(pathToFile, listView)
+                Wrapper wrapper = new(pathToFile, listView, null)
                 {
                     //ActiveSheetName = sheetName,
                     //exchangeClass = listView
@@ -1006,7 +861,7 @@ namespace WrapperNetPOI
             {
                 ExchangeValue = values
             };
-            Wrapper wrapper = new(pathToFile, listView)
+            Wrapper wrapper = new(pathToFile, listView, null)
             {
                 //ActiveSheetName = sheetName,
                 //exchangeClass = listView
@@ -1026,7 +881,7 @@ namespace WrapperNetPOI
             {
                 ExchangeValue = values
             };
-            Wrapper wrapper = new(pathToFile, listView)
+            Wrapper wrapper = new(pathToFile, listView, null)
             {
                 //ActiveSheetName = sheetName,
                 //exchangeClass = listView
@@ -1053,7 +908,7 @@ namespace WrapperNetPOI
                     FirstCol = firstCol,
                     FirstRow = firstRow
                 };
-                Wrapper wrapper = new(pathToFile, exchangeClass) { };
+                Wrapper wrapper = new(pathToFile, exchangeClass, null) { };
                 wrapper.Exchange();
                 return (ReturnType)exchangeClass.ExchangeValue;
             }
@@ -1064,7 +919,7 @@ namespace WrapperNetPOI
                     FirstCol = firstCol,
                     FirstRow = firstRow
                 };
-                Wrapper wrapper = new(pathToFile, exchangeClass) { };
+                Wrapper wrapper = new(pathToFile, exchangeClass, null) { };
                 wrapper.Exchange();
                 return (ReturnType)exchangeClass.ExchangeValue;
             }
@@ -1075,7 +930,7 @@ namespace WrapperNetPOI
                     FirstCol = firstCol,
                     FirstRow = firstRow
                 };
-                Wrapper wrapper = new(pathToFile, exchangeClass) { };
+                Wrapper wrapper = new(pathToFile, exchangeClass, null) { };
                 wrapper.Exchange();
                 return (ReturnType)exchangeClass.ExchangeValue;
             }
