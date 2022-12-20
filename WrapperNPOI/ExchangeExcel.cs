@@ -160,7 +160,7 @@ namespace WrapperNetPOI
         /// </summary>
         public virtual void GetValue()
         {
-            Console.WriteLine("ExchangeGet");
+            throw new NotImplementedException("GetValue()");
         }
 
         public static ICell GetFirstCellInMergedRegion(ICell cell)
@@ -189,6 +189,7 @@ namespace WrapperNetPOI
         /// </summary>
         public virtual void AddValue()
         {
+            throw new NotImplementedException("AddValue()");
         }
 
         /// <summary>
@@ -196,6 +197,7 @@ namespace WrapperNetPOI
         /// </summary>
         public virtual void UpdateValue()
         {
+            throw new NotImplementedException("UpdateValue()");
         }
 
         /// <summary>
@@ -287,10 +289,6 @@ namespace WrapperNetPOI
     /// </summary>
     public class MatrixView : ExchangeClass<IList<string[]>>
     {
-        /// <summary>
-        /// Defines the ExchangeValue1.
-        /// </summary>
-        //public List<string[]> ExchangeValue1 = new List<string[]>();
 
         // занесение спика массива=строкам
         /// <summary>
@@ -299,7 +297,6 @@ namespace WrapperNetPOI
         public MatrixView(ExchangeOperation exchangeType, string activeSheetName, IList<string[]> exchangeValue) : base(exchangeType, activeSheetName)
         {
             ExchangeValue = exchangeValue;
-
             ValueColumn = 0;
         }
 
@@ -339,8 +336,6 @@ namespace WrapperNetPOI
                 ProgressValue?.Report(d);
             }
         }
-
-
 
         /// <summary>
         /// The GetValue.
@@ -830,8 +825,6 @@ namespace WrapperNetPOI
             {
                 Debug.WriteLine(e.Message);
             }
-
-            //AddValueToExcel.Start();
         }
 
         public static async Task TaskAddToExcelAsync(string pathToFile, string sheetName, List<string[]> values)
@@ -840,14 +833,7 @@ namespace WrapperNetPOI
             {
                 AddToExcel(pathToFile, sheetName, values);
             });
-            //AddValueToExcel.Start();
         }
-
-
-
-
-
-
 
         /// <summary>
         /// The AddToExcel
@@ -898,8 +884,6 @@ namespace WrapperNetPOI
         /// <returns>The <see cref="ReturnType"/>.</returns>
         public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName, int firstRow = 0, int firstCol = 0) where ReturnType : new()
         {
-
-            //IExchange exchangeClass;
             ReturnType returnValue = new();
             if (returnValue is List<string> rL)
             {
@@ -938,16 +922,6 @@ namespace WrapperNetPOI
             {
                 throw new TypeUnloadedException("Для указанного типа нет обработчика");
             }
-
-
-            //Console.WriteLine(exchangeClass.ExchangeValue.Count);
-            //Console.WriteLine(exchangeClass.ExchangeValue.Count);
-            //string json = JsonSerializer.Serialize(wrapper);
-            //Console.WriteLine(exchangeClass);
-
-            //RoslynSoftDebugger.HitBreakpoint(); 
-            //RoslynSoftDebugger.Debug(()=> n);
-            //RoslynSoftDebugger.Debug();
         }
     }
 
