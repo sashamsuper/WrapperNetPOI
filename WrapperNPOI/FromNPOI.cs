@@ -146,7 +146,7 @@ namespace WrapperNetPOI
 
                 if (cellRangeAddress != null && cellRangeAddress.FirstRow == sourceRow.RowNum)
                 {
-                    CellRangeAddress newCellRangeAddress = new CellRangeAddress(newRow.RowNum,
+                    CellRangeAddress newCellRangeAddress = new(newRow.RowNum,
                             (newRow.RowNum +
                                     (cellRangeAddress.LastRow - cellRangeAddress.FirstRow
                                             )),
