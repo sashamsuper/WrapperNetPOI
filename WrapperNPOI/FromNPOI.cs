@@ -89,7 +89,8 @@ namespace WrapperNetPOI
             newRow = targetSheet.CreateRow(targetRowIndex);
             if (sourceRow == null)
             {
-                throw new ArgumentNullException("source row doesn't exist");
+                ArgumentNullException argumentNullException = new(nameof(ChangedCopyRow)," ChangedCopyRow source row doesn't exist");
+                throw argumentNullException;
             }
             // Loop through source columns to add to new row
             for (int i = sourceRow.FirstCellNum; i < sourceRow.LastCellNum; i++)
