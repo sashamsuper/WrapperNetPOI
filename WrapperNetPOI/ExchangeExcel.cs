@@ -767,7 +767,7 @@ namespace WrapperNetPOI
                 if (getValue == false && SheetsCount != 0)
                 {
                     ActiveSheet = Workbook.GetSheetAt(0);
-                    // поиск в первой если не найдено по наименованию страницы
+                    // search first if not found
                 }
             }
             exchangeClass.ActiveSheet = ActiveSheet;
