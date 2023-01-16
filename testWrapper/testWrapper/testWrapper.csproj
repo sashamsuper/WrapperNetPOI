@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\WrapperNetPOI\WrapperNPOI\WrapperNetPOI.csproj" />
+    <ProjectReference Include="..\..\WrapperNetPOI\WrapperNetPOI.csproj" />
   </ItemGroup>
 
 </Project>
