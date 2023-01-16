@@ -31,9 +31,9 @@ namespace WrapperNetPOI
         {
             var pathLog = ReturnTechFileName("Log", "Log");
             var logger = new LoggerConfiguration()
-                 .MinimumLevel.Verbose() // ставим минимальный уровень в Verbose для теста, по умолчанию стоит Information 
-                                         //.WriteTo.Console()  // выводим данные на консоль
-                 .WriteTo.File(pathLog) // а также пишем лог файл, разбивая его по дате
+                 .MinimumLevel.Verbose() // 
+                                         //
+                 .WriteTo.File(pathLog) // 
                  .CreateLogger();
             return logger;
         }
