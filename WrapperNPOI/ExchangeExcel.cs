@@ -1,5 +1,4 @@
-﻿using NPOI.HSSF.UserModel;
-using NPOI.POIFS.Crypt;
+﻿using NPOI.POIFS.Crypt;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using Serilog;
@@ -9,11 +8,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.CSharp;
-using System.Text.Json;
-using NPOI.OpenXmlFormats.Dml;
-using NPOI.SS.Formula.Functions;
-using MathNet.Numerics.Optimization;
 
 namespace WrapperNetPOI
 {
@@ -62,7 +56,7 @@ namespace WrapperNetPOI
             return list.Select(x => String.Join("", x)).ToList();
         }
 
-        public static IDictionary<string,string[]> ConvertToDictionary(IList<string[]> list)
+        public static IDictionary<string, string[]> ConvertToDictionary(IList<string[]> list)
         {
             Dictionary<string, string[]> dict = new();
             var groupValue = list.Where(x => x[0] != null).GroupBy(y => y[0], (value) => value[1]);
@@ -76,13 +70,13 @@ namespace WrapperNetPOI
 
     public interface IExchange
     {
-        IProgress<double> ProgressValue { set; get; }
+        IProgress<int> ProgressValue { set; get; }
         ILogger Logger { set; get; }
         string ActiveSheetName { set; get; }
         ExchangeOperation ExchangeOperationEnum { set; get; }
         int FirstViewedRow { set; get; }
         int LastViewedRow { set; get; }
-        int FirstViewedColumn { set; get; }  
+        int FirstViewedColumn { set; get; }
         int LastViewedColumn { set; get; }
         ISheet ActiveSheet { set; get; }
         Action ExchangeValueFunc { set; get; }
@@ -93,32 +87,17 @@ namespace WrapperNetPOI
         void DeleteValue();
     }
 
-    /// <summary>
-    /// Defines the <see cref="ExchangeClass" />.
-    /// </summary>
     public abstract class ExchangeClass<Tout> : IExchange
     {
         public virtual bool CloseStream { set; get; } = true;
 
-        public IProgress<double> ProgressValue { set; get; }
+        public IProgress<int> ProgressValue { set; get; }
 
-        public ILogger Logger { set; get; }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ExchangeClass"/> class.
-        /// </summary>
-        public ExchangeClass(ExchangeOperation exchange, string activeSheetName, IProgress<double> progress)
-        {
-            ExchangeOperationEnum = exchange;
-            ActiveSheetName = activeSheetName;
-            ProgressValue = progress;
-        }
-
-        public string ActiveSheetName { set; get; }
-        public static double ReturnProgress(int i, int total, int firstValue = 0)
+        public static int ReturnProgress(int number, int total)
         {
             if (total != 0)
             {
-                return (i - firstValue + 1) / ((double)(total)) * 100.0;
+                return ((number * 100) / (total));
             }
             else
             {
@@ -126,16 +105,19 @@ namespace WrapperNetPOI
             }
         }
 
-        public ExchangeOperation ExchangeOperationEnum { set; get; }
-        /// <summary>
-        /// ActiveSheet
-        /// </summary>
-        public ISheet ActiveSheet { set; get; }
+        public ILogger Logger { set; get; }
+        public ExchangeClass(ExchangeOperation exchange, string activeSheetName, IProgress<int> progress)
+        {
+            ExchangeOperationEnum = exchange;
+            ActiveSheetName = activeSheetName;
+            ProgressValue = progress;
+        }
 
-        // <summary>
-        /// The initial line with which data is entered / viewed
-        /// </summary>
-        public int FirstViewedRow 
+        public string ActiveSheetName { set; get; }
+
+        public ExchangeOperation ExchangeOperationEnum { set; get; }
+        public ISheet ActiveSheet { set; get; }
+        public int FirstViewedRow
         {
             set
             {
@@ -145,20 +127,16 @@ namespace WrapperNetPOI
             {
                 if (firstViewedRow == null)
                 {
-                    
-                    return (ActiveSheet!=null)?ActiveSheet.FirstRowNum:0;
+
+                    return (ActiveSheet != null) ? ActiveSheet.FirstRowNum : 0;
                 }
-                else 
+                else
                 {
-                    return firstViewedRow??0;
+                    return firstViewedRow ?? 0;
                 }
             }
         }
         private int? firstViewedRow;
-
-        /// <summary>
-        /// The initial column from which data is entered/viewed
-        /// </summary>
         public int FirstViewedColumn
         {
             set
@@ -170,8 +148,7 @@ namespace WrapperNetPOI
                 return firstViewedColumn ?? 0;
             }
         }
-        private int ? firstViewedColumn;
-        
+        private int? firstViewedColumn;
         public int LastViewedRow
         {
             set
@@ -182,7 +159,7 @@ namespace WrapperNetPOI
             {
                 if (lastViewedRow == null || lastViewedRow == 0)
                 {
-                    return (ActiveSheet != null) ? ActiveSheet.LastRowNum:0;
+                    return (ActiveSheet != null) ? ActiveSheet.LastRowNum : 0;
                 }
                 else
                 {
@@ -191,8 +168,6 @@ namespace WrapperNetPOI
             }
         }
         private int? lastViewedRow;
-
-        
         public int LastViewedColumn
         {
             set
@@ -205,17 +180,7 @@ namespace WrapperNetPOI
             }
         }
         private int? lastViewedColumn;
-
-        /// <summary>
-        /// $Column in which data is entered/viewed$
-        /// </summary>
-        //public int ValueColumn { set; get; } = 1;
-
-        /// <summary>
-        /// Gets or sets the ExchangeValue.
-        /// </summary>
         public Tout ExchangeValue { set; get; }
-
         public Action ExchangeValueFunc { set; get; }
 
         /// <summary>
@@ -275,15 +240,14 @@ namespace WrapperNetPOI
             }
             catch (Exception e)
             {
+#if DEBUG
                 Logger?.Error(e.Message);
                 Logger?.Error(e.StackTrace);
+#endif
                 return default;
             }
         }
 
-        /// <summary>
-        /// The FindValue.
-        /// </summary>
         public virtual void ReadValue()
         {
             throw new NotImplementedException("ReadValue()");
@@ -309,18 +273,11 @@ namespace WrapperNetPOI
             return cell;
         }
 
-
-        /// <summary>
-        /// The AddValue.
-        /// </summary>
         public virtual void InsertValue()
         {
             throw new NotImplementedException("InsertValue()");
         }
 
-        /// <summary>
-        /// The UpdateValue.
-        /// </summary>
         public virtual void UpdateValue()
         {
             throw new NotImplementedException("UpdateValue()");
@@ -330,6 +287,7 @@ namespace WrapperNetPOI
         {
             if (ActiveSheet != null)
             {
+                int countRows = LastViewedRow - FirstViewedRow + 1;
                 for (int i = FirstViewedRow; i <= LastViewedRow; i++)
                 {
                     var row = ActiveSheet.GetRow(i);
@@ -347,36 +305,23 @@ namespace WrapperNetPOI
                             {
                                 row.RemoveCell(cell);
                             }
-                            ProgressValue?.Report((i - FirstViewedRow) / (LastViewedRow - FirstViewedRow) * 100.0);
+                            ProgressValue?.Report(ReturnProgress(i, countRows));
                         }
                     }
                 }
             }
         }
 
-        /// <summary>
-        /// The SetCellValue.
-        /// </summary>
-        /// <param name="worksheet">The worksheet<see cref="ISheet"/>.</param>
-        /// <param name="rowPosition">The rowPosition<see cref="int"/>.</param>
-        /// <param name="columnPosition">The columnPosition<see cref="int"/>.</param>
-        /// <param name="value">The value<see cref="string"/>.</param>
-        public static void SetCellValue(ISheet worksheet, int rowPosition, int columnPosition, string value)
+        public static void SetCellValue(ISheet worksheet, int rowPosition, 
+            int columnPosition, string value)
         {
             IRow dataRow = worksheet.GetRow(rowPosition) ?? worksheet.CreateRow(rowPosition);
             ICell cell = dataRow.GetCell(columnPosition) ?? dataRow.CreateCell(columnPosition);
             cell.SetCellValue(value);
         }
 
-        /// <summary>
-        /// The SetCellValue.
-        /// </summary>
-        /// <param name="worksheet">The worksheet<see cref="ISheet"/>.</param>
-        /// <param name="rowPosition">The rowPosition<see cref="int"/>.</param>
-        /// <param name="columnPosition">The columnPosition<see cref="int"/>.</param>
-        /// <param name="value">The value<see cref="string"/>.</param>
-        /// <param name="type">The type<see cref="CellType"/>.</param>
-        public static void SetCellValue(ISheet worksheet, int rowPosition, int columnPosition, string value, CellType type)
+        public static void SetCellValue(ISheet worksheet, int rowPosition, 
+            int columnPosition, string value, CellType type)
         {
             IRow dataRow = worksheet.GetRow(rowPosition) ?? worksheet.CreateRow(rowPosition);
             ICell cell = dataRow.GetCell(columnPosition) ?? dataRow.CreateCell(columnPosition, type);
@@ -384,30 +329,28 @@ namespace WrapperNetPOI
         }
     }
 
-
     public class RowsView : ExchangeClass<IList<IRow>>
     {
-        public int CountRows { get; set; }
         public string PathSource { get; set; }
         public override bool CloseStream => true;
 
         public RowsView(ExchangeOperation exchangeType, string activeSheetName, IList<IRow> exchangeValue,
-            IProgress<double> progress) : base(exchangeType, activeSheetName, progress)
+            IProgress<int> progress = null) : base(exchangeType, activeSheetName, progress)
         {
             ExchangeValue = exchangeValue;
-            //ValueColumn = 0;
         }
+
         public override void ReadValue()
         {
-            for (int i = FirstViewedRow; i < CountRows; i++)
+            for (int i = FirstViewedRow; i <= LastViewedRow; i++)
             {
                 ExchangeValue.Add(ActiveSheet.GetRow(i));
             }
-
         }
+
         public override void InsertValue()
         {
-            UpdateValue(this.CountRows);
+            UpdateValue(ActiveSheet.LastRowNum);
         }
 
         public override void UpdateValue()
@@ -420,14 +363,13 @@ namespace WrapperNetPOI
         {
             RowsView rowsView = new(ExchangeOperation.Read, this.ActiveSheetName, new List<IRow>(), null)
             {
-                CountRows = this.CountRows,
                 CloseStream = false
             };
             Wrapper tmpWrapper = new(PathSource, rowsView, Logger);
             tmpWrapper.Exchange();
             {
                 rowsView.CloseStream = true;
-                for (int i = 0; i < CountRows; i++)
+                for (int i = rowsView.FirstViewedRow; i <= rowsView.LastViewedRow; i++)
                 {
                     var row = rowsView.ActiveSheet.GetRow(i);
                     if (row != null)
@@ -439,27 +381,16 @@ namespace WrapperNetPOI
         }
     }
 
-    /// <summary>
-    /// Defines the <see cref="MatrixView" />.
-    /// </summary>
     public class MatrixView : ExchangeClass<IList<string[]>>
     {
-        // занесение спика массива=строкам
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MatrixView"/> class.
-        /// </summary>
+
         public MatrixView(ExchangeOperation exchangeType, string activeSheetName,
-            IList<string[]> exchangeValue, IProgress<double> progress) :
+            IList<string[]> exchangeValue, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, progress)
         {
             ExchangeValue = exchangeValue;
-            //ValueColumn = 0;
         }
 
-        /// <summary>
-        /// The AddValue.
-        /// </summary>
-        /// <param name="startRow">The startRow<see cref="int"/>.</param>
         private void AddValue()
         {
             if (ExchangeValue != null)
@@ -467,10 +398,10 @@ namespace WrapperNetPOI
                 int rowsCount = ActiveSheet.RowsCount();
                 for (int i = 0; i < ExchangeValue.Count; i++)
                 {
-                    IRow row = ActiveSheet.CreateRow(i + FirstViewedRow+rowsCount);
+                    IRow row = ActiveSheet.CreateRow(i + FirstViewedRow + rowsCount);
                     for (int j = 0; j < ExchangeValue[i].Length; j++)
                     {
-                        ICell cell = row.GetCell(j) ?? row.CreateCell(j+FirstViewedColumn);
+                        ICell cell = row.GetCell(j) ?? row.CreateCell(j + FirstViewedColumn);
                         cell.SetCellValue(ExchangeValue[i][j]);
                     }
                     ProgressValue?.Report(ReturnProgress(i, ExchangeValue.Count));
@@ -483,13 +414,11 @@ namespace WrapperNetPOI
             AddValue();
         }
 
-        /// <summary>
-        /// The AddValue.
-        /// </summary>
         public override void UpdateValue()
         {
             int fRow = FirstViewedRow;
             int lRow = LastViewedRow;
+            int total = lRow - fRow;
             for (int i = lRow; i >= fRow; i--)
             {
                 var row = ActiveSheet.GetRow(i);
@@ -497,36 +426,33 @@ namespace WrapperNetPOI
                 {
                     ActiveSheet.RemoveRow(row);
                 }
+                ProgressValue?.Report(ReturnProgress(i - fRow, total));
             }
             AddValue();
         }
 
-
-        public string[] GetStringFromRow(int i,int firstViewedColumn, int lastViewedColumn)
+        private string[] GetStringFromRow(int i, int firstViewedColumn, int lastViewedColumn)
         {
-                var row = ActiveSheet.GetRow(i);
+            var row = ActiveSheet.GetRow(i);
             List<string> tmp = new();
             if (row != null)
+            {
+                var lastCol = row.LastCellNum;
+                if (lastCol < lastViewedColumn)
                 {
-            
-                    var lastCol = row.LastCellNum;
-                    if (lastCol < lastViewedColumn)
+                    lastCol = (short)lastViewedColumn;
+                }
+                for (int valueColumn = firstViewedColumn; valueColumn <= lastCol; valueColumn++)
+                {
+                    ICell cell;
+                    cell = row.GetCell(valueColumn);
+                    if (valueColumn <= row.LastCellNum - 1)// -1 это особенность NPOI
                     {
-                        lastCol = (short)lastViewedColumn;
-                    }
-                    for (int valueColumn = firstViewedColumn; valueColumn <= lastCol; valueColumn++)
-                    {
-                        ICell cell; 
-                        cell =row.GetCell(valueColumn);
-                        if (valueColumn <= row.LastCellNum - 1)// -1 это особенность NPOI
-                        {
-                            tmp.Add(GetCellValue(cell));
-                        }
+                        tmp.Add(GetCellValue(cell));
                     }
                 }
-                //ProgressValue?.Report(ReturnProgress(i, lastViewedRow - firstViewedRow + 1));
-                //exchangeValue.Add(tmpListString.ToArray());
-                return tmp.ToArray();
+            }
+            return tmp.ToArray();
         }
 
 
@@ -545,10 +471,7 @@ namespace WrapperNetPOI
             }
         }
 
-
-
-
-        public void ReadValueHoleSheet() //Fast
+        private void ReadValueHoleSheet() //Fast
         {
             ExchangeValue = new List<string[]>();
             int firstViewedRow = FirstViewedRow;
@@ -559,14 +482,10 @@ namespace WrapperNetPOI
 
             if (ActiveSheet != null)
             {
-                Stopwatch stopwatch = new();
-                Debug.WriteLine("stopwatch");
-                stopwatch.Start();
                 int i = 0;
                 foreach (IRow value in ActiveSheet)
                 {
-
-                    IRow row=value;
+                    IRow row = value;
                     if (row.RowNum > i)
                     {
                         while (true)
@@ -587,35 +506,26 @@ namespace WrapperNetPOI
                     }
                 }
                 ExchangeValue = tmpListString;
-                stopwatch.Stop();
-                Debug.WriteLine($"StopWatch millisecondes-{stopwatch.ElapsedMilliseconds}");
-
             }
         }
 
-    /// <summary>
-    /// The GetValue.
-    /// </summary>
-    public void ReadValueWithBorders() //Slow
+        private void ReadValueWithBorders() //Slow
         {
             ExchangeValue = new List<string[]>();
             int lastViewedRow = LastViewedRow;
             int lastViewedColumn = LastViewedColumn;
             int firstViewedColumn = FirstViewedColumn;
             int firstViewedRow = FirstViewedRow;
-            List<string[]> tmp=new();
+            List<string[]> tmp = new();
             if (ActiveSheet != null)
             {
-                Stopwatch stopwatch = new();
-                Debug.WriteLine("stopwatch");
-                stopwatch.Start();
+                int countValue = lastViewedRow - firstViewedRow + 1;
                 for (int i = firstViewedRow; i <= lastViewedRow; i++)
                 {
                     tmp.Add(GetStringFromRow(i, firstViewedColumn, lastViewedColumn));
+                    ProgressValue?.Report(ReturnProgress(i, countValue));
                 }
-                ExchangeValue=tmp;
-                stopwatch.Stop();
-                Debug.WriteLine($"StopWatch millisecondes-{stopwatch.ElapsedMilliseconds}");
+                ExchangeValue = tmp;
             }
         }
     }
@@ -624,7 +534,7 @@ namespace WrapperNetPOI
     {
         private readonly MatrixView matrix;
         public ListView(ExchangeOperation exchangeType, string activeSheetName,
-            IList<string> exchangeValue, IProgress<double> progress) :
+            IList<string> exchangeValue, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, progress)
         {
             matrix = new MatrixView(exchangeType, activeSheetName,
@@ -668,84 +578,11 @@ namespace WrapperNetPOI
         }
     }
 
-
-    /*
-    /// <summary>
-    /// Defines the <see cref="ListView" />.
-    /// </summary>
-    public class LListView : ExchangeClass<IList<string>>
-    {
-        // обновление по листу
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ListView"/> class.
-        /// </summary>
-        public LListView(ExchangeOperation exchangeType, string activeSheetName,
-            IList<string> exchangeValue, IProgress<double> progress) :
-            base(exchangeType, activeSheetName, progress)
-        {
-            ExchangeValue = exchangeValue;
-            ValueColumn = 0;
-        }
-
-
-        public override void InsertValue()
-        {
-            UpdateValue(ActiveSheet.LastRowNum);
-        }
-
-        /// <summary>
-        /// The GetValue.
-        /// </summary>
-        public override void ReadValue()
-        {
-            if (ActiveSheet != null)
-            {
-                //Console.WriteLine(ActiveSheet.SheetName);
-                int lastRow = ActiveSheet.LastRowNum;
-                for (int i = FirstViewedRow; i <= lastRow; i++)
-                {
-                    string value1 = "";
-                    var row = ActiveSheet.GetRow(i);
-                    if (ValueColumn < row.LastCellNum)// -1 это особенность NPOI
-                    {
-                        value1 = GetCellValue(row.GetCell(ValueColumn));
-                    }
-                    ProgressValue?.Report((i - FirstViewedRow) / (lastRow - FirstViewedRow) * 100.0);
-                    ExchangeValue.Add(value1);
-                    double d = (i) / ((double)(ExchangeValue.Count - 1)) * 100.0;
-                    ProgressValue?.Report(d);
-                }
-            }
-        }
-
-        public override void UpdateValue()
-        {
-            UpdateValue(FirstViewedRow);
-        }
-
-
-        /// <summary>
-        /// The UpdateValue.
-        /// </summary>
-        private void UpdateValue(int firstRow)
-        {
-            int lastRow = Math.Max(ActiveSheet.LastRowNum, ExchangeValue.Count + firstRow);
-
-            for (int i = firstRow; i < lastRow; i++)
-            {
-                string element = ((List<string>)ExchangeValue).ElementAtOrDefault(i);
-                SetCellValue(ActiveSheet, i, ValueColumn, element);
-                ProgressValue?.Report(((i - firstRow) / (lastRow - firstRow)) * 100.0);
-            }
-        }
-    }
-    */
-
     public class DictionaryView : ExchangeClass<IDictionary<string, string[]>>
     {
         private readonly MatrixView matrix;
         public DictionaryView(ExchangeOperation exchangeType, string activeSheetName,
-            IDictionary<string, string[]> exchangeValue, IProgress<double> progress) :
+            IDictionary<string, string[]> exchangeValue, IProgress<int> progress=null) :
             base(exchangeType, activeSheetName, progress)
         {
             matrix = new MatrixView(exchangeType, activeSheetName,
@@ -772,116 +609,12 @@ namespace WrapperNetPOI
 
     }
 
-    /*
-        /// <summary>
-        /// Defines the <see cref="DictionaryView" />.
-        /// </summary>
-        public class DictionaryViewOLD : ExchangeClass<IDictionary<string, string[]>>
-    {
-        // обновление по словарю
-         // первый столбец ключ
-         // второй массив значений соответсвующих этому ключу
-         //
-        /// <summary>
-        /// Gets or sets the KeyColumn.
-        /// </summary>
-        public int KeyColumn { set; get; } = 0;// столбец в котором находится ключ
-
-        //public Dictionary<string,string[]> ExchangeValue = new Dictionary<string, string[]>();
-        /// <summary>
-        /// Defines the tmpExchangeValue.
-        /// </summary>
-        private readonly Dictionary<string, List<string>> tmpExchangeValue = new();
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DictionaryView"/> class.
-        /// </summary>
-        public DictionaryViewOLD(ExchangeOperation exchangeType, string activeSheetName,
-            IDictionary<string, string[]> exchangeValue, IProgress<double> progress) :
-            base(exchangeType, activeSheetName, progress)
-        {
-            ExchangeValue = exchangeValue;
-        }
-
-
-        public override void InsertValue()
-        {
-            var dd = ExchangeValue.SelectMany(x =>x.Value.ToList(),(key,value)=>new string[] { key.Key, value }).ToList();
-            Console.WriteLine(dd);
-        }
-
-
-        /// <summary>
-        /// The GetValue.
-        /// </summary>
-        public override void ReadValue()
-        {
-            if (ActiveSheet != null)
-            {
-                int lastRow = ActiveSheet.LastRowNum;
-                for (int i = FirstViewedRow; i <= lastRow; i++)
-                {
-                    string keyValue = GetCellValue(ActiveSheet.GetRow(i).GetCell(KeyColumn));
-                    string valValue = GetCellValue(ActiveSheet.GetRow(i).GetCell(ValueColumn));
-                    if (tmpExchangeValue.ContainsKey(keyValue))
-                    {
-                        tmpExchangeValue[keyValue].Add(valValue);
-                    }
-                    else
-                    {
-                        List<string> tmpList = new()
-                        {
-                            valValue
-                        };
-                        tmpExchangeValue[keyValue] = tmpList;
-                    }
-                    ProgressValue?.Report(((i - FirstViewedRow) / (lastRow - FirstViewedRow)) * 100.0);
-                }
-                foreach (var list in tmpExchangeValue)
-                {
-                    ExchangeValue.Add(list.Key, list.Value.ToArray());
-                }
-            }
-        }
-
-        /// <summary>
-        /// The UpdateValue.
-        /// </summary>
-        public override void UpdateValue()
-        {
-            List<string[]> tmpExchangeValue = new();
-            foreach (var keyValue in ExchangeValue)
-            {
-                foreach (var value in keyValue.Value)
-                {
-                    string[] tmpValue = new string[2];
-                    tmpValue[0] = keyValue.Key;
-                    tmpValue[1] = value;
-                    tmpExchangeValue.Add(tmpValue);
-                }
-            }
-            int lastRow = Math.Max(ActiveSheet.LastRowNum, tmpExchangeValue.Count + FirstViewedRow);
-            for (int i = FirstViewedRow; i <= lastRow; i++)
-            {
-                var element = tmpExchangeValue.ElementAtOrDefault(i - FirstViewedRow);
-                SetCellValue(ActiveSheet, i, KeyColumn, element?.ElementAtOrDefault(0));
-                SetCellValue(ActiveSheet, i, ValueColumn, element?.ElementAtOrDefault(1));
-                ProgressValue?.Report(((i - FirstViewedRow) / (lastRow - FirstViewedRow)) * 100.0);
-            }
-        }
-    }
-    */
-
-    /// <summary>
-    /// Defines the <see cref="Wrapper" />.
-    /// </summary>
-    public class Wrapper : IDisposable
+    public class Wrapper : IDisposable //Main class
     {
         // To detect redundant calls
         private bool disposed = false;
         internal static ILogger Logger { set; get; }
-        // главный класс для обновления
-        /// <summary>
+        
         /// Gets or sets the PathToFile.
         /// </summary>
         public readonly string PathToFile;
@@ -892,15 +625,7 @@ namespace WrapperNetPOI
         /// Gets or sets the ActiveSheet.
         /// </summary>
         public ISheet ActiveSheet { set; get; } = null;
-        public int RowCountActivSheet
-        {
-            get
-            {
-                return ActiveSheet.LastRowNum -
-                ActiveSheet.FirstRowNum;
-            }
 
-        }
 
         /// <summary>
         /// Gets or sets the ActiveSheetName.
@@ -923,7 +648,7 @@ namespace WrapperNetPOI
         /// Initializes a new instance of the <see cref="WrapperNpoi"/> class.
         /// </summary>
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        public Wrapper(string pathToFile, IExchange exchangeClass, ILogger logger)
+        public Wrapper(string pathToFile, IExchange exchangeClass, ILogger logger=null)
         {
             Logger = logger;
             PathToFile = pathToFile;
@@ -980,14 +705,7 @@ namespace WrapperNetPOI
             }
         }
 
-        /// <summary>
-        /// The ViewWorkbook.
-        /// </summary>
-        /// <param name="fileMode">The fileMode<see cref="FileMode"/>.</param>
-        /// <param name="fileAccess">The fileAccess<see cref="FileAccess"/>.</param>
-        /// <param name="exchangeValueFunc">The exchangeValueFunc<see cref="Action"/>.</param>
-        /// <param name="addNewWorkbook">The addNewWorkbook<see cref="bool"/>.</param>
-        private void ViewWorkbook(FileMode fileMode, FileAccess fileAccess, bool addNewWorkbook, bool closeStream = true, FileShare fileShare=FileShare.ReadWrite)
+        private void ViewWorkbook(FileMode fileMode, FileAccess fileAccess, bool addNewWorkbook, bool closeStream = true, FileShare fileShare = FileShare.ReadWrite)
         {
             if (closeStream == true)
             {
@@ -1012,7 +730,7 @@ namespace WrapperNetPOI
         {
             FileStream fs = default;
             if (Password == null)
-            {}
+            { }
             else
             {
                 NPOI.POIFS.FileSystem.POIFSFileSystem nfs =
@@ -1056,9 +774,6 @@ namespace WrapperNetPOI
             exchangeClass.ExchangeValueFunc();
         }
 
-        /// <summary>
-        /// The AddValue.
-        /// </summary>
         private void InsertValue()
         {
             if (File.Exists(PathToFile))
@@ -1083,18 +798,12 @@ namespace WrapperNetPOI
             fs.Close();
         }
 
-        /// <summary>
-        /// The FindValue.
-        /// </summary>
         private void ReadValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.ReadValue;
-            ViewWorkbook(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream,FileShare.Read);
+            ViewWorkbook(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream, FileShare.Read);
         }
 
-        /// <summary>
-        /// The UpdateValue.
-        /// </summary>
         private void UpdateValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.UpdateValue;
@@ -1107,9 +816,6 @@ namespace WrapperNetPOI
             fs.Close();
         }
 
-        /// <summary>
-        /// The UpdateValue.
-        /// </summary>
         private void OnlyInsertValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
@@ -1159,9 +865,6 @@ namespace WrapperNetPOI
     }
 
 
-    /// <summary>
-    /// Defines the <see cref="ExchangeExcel" />.
-    /// </summary>
     public static class ExcelExchange
     {
         // статический класс для записи и чтения данных одной строкой
