@@ -113,7 +113,7 @@ namespace WrapperNetPOI
                     if (oldCell.GetType() != newCell.GetType())
                     {
                         CopyStyle(oldCell.CellStyle, CellStyle);
-                        // not copy all format
+                        // not copy all format. Until I came up with something else 
                     }
                     else
                     {
