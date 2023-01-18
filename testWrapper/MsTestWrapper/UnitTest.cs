@@ -373,7 +373,13 @@ namespace MsTestWrapper
         [TestMethod]
         public void TestManyReadXLSX()
         {
-            IProgress<int> progress = new Progress<int>(s => Debug.WriteLine(s));
+            IProgress<int> progress = new Progress<int>(s =>
+            {
+                if (s % 100 == 0)
+                {
+                    Debug.WriteLine(s);
+                }
+            });
 
             var path = "..//..//..//srcTest//500000_Records_Data.xlsx";
             MatrixView exchangeClass = new(ExchangeOperation.Read, "List1", null, progress);
