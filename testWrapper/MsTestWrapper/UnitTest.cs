@@ -49,7 +49,7 @@ namespace MsTestWrapper
             Wrapper wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             List<string> listGet = new();
-            exchangeClass = new(ExchangeOperation.Read, "Ëèñò1", listGet, null);
+            exchangeClass = new(ExchangeOperation.Read, "List1", listGet, null);
             wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.ToList());
@@ -303,8 +303,8 @@ namespace MsTestWrapper
             Dictionary<string, string[]> dictSource2 = new()
             {
                 { "3",new[]{"2342","23","23334" } },
-                { "6",new[] { "2234433", "23244dfgd23", "ððdfg233" } },
-                { "7",new[] { "34234", "2342dgd3", "2dgf33ðï" } }
+                { "6",new[] { "2234433", "23244dfgd23", "ï¿½ï¿½dfg233" } },
+                { "7",new[] { "34234", "2342dgd3", "2dgf33ï¿½ï¿½" } }
             };
 
             exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource2, null);
