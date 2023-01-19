@@ -317,7 +317,7 @@ namespace WrapperNetPOI
                         for (int ValueColumn = FirstViewedColumn; ValueColumn <= lastCol; ValueColumn++)
                         {
                             ICell cell = row.GetCell(ValueColumn);
-                            if (ValueColumn <= row.LastCellNum - 1)// -1 это особенность NPOI
+                            if (ValueColumn <= row.LastCellNum - 1)// -1 this is a feature of NPOI
                             {
                                 row.RemoveCell(cell);
                             }
@@ -462,7 +462,7 @@ namespace WrapperNetPOI
                 {
                     ICell cell;
                     cell = row.GetCell(valueColumn);
-                    if (valueColumn <= row.LastCellNum - 1)// -1 это особенность NPOI
+                    if (valueColumn <= row.LastCellNum - 1)// -1 this is a feature of NPOI
                     {
                         tmp.Add(GetCellValue(cell));
                     }
@@ -685,7 +685,6 @@ namespace WrapperNetPOI
         public static string ReturnTechFileName(string predict, string extension)
         {
             int i = 0;
-            string rnd = "";
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, predict);
             if (Directory.Exists(dir) == false)
             {
@@ -694,9 +693,8 @@ namespace WrapperNetPOI
             string path;
             do
             {
-                path = Path.Combine(dir, $"{predict}{DateTime.Now:yyMMddHHmmss}{rnd}.{extension}");
+                path = Path.Combine(dir, $"{predict}{DateTime.Now:yyMMddHHmmss}{i}.{extension}");
                 i += 1;
-                rnd = i.ToString();
             }
             while (File.Exists(path));
             return path;
