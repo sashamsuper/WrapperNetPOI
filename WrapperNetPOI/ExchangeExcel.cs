@@ -36,6 +36,15 @@ namespace WrapperNetPOI
         Delete
     }
 
+    class Border // in developing
+    {
+        
+        int FirstViewedRow { set; get; }
+        int LastViewedRow { set; get; }
+        int FirstViewedColumn { set; get; }
+        int LastViewedColumn { set; get; }
+    }
+
     public static class Extension
     {
         public static int RowsCount(this ISheet sheet)
@@ -209,7 +218,7 @@ namespace WrapperNetPOI
             var day = String.Format("{0:D2}", date.Day);
             var mounth = String.Format("{0:D2}", date.Month);
             var year = String.Format("{0:D4}", date.Year);
-            return day + "." + mounth + "." + year;
+            return $"{day}.{mounth}.{year}";
         }
 
         public string GetCellValue(ICell cell)
@@ -328,7 +337,7 @@ namespace WrapperNetPOI
             }
         }
 
-        public static void SetCellValue(ISheet worksheet, int rowPosition, 
+        public static void SetCellValue(ISheet worksheet, int rowPosition,
             int columnPosition, string value)
         {
             IRow dataRow = worksheet.GetRow(rowPosition) ?? worksheet.CreateRow(rowPosition);
@@ -336,7 +345,7 @@ namespace WrapperNetPOI
             cell.SetCellValue(value);
         }
 
-        public static void SetCellValue(ISheet worksheet, int rowPosition, 
+        public static void SetCellValue(ISheet worksheet, int rowPosition,
             int columnPosition, string value, CellType type)
         {
             IRow dataRow = worksheet.GetRow(rowPosition) ?? worksheet.CreateRow(rowPosition);
@@ -516,10 +525,14 @@ namespace WrapperNetPOI
                     }
                     tmpListString.Add(row.Select(x => GetCellValue(x)).ToArray());
                     i++;
+#if DEBUG
                     if (i % 1000 == 0)
                     {
+
                         Debug.WriteLine(i);
+
                     }
+#endif
                 }
                 ExchangeValue = tmpListString;
             }
@@ -598,7 +611,7 @@ namespace WrapperNetPOI
     {
         private readonly MatrixView matrix;
         public DictionaryView(ExchangeOperation exchangeType, string activeSheetName,
-            IDictionary<string, string[]> exchangeValue, IProgress<int> progress=null) :
+            IDictionary<string, string[]> exchangeValue, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, progress)
         {
             matrix = new MatrixView(exchangeType, activeSheetName,
@@ -630,7 +643,7 @@ namespace WrapperNetPOI
         // To detect redundant calls
         private bool disposed = false;
         internal static ILogger Logger { set; get; }
-        
+
         /// Gets or sets the PathToFile.
         /// </summary>
         public readonly string PathToFile;
@@ -664,7 +677,7 @@ namespace WrapperNetPOI
         /// Initializes a new instance of the <see cref="WrapperNpoi"/> class.
         /// </summary>
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        public Wrapper(string pathToFile, IExchange exchangeClass, ILogger logger=null)
+        public Wrapper(string pathToFile, IExchange exchangeClass, ILogger logger = null)
         {
             Logger = logger;
             PathToFile = pathToFile;
@@ -898,11 +911,7 @@ namespace WrapperNetPOI
                 {
                     ExchangeValue = values
                 };
-                Wrapper wrapper = new(pathToFile, listView, null)
-                {
-                    //ActiveSheetName = sheetName,
-                    //exchangeClass = listView
-                };
+                Wrapper wrapper = new(pathToFile, listView, null) { };
                 wrapper.Exchange();
             });
         }
@@ -924,7 +933,9 @@ namespace WrapperNetPOI
             }
             catch (Exception e)
             {
+#if DEBUG
                 Debug.WriteLine(e.Message);
+#endif
             }
         }
 
@@ -1021,7 +1032,7 @@ namespace WrapperNetPOI
             }
             else
             {
-                throw new TypeUnloadedException("Для указанного типа нет обработчика");
+                throw new TypeUnloadedException("No handler for type");
             }
         }
     }
