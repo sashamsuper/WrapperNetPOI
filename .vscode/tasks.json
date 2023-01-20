@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/WrapperNPOI/WrapperNetPOI.csproj",
+                "${workspaceFolder}\\testWrapper\\MsTestWrapper\\MsTestWrapper.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/WrapperNPOI/WrapperNetPOI.csproj",
+                "${workspaceFolder}\\testWrapper\\MsTestWrapper\\MsTestWrapper.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/WrapperNPOI/WrapperNetPOI.csproj"
+                "${workspaceFolder}\\testWrapper\\MsTestWrapper\\MsTestWrapper.csproj"
             ],
             "problemMatcher": "$msCompile"
         }
