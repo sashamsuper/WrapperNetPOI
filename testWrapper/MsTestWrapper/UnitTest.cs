@@ -46,10 +46,10 @@ namespace MsTestWrapper
                 "3"
             };
             ListView exchangeClass = new(ExchangeOperation.Insert, "List1", listS, null);
-            Wrapper wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             List<string> listGet = new();
-            exchangeClass = new(ExchangeOperation.Read, "Ëèñò1", listGet, null);
+            exchangeClass = new(ExchangeOperation.Read, "List1", listGet, null);
             wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.ToList());
@@ -75,7 +75,7 @@ namespace MsTestWrapper
                 FirstViewedRow = 10,
                 FirstViewedColumn = 10
             };
-            Wrapper wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             List<string> listGet = new();
             exchangeClass = new(ExchangeOperation.Read, "List1", listGet, null)
@@ -101,7 +101,7 @@ namespace MsTestWrapper
                 File.Delete(path);
             }
             ListView pusto = new(ExchangeOperation.Insert, "List1", null, null);
-            Wrapper wrapper = new(path, pusto, null);
+            WrapperExcel wrapper = new(path, pusto, null);
             wrapper.Exchange();
 
             List<string> listS = new()
@@ -145,7 +145,7 @@ namespace MsTestWrapper
                 "3"
             };
             ListView exchangeClass = new(ExchangeOperation.Insert, "List1", listS, null);
-            Wrapper wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
@@ -174,7 +174,7 @@ namespace MsTestWrapper
                 new[]{ "wer1","3wer","34wr" }
             };
             MatrixView exchangeClass = new(ExchangeOperation.Insert, "List1455", listS, null);
-            Wrapper wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             List<string[]> listGet = new();
             exchangeClass = new(ExchangeOperation.Read, "List1", listGet, null);
@@ -201,7 +201,7 @@ namespace MsTestWrapper
                 new[]{ "wer1","3wer","34wr" }
             };
             MatrixView exchangeClass = new(ExchangeOperation.Insert, "List1", listS, null);
-            Wrapper wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
@@ -224,7 +224,7 @@ namespace MsTestWrapper
                 File.Delete(path);
             }
             ListView pusto = new(ExchangeOperation.Insert, "List1", null, null);
-            Wrapper wrapper = new(path, pusto, null);
+            WrapperExcel wrapper = new(path, pusto, null);
             wrapper.Exchange();
 
             List<string[]> listS = new()
@@ -271,7 +271,7 @@ namespace MsTestWrapper
                 { "3",new[] { "34", "2dgd3", "2dgf33" } }
             };
             DictionaryView exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource, null);
-            Wrapper wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             exchangeClass = new(ExchangeOperation.Read, "List1", null, null);
             wrapper = new(path, exchangeClass, null);
@@ -297,14 +297,14 @@ namespace MsTestWrapper
                 { "3",new[] { "34", "2dgd3", "2dgf33" } }
             };
             DictionaryView exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource1, null);
-            Wrapper wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
 
             Dictionary<string, string[]> dictSource2 = new()
             {
                 { "3",new[]{"2342","23","23334" } },
-                { "6",new[] { "2234433", "23244dfgd23", "ððdfg233" } },
-                { "7",new[] { "34234", "2342dgd3", "2dgf33ðï" } }
+                { "6",new[] { "2234433", "23244dfgd23", "ï¿½ï¿½dfg233" } },
+                { "7",new[] { "34234", "2342dgd3", "2dgf33ï¿½ï¿½" } }
             };
 
             exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource2, null);
@@ -363,7 +363,7 @@ namespace MsTestWrapper
 
             var path = "..//..//..//srcTest//listView2.xls";
             MatrixView exchangeClass = new(ExchangeOperation.Read, "List1", null, progress);
-            Wrapper wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             var dd = exchangeClass.ExchangeValue;
             //Assert.AreEqual(5,dd.Count);
@@ -373,17 +373,11 @@ namespace MsTestWrapper
         [TestMethod]
         public void TestManyReadXLSX()
         {
-            IProgress<int> progress = new Progress<int>(s =>
-            {
-                if (s % 100 == 0)
-                {
-                    Debug.WriteLine(s);
-                }
-            });
+            IProgress<int> progress = new Progress<int>(s => Debug.WriteLine(s));
 
             var path = "..//..//..//srcTest//500000_Records_Data.xlsx";
             MatrixView exchangeClass = new(ExchangeOperation.Read, "List1", null, progress);
-            Wrapper wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             var dd = exchangeClass.ExchangeValue;
             Assert.AreEqual(400000, dd.Count);
@@ -405,7 +399,7 @@ namespace MsTestWrapper
                 new[]{ "wer1","3wer","34wr" }
             };
             MatrixView exchangeClass = new(ExchangeOperation.Insert, "List1455", listS, null);
-            Wrapper wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
 
             RowsView rowsView = new(ExchangeOperation.Insert, "List1455", null, null)
