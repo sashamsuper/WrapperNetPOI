@@ -1,28 +1,47 @@
-﻿using NPOI.POIFS.Crypt;
+﻿
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+До:
+using NPOI.POIFS.Crypt;
+После:
+using NPOI.HWPF;
+using NPOI.HWPF.UserModel;
+using NPOI.POIFS.Crypt;
+*/
 using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
+using
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+До:
 using Serilog;
+После:
+using NPOI.XWPF.UserModel;
+using Serilog;
+*/
+Serilog;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+До:
 using System.Threading.Tasks;
 using NPOI.HWPF;
 using NPOI.HWPF.UserModel;
 using NPOI.XWPF.UserModel;
+После:
+using System.Threading.Tasks;
+*/
+
 
 namespace WrapperNetPOI
 {
-    public interface IExchangeWord:IExchange
+    public interface IExchangeWord : IExchange
     {
-        
-       
+
+
     }
 
-    public class WordExchange:IExchangeWord
+    public class WordExchange : IExchangeWord
     {
-        public WordExchange (ExchangeOperation exchange, string activeSheetName, IProgress<int> progress)
+        public WordExchange(ExchangeOperation exchange, IProgress<int> progress)
         {
             ExchangeOperationEnum = exchange;
             ProgressValue = progress;
@@ -61,7 +80,7 @@ namespace WrapperNetPOI
             throw new NotImplementedException();
         }
 
-        
+
 
     }
 }

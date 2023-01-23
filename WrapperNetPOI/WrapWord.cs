@@ -16,6 +16,12 @@ limitations under the License.
 using NPOI.HWPF;
 using NPOI.HWPF.UserModel;
 using NPOI.XWPF.UserModel;
+using System.Diagnostics;
+using SixLabors.ImageSharp.ColorSpaces;
+using Serilog;
+
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+До:
 using NPOI.POIFS.Crypt;
 using System.Collections.Generic;
 using System.Data;
@@ -25,45 +31,93 @@ using System.Linq;
 using Serilog;
 using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
+После:
+using NPOI.XWPF.Crypt;
+using NPOI.SS.UserModel;
+using Serilog;
+using System;
+using System.Collections.Generic;
+//using System.Data;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+*/
+//using NPOI.SS.UserModel;
+//using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Globalization;
+using System.IO;
+using System.Linq;
 
 namespace WrapperNetPOI
 {
 
-    public abstract class CellValue
+    public class CellValue
     {
-        string Text;
-        ushort tableNumber;
-        ushort rowNumber;
-        ushort cellNumber;
-        CellValue cellValue;
+        public string text;
+        public int tableNumber;
+        public int rowNumber;
+        public int cellNumber;
+        public int level;
+        
+        public CellValue(string text, int tableNumber, int rowNumber, int cellNumber,int level)
+        {
+            this.text = text;
+            this.tableNumber= tableNumber;
+            this.rowNumber= rowNumber;
+            this.cellNumber= cellNumber;
+            this.level= level;
+    }
     }
 
-    
-    public abstract class DocumentWord
+
+    public class WordDoc
     {
-        List<List<string[]>> Tables=new();
-        private void XGetInformFromTable(IBody document)
+        public List<CellValue> cells;
+
+        private List<CellValue> XGetTables(IBody body, int level=0)
         {
-            List<string[]> rows = new();
-            foreach (var table in document.Tables)
+            List<CellValue> cells=new();
+            int i = 0; int j = 0; int k = 0;
+            foreach (XWPFTable table in body.Tables)
             {
-                foreach (var row in table.Rows)
+                i++;
+                foreach (XWPFTableRow row in table.Rows)
                 {
-                    string[] cells = default;
-                    foreach (var cell in row.GetTableCells())
+                    j++;
+                    foreach (XWPFTableCell cell in row.GetTableICells())
                     {
-                        cells = row.GetTableCells().Select(x => x.GetText()).ToArray();
+                        k++;
+                        if (cell?.BodyElements.Count > 0)
+                        {
+                            CellValue cellValue = new(cell.GetText(), i, j, k, level+1);
+                            XGetTables(cell);
+                            cells.Add(cellValue);
+                        }
+                        else
+                        {
+                            CellValue cellValue = new(cell.GetText(), i, j, k, level);
+                            cells.Add(cellValue);
+                        }
                     }
-                    rows.Add(cells);
                 }
-                Tables.Add(rows);
             }
+            return cells;
         }
-        
+
+
         public virtual void GetTables()
         {
-            return xDocument.Tables;
+            if (Document is XWPFDocument x)
+            {
+               
+                //foreach (var y in x.BodyElements)
+                {
+                    cells = XGetTables(x);
+                }
+            }
         }
         public virtual void GetParagraphs()
         {
@@ -71,41 +125,44 @@ namespace WrapperNetPOI
         }
         private HWPFDocument hDocument;
         private XWPFDocument xDocument;
-        public DocumentWord (object document)
+        public object Document
         {
-            if (document is HWPFDocument h)
-            {
-                hDocument=h;
+            set
+            { if (value is HWPFDocument h)
+                {
+                    hDocument = h;
+                }
+                else if (value is XWPFDocument x)
+                {
+                    xDocument = x;
+                }
             }
-            else if (document is XWPFDocument x)
+            get 
             {
-                xDocument=x;
+                if (xDocument is null)
+                {
+                    return hDocument;
+                }
+                else
+                { 
+                    return xDocument;
+                }
             }
         }
 
 
     }
 
-    
+
     public class WrapperWord : Wrapper
     {
 
-        public IDocument Document { set; get; }
-        
-        private XWPFDocument xDocument;
-        private HWPFDocument hDocument;
+        public WordDoc Document { set; get; }
 
         public WrapperWord(string pathToFile, IExchangeWord exchangeClass, ILogger logger = null) :
         base(pathToFile, exchangeClass, logger)
-        { 
+        {
 
-            //NPOI.HWPF.UserModel.Table
-            Range range=hDocument.
-            if  (range is NPOI.HWPF.UserModel.Table table)
-            {
-
-            } 
-            
         }
 
         public void Exchange()
@@ -127,7 +184,7 @@ namespace WrapperNetPOI
             }
         }
 
-        
+
         private void InsertValue()
         {
             if (File.Exists(PathToFile))
@@ -185,7 +242,7 @@ namespace WrapperNetPOI
 
     }
 
-    
+
 }
 
 

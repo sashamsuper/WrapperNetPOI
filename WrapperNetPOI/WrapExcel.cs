@@ -14,21 +14,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
-using NPOI.POIFS.Crypt;
-using NPOI.SS.UserModel;
-using NPOI.XSSF.UserModel;
 using Serilog;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace WrapperNetPOI
 {
-    
-    public class WrapperExcel:Wrapper
+
+    public class WrapperExcel : Wrapper
     {
         /// <summary>
         /// Gets or sets the ActiveSheet.
@@ -38,9 +31,20 @@ namespace WrapperNetPOI
         /// <summary>
         /// Gets or sets the ActiveSheetName.
         /// </summary>
+
+        /* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+        До:
+                //public readonly string ActiveSheetName = "List1";
+
+                public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null):
+        После:
+                //public readonly string ActiveSheetName = "List1";
+
+                public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null):
+        */
         //public readonly string ActiveSheetName = "List1";
-        
-        public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null):
+
+        public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null) :
         base(pathToFile, exchangeClass, logger)
         {
             //ActiveSheetName = exchangeClass.ActiveSheetName;
@@ -118,11 +122,28 @@ namespace WrapperNetPOI
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
+
+        /* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+        До:
+            }
+
+
+
+
+            public abstract class Wrapper : IDisposable //Main class
+        После:
+            }
+
+
+
+
+            public abstract class Wrapper : IDisposable //Main class
+        */
     }
-    
-  
-    
-    
+
+
+
+
     public abstract class Wrapper : IDisposable //Main class
     {
         // To detect redundant calls
@@ -135,13 +156,13 @@ namespace WrapperNetPOI
 
         protected FileStream fileStream; //For disposed. If need to open in other application 
 
-        
+
         public string Password { set; get; } = null;
 
         /// <summary>
         /// Defines the exchangeClass.
         /// </summary>
-        public readonly IExchange exchangeClass; 
+        public readonly IExchange exchangeClass;
 
         /// <summary>
         /// Defines the Workbook.
@@ -160,7 +181,7 @@ namespace WrapperNetPOI
             {
                 this.exchangeClass = exchangeClass;
                 exchangeClass.Logger = Logger;
-                
+
             }
             else
             {
@@ -211,7 +232,7 @@ namespace WrapperNetPOI
             }
         }
 
-        
+
 
         protected virtual void Dispose(bool disposing)
         {
@@ -219,7 +240,7 @@ namespace WrapperNetPOI
             {
                 if (disposing)
                 {
-                    
+
                     // Освобождаем управляемые ресурсы
                     Logger = null;
                     //ActiveSheet = null;

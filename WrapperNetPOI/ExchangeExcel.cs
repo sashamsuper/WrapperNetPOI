@@ -38,7 +38,7 @@ namespace WrapperNetPOI
 
     class Border // in developing
     {
-        
+
         int FirstViewedRow { set; get; }
         int LastViewedRow { set; get; }
         int FirstViewedColumn { set; get; }
@@ -93,7 +93,7 @@ namespace WrapperNetPOI
         }
     }
 
-    public interface IExchangeExcel:IExchange
+    public interface IExchangeExcel : IExchange
     {
         string ActiveSheetName { set; get; }
         int FirstViewedRow { set; get; }
@@ -101,10 +101,10 @@ namespace WrapperNetPOI
         int FirstViewedColumn { set; get; }
         int LastViewedColumn { set; get; }
         ISheet ActiveSheet { set; get; }
-        IWorkbook Workbook {set;get;}
+        IWorkbook Workbook { set; get; }
     }
 
-     public interface IExchange
+    public interface IExchange
     {
         //IWorkbook Workbook {set;get;}
         IProgress<int> ProgressValue { set; get; }
@@ -120,7 +120,7 @@ namespace WrapperNetPOI
     }
 
 
-    
+
 
     public abstract class ExchangeClass<Tout> : IExchangeExcel
     {
@@ -140,9 +140,9 @@ namespace WrapperNetPOI
             }
         }
 
-        public IWorkbook Workbook {set;get;}
+        public IWorkbook Workbook { set; get; }
 
-        private string Password {set;get;}
+        private string Password { set; get; }
 
         public void GetInternallyObject(Stream tmpStream, bool addNewWorkbook)
         {
@@ -700,12 +700,12 @@ namespace WrapperNetPOI
 
     }
 
-    
 
-        
 
-        
-    
+
+
+
+
 
 
     public static class ExcelExchange

@@ -15,11 +15,11 @@ limitations under the License.
 ==========================================================================*/
 using NPOI.SS.UserModel;
 using Serilog;
-using System.Collections.Generic;
-using WrapperNetPOI;
-using System.IO;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using WrapperNetPOI;
 
 namespace testWrapper
 {
@@ -64,7 +64,7 @@ namespace testWrapper
                 PathSource = pathSource,
             };
 
-            Wrapper wrapper = new Wrapper(pathRec, rowsView, logger);
+            WrapperExcel wrapper = new(pathRec, rowsView, logger);
             wrapper.Exchange();
             rowsView.ExchangeValue.ToString();
         }
@@ -160,7 +160,7 @@ namespace testWrapper
 
             List<string[]> outV = new(new[] { df1, df2, df3 });
             MatrixView matrix = new(ExchangeOperation.Insert, "Лист1", outV, null);
-            Wrapper wrapper = new(path, matrix, SLogger.SimpleLogger());
+            WrapperExcel wrapper = new(path, matrix, SLogger.SimpleLogger());
             wrapper.Exchange();
 
 

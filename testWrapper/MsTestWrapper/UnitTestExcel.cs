@@ -20,7 +20,7 @@ namespace MsTestWrapper
 
 {
     [TestClass]
-    public class UnitTest1
+    public class UnitTestExcel
     {
         [TestMethod]
         public void ReturnProgressTest()
@@ -46,7 +46,7 @@ namespace MsTestWrapper
                 "3"
             };
             ListView exchangeClass = new(ExchangeOperation.Insert, "List1", listS, null);
-            WrapperExcel wrapper = new (path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             List<string> listGet = new();
             exchangeClass = new(ExchangeOperation.Read, "List1", listGet, null);
@@ -414,10 +414,10 @@ namespace MsTestWrapper
             wrapper = new(path2, rowsView, null);
             wrapper.Exchange();
 
-            MatrixView matrix=new(ExchangeOperation.Read, null, null, null);
+            MatrixView matrix = new(ExchangeOperation.Read, null, null, null);
             wrapper = new(path2, matrix, null);
             wrapper.Exchange();
-            
+
             var expected = listS.Select(x => String.Join("", x)).ToList();
             var actual = matrix.ExchangeValue.Select(x => String.Join("", x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
