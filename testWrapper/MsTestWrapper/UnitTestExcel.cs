@@ -46,7 +46,7 @@ namespace MsTestWrapper
                 "3"
             };
             ListView exchangeClass = new(ExchangeOperation.Insert, "List1", listS, null);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new (path, exchangeClass, null);
             wrapper.Exchange();
             List<string> listGet = new();
             exchangeClass = new(ExchangeOperation.Read, "List1", listGet, null);

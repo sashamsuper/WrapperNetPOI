@@ -1,4 +1,19 @@
 ﻿
+/* ==================================================================
+Copyright 2020-2022 sashamsuper
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==========================================================================*/
 using NPOI.POIFS.Crypt;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -18,38 +33,17 @@ namespace WrapperNetPOI
         /// <summary>
         /// Gets or sets the ActiveSheet.
         /// </summary>
-        public ISheet ActiveSheet { set; get; } = null;
-
+        //public ISheet ActiveSheet { set; get; } = null;
 
         /// <summary>
         /// Gets or sets the ActiveSheetName.
         /// </summary>
-        public readonly string ActiveSheetName = "List1";
+        //public readonly string ActiveSheetName = "List1";
         
-        public WrapperExcel(string pathToFile, IExchange exchangeClass, ILogger logger = null):
+        public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null):
         base(pathToFile, exchangeClass, logger)
         {
-            ActiveSheetName = exchangeClass.ActiveSheetName;
-        }
-
-        public static string ReturnTechFileName(string predict, string extension)
-        {
-            int i = 0;
-            string rnd = "";
-            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, predict);
-            if (Directory.Exists(dir) == false)
-            {
-                Directory.CreateDirectory(dir);
-            }
-            string path;
-            do
-            {
-                path = Path.Combine(dir, $"{predict}{DateTime.Now:yyMMddHHmmss}{rnd}.{extension}");
-                i += 1;
-                rnd = i.ToString();
-            }
-            while (File.Exists(path));
-            return path;
+            //ActiveSheetName = exchangeClass.ActiveSheetName;
         }
 
         public void Exchange()
@@ -71,75 +65,6 @@ namespace WrapperNetPOI
             }
         }
 
-        private void ViewWorkbook(FileMode fileMode, FileAccess fileAccess, bool addNewWorkbook, bool closeStream = true, FileShare fileShare = FileShare.ReadWrite)
-        {
-            if (closeStream == true)
-            {
-                using FileStream fs = new(PathToFile,
-                    fileMode,
-                    fileAccess,
-                    fileShare);
-                Stream tmpStream = fs;
-                OpenWorkbookStream(fs, addNewWorkbook);
-            }
-            else
-            {
-                fileStream = new(PathToFile,
-                fileMode,
-                fileAccess,
-                fileShare);
-                OpenWorkbookStream(fileStream, addNewWorkbook);
-            }
-        }
-
-        public void OpenWorkbookStream(Stream tmpStream, bool addNewWorkbook)
-        {
-            FileStream fs = default;
-            if (Password == null)
-            { }
-            else
-            {
-                NPOI.POIFS.FileSystem.POIFSFileSystem nfs =
-                new(fs);
-                EncryptionInfo info = new(nfs);
-                Decryptor dc = Decryptor.GetInstance(info);
-                //bool b = dc.VerifyPassword(Password);
-                dc.VerifyPassword(Password);
-                tmpStream = dc.GetDataStream(nfs);
-            }
-            if (addNewWorkbook == true)
-            {
-                Workbook = new XSSFWorkbook();
-                Workbook.CreateSheet(ActiveSheetName);
-                ActiveSheet = Workbook.GetSheet(ActiveSheetName);
-            }
-            else
-            {
-                Workbook = WorkbookFactory.Create(tmpStream);
-                int SheetsCount = Workbook.NumberOfSheets;
-                bool getValue = false;
-                for (int i = 0; i < Workbook.NumberOfSheets; i++)
-                {
-                    if (Workbook.GetSheetAt(i).SheetName == ActiveSheetName)
-                    {
-                        if (Workbook.GetSheet(ActiveSheetName) is ISheet activeSheet)
-                        {
-                            ActiveSheet = activeSheet;
-                            getValue = true;
-                        }
-                        break;
-                    }
-                }
-                if (getValue == false && SheetsCount != 0)
-                {
-                    ActiveSheet = Workbook.GetSheetAt(0);
-                    // search first if not found
-                }
-            }
-            exchangeClass.ActiveSheet = ActiveSheet;
-            exchangeClass.ExchangeValueFunc();
-        }
-
         private void InsertValue()
         {
             if (File.Exists(PathToFile))
@@ -155,46 +80,47 @@ namespace WrapperNetPOI
         private void CreateAndInsertValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
-            ViewWorkbook(FileMode.CreateNew, FileAccess.ReadWrite, true, exchangeClass.CloseStream);
+            ViewFile(FileMode.CreateNew, FileAccess.ReadWrite, true, exchangeClass.CloseStream);
             using FileStream fs = new(PathToFile,
                     FileMode.Create,
                     FileAccess.Write,
                     FileShare.ReadWrite);
-            Workbook.Write(fs, false);
+            ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
 
         private void ReadValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.ReadValue;
-            ViewWorkbook(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream, FileShare.Read);
+            ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream, FileShare.Read);
         }
 
         private void UpdateValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.UpdateValue;
-            ViewWorkbook(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
+            ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
             using FileStream fs = new(PathToFile,
                     FileMode.Create,
                     FileAccess.Write,
                     FileShare.ReadWrite);
-            Workbook.Write(fs, false);
+            ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
 
         private void OnlyInsertValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
-            ViewWorkbook(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
+            ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
             using FileStream fs = new(PathToFile,
                     FileMode.Create,
                     FileAccess.Write,
                     FileShare.ReadWrite);
-            Workbook.Write(fs, false);
+            ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
     }
     
+  
     
     
     public abstract class Wrapper : IDisposable //Main class
@@ -215,12 +141,12 @@ namespace WrapperNetPOI
         /// <summary>
         /// Defines the exchangeClass.
         /// </summary>
-        public readonly IExchange exchangeClass;
+        public readonly IExchange exchangeClass; 
 
         /// <summary>
         /// Defines the Workbook.
         /// </summary>
-        public IWorkbook Workbook;
+        //public IWorkbook Workbook;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WrapperNpoi"/> class.
@@ -244,6 +170,47 @@ namespace WrapperNetPOI
 
         }
 
+        public static string ReturnTechFileName(string predict, string extension)
+        {
+            int i = 0;
+            string rnd = "";
+            string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, predict);
+            if (Directory.Exists(dir) == false)
+            {
+                Directory.CreateDirectory(dir);
+            }
+            string path;
+            do
+            {
+                path = Path.Combine(dir, $"{predict}{DateTime.Now:yyMMddHHmmss}{rnd}.{extension}");
+                i += 1;
+                rnd = i.ToString();
+            }
+            while (File.Exists(path));
+            return path;
+        }
+
+        protected void ViewFile(FileMode fileMode, FileAccess fileAccess, bool addNew, bool closeStream = true, FileShare fileShare = FileShare.ReadWrite)
+        {
+            if (closeStream == true)
+            {
+                using FileStream fs = new(PathToFile,
+                    fileMode,
+                    fileAccess,
+                    fileShare);
+                Stream tmpStream = fs;
+                exchangeClass.GetInternallyObject(fs, addNew);
+            }
+            else
+            {
+                fileStream = new(PathToFile,
+                fileMode,
+                fileAccess,
+                fileShare);
+                exchangeClass.GetInternallyObject(fileStream, addNew);
+            }
+        }
+
         
 
         protected virtual void Dispose(bool disposing)
@@ -252,16 +219,11 @@ namespace WrapperNetPOI
             {
                 if (disposing)
                 {
+                    
                     // Освобождаем управляемые ресурсы
-                    
                     Logger = null;
-                    
-                    
-                    
                     //ActiveSheet = null;
-                    
-                    
-                    Workbook = null;
+                    //Workbook = null;
                     Password = null;
                 }
                 fileStream?.Close();

@@ -93,26 +93,36 @@ namespace WrapperNetPOI
         }
     }
 
-    public interface IExchange
+    public interface IExchangeExcel:IExchange
     {
-        IProgress<int> ProgressValue { set; get; }
-        ILogger Logger { set; get; }
         string ActiveSheetName { set; get; }
-        ExchangeOperation ExchangeOperationEnum { set; get; }
         int FirstViewedRow { set; get; }
         int LastViewedRow { set; get; }
         int FirstViewedColumn { set; get; }
         int LastViewedColumn { set; get; }
         ISheet ActiveSheet { set; get; }
+        IWorkbook Workbook {set;get;}
+    }
+
+     public interface IExchange
+    {
+        //IWorkbook Workbook {set;get;}
+        IProgress<int> ProgressValue { set; get; }
+        ILogger Logger { set; get; }
+        ExchangeOperation ExchangeOperationEnum { set; get; }
         Action ExchangeValueFunc { set; get; }
         bool CloseStream { get; set; }
+        void GetInternallyObject(Stream fs, bool addNew);
         void ReadValue();
         void InsertValue();
         void UpdateValue();
         void DeleteValue();
     }
 
-    public abstract class ExchangeClass<Tout> : IExchange
+
+    
+
+    public abstract class ExchangeClass<Tout> : IExchangeExcel
     {
         public virtual bool CloseStream { set; get; } = true;
 
@@ -128,6 +138,58 @@ namespace WrapperNetPOI
             {
                 return 0;
             }
+        }
+
+        public IWorkbook Workbook {set;get;}
+
+        private string Password {set;get;}
+
+        public void GetInternallyObject(Stream tmpStream, bool addNewWorkbook)
+        {
+            FileStream fs = default;
+            if (Password == null)
+            { }
+            else
+            {
+                NPOI.POIFS.FileSystem.POIFSFileSystem nfs =
+                new(fs);
+                EncryptionInfo info = new(nfs);
+                Decryptor dc = Decryptor.GetInstance(info);
+                //bool b = dc.VerifyPassword(Password);
+                dc.VerifyPassword(Password);
+                tmpStream = dc.GetDataStream(nfs);
+            }
+            if (addNewWorkbook == true)
+            {
+                Workbook = new XSSFWorkbook();
+                Workbook.CreateSheet(ActiveSheetName);
+                ActiveSheet = Workbook.GetSheet(ActiveSheetName);
+            }
+            else
+            {
+                Workbook = WorkbookFactory.Create(tmpStream);
+                int SheetsCount = Workbook.NumberOfSheets;
+                bool getValue = false;
+                for (int i = 0; i < Workbook.NumberOfSheets; i++)
+                {
+                    if (Workbook.GetSheetAt(i).SheetName == ActiveSheetName)
+                    {
+                        if (Workbook.GetSheet(ActiveSheetName) is ISheet activeSheet)
+                        {
+                            ActiveSheet = activeSheet;
+                            getValue = true;
+                        }
+                        break;
+                    }
+                }
+                if (getValue == false && SheetsCount != 0)
+                {
+                    ActiveSheet = Workbook.GetSheetAt(0);
+                    // search first if not found
+                }
+            }
+            //exchangeClass.ActiveSheet = ActiveSheet;
+            ExchangeValueFunc();
         }
 
         public ILogger Logger { set; get; }
