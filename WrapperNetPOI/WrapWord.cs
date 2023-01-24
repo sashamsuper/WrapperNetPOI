@@ -48,6 +48,20 @@ namespace WrapperNetPOI
         }
     }
 
+    public class TableValue
+    {
+        public int tableNumber;
+        public int level;
+
+        public List<string[]> Value;
+
+        public TableValue(int tableNumber, int level)
+        {
+            this.tableNumber = tableNumber;
+            this.level = level;
+        }
+    }
+
 
     public class WordDoc
     {
@@ -95,23 +109,16 @@ namespace WrapperNetPOI
             return default;
         }
 
-        public class TableValue
+        
+
+
+        public virtual List<TableValue> GetTables()
         {
-            public int tableNumber;
-            public int level;
-
-            public List<string[]> Value;
-
-            public TableValue(int tableNumber,int level)
+            if (Document1 is XWPFDocument x)
             {
-                this.tableNumber = tableNumber;
-                this.level = level;
+                int i = 0;
+                cells = XGetTables(x, ref i);
             }
-        }
-
-
-        public virtual List<CellValue> GetTables()
-        {
             var tables=cells.GroupBy(t=>t.tableNumber).
             Select(table=>table.GroupBy(r=>r.rowNumber).OrderBy(rowN=>rowN.Key).Select(row=>row.OrderBy(cell=>cell.cellNumber).ToArray()));
 
@@ -133,7 +140,9 @@ namespace WrapperNetPOI
                 tableList.Add(tableV);
             }
 
+            return tableList;
 
+            /*
             if (Document1 is XWPFDocument x)
             {
                 int i=0;
@@ -141,6 +150,7 @@ namespace WrapperNetPOI
                 return cells;
             }
             return default;
+            */
         }
 
         public virtual void GetParagraphs()

@@ -39,9 +39,25 @@ namespace WrapperNetPOI
             }
         }
 
+        void Insert(FileMode fileMode, FileAccess fileAccess, bool addNew, Action<FileStream, bool> exchangeAction)
+        {
+            ViewFile(fileMode, fileAccess, addNew, exchangeClass.CloseStream);
+            using FileStream fs = new(PathToFile,
+                    FileMode.Create,
+                    FileAccess.Write,
+                    FileShare.ReadWrite);
+            exchangeAction(fs,false);
+            fs.Close();
+
+        }
+       
         void CreateAndInsertValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
+            //Action<FileStream, bool> d = ((IExchangeExcel)exchangeClass).Workbook.Write;
+            //Insert(FileMode.CreateNew, FileAccess.ReadWrite,true, d);
+            
+
             ViewFile(FileMode.CreateNew, FileAccess.ReadWrite, true, exchangeClass.CloseStream);
             using FileStream fs = new(PathToFile,
                     FileMode.Create,
@@ -49,6 +65,7 @@ namespace WrapperNetPOI
                     FileShare.ReadWrite);
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
+            
         }
 
         protected override void ReadValue()
@@ -60,6 +77,7 @@ namespace WrapperNetPOI
         protected override void UpdateValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.UpdateValue;
+            //Insert(FileMode.Open, FileAccess.Read, false, ((IExchangeExcel)exchangeClass).Workbook.Write);
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
             using FileStream fs = new(PathToFile,
                     FileMode.Create,
@@ -67,11 +85,13 @@ namespace WrapperNetPOI
                     FileShare.ReadWrite);
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
+            
         }
 
         private void OnlyInsertValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
+            //Insert(FileMode.Open, FileAccess.Read, false, ((IExchangeExcel)exchangeClass).Workbook.Write);
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
             using FileStream fs = new(PathToFile,
                     FileMode.Create,
@@ -79,6 +99,7 @@ namespace WrapperNetPOI
                     FileShare.ReadWrite);
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
+            
         }
       
     }

@@ -25,7 +25,7 @@ namespace WrapperNetPOI
         public ILogger Logger { get; set ; }
         public ExchangeOperation ExchangeOperationEnum { get; set; }
         public Action ExchangeValueFunc { get ; set ; }
-        public List<CellValue> ExchangeValue { set; get; }
+        public List<TableValue> ExchangeValue { set; get; }
         public bool CloseStream { get ; set ; }
 
         public WordDoc Document {set;get;}
