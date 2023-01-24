@@ -124,6 +124,9 @@ namespace WrapperNetPOI
 
     public abstract class ExchangeClass<Tout> : IExchangeExcel
     {
+        public IWorkbook Workbook { set; get; }
+
+        private string Password { set; get; }
         public virtual bool CloseStream { set; get; } = true;
 
         public IProgress<int> ProgressValue { set; get; }
@@ -140,57 +143,9 @@ namespace WrapperNetPOI
             }
         }
 
-        public IWorkbook Workbook { set; get; }
+        
 
-        private string Password { set; get; }
-
-        public void GetInternallyObject(Stream tmpStream, bool addNewWorkbook)
-        {
-            FileStream fs = default;
-            if (Password == null)
-            { }
-            else
-            {
-                NPOI.POIFS.FileSystem.POIFSFileSystem nfs =
-                new(fs);
-                EncryptionInfo info = new(nfs);
-                Decryptor dc = Decryptor.GetInstance(info);
-                //bool b = dc.VerifyPassword(Password);
-                dc.VerifyPassword(Password);
-                tmpStream = dc.GetDataStream(nfs);
-            }
-            if (addNewWorkbook == true)
-            {
-                Workbook = new XSSFWorkbook();
-                Workbook.CreateSheet(ActiveSheetName);
-                ActiveSheet = Workbook.GetSheet(ActiveSheetName);
-            }
-            else
-            {
-                Workbook = WorkbookFactory.Create(tmpStream);
-                int SheetsCount = Workbook.NumberOfSheets;
-                bool getValue = false;
-                for (int i = 0; i < Workbook.NumberOfSheets; i++)
-                {
-                    if (Workbook.GetSheetAt(i).SheetName == ActiveSheetName)
-                    {
-                        if (Workbook.GetSheet(ActiveSheetName) is ISheet activeSheet)
-                        {
-                            ActiveSheet = activeSheet;
-                            getValue = true;
-                        }
-                        break;
-                    }
-                }
-                if (getValue == false && SheetsCount != 0)
-                {
-                    ActiveSheet = Workbook.GetSheetAt(0);
-                    // search first if not found
-                }
-            }
-            //exchangeClass.ActiveSheet = ActiveSheet;
-            ExchangeValueFunc();
-        }
+        
 
         public ILogger Logger { set; get; }
         public ExchangeClass(ExchangeOperation exchange, string activeSheetName, IProgress<int> progress)
@@ -269,6 +224,53 @@ namespace WrapperNetPOI
         private int? lastViewedColumn;
         public Tout ExchangeValue { set; get; }
         public Action ExchangeValueFunc { set; get; }
+        public void GetInternallyObject(Stream tmpStream, bool addNewWorkbook)
+        {
+            FileStream fs = default;
+            if (Password == null)
+            { }
+            else
+            {
+                NPOI.POIFS.FileSystem.POIFSFileSystem nfs =
+                new(fs);
+                EncryptionInfo info = new(nfs);
+                Decryptor dc = Decryptor.GetInstance(info);
+                //bool b = dc.VerifyPassword(Password);
+                dc.VerifyPassword(Password);
+                tmpStream = dc.GetDataStream(nfs);
+            }
+            if (addNewWorkbook == true)
+            {
+                Workbook = new XSSFWorkbook();
+                Workbook.CreateSheet(ActiveSheetName);
+                ActiveSheet = Workbook.GetSheet(ActiveSheetName);
+            }
+            else
+            {
+                Workbook = WorkbookFactory.Create(tmpStream);
+                int SheetsCount = Workbook.NumberOfSheets;
+                bool getValue = false;
+                for (int i = 0; i < Workbook.NumberOfSheets; i++)
+                {
+                    if (Workbook.GetSheetAt(i).SheetName == ActiveSheetName)
+                    {
+                        if (Workbook.GetSheet(ActiveSheetName) is ISheet activeSheet)
+                        {
+                            ActiveSheet = activeSheet;
+                            getValue = true;
+                        }
+                        break;
+                    }
+                }
+                if (getValue == false && SheetsCount != 0)
+                {
+                    ActiveSheet = Workbook.GetSheetAt(0);
+                    // search first if not found
+                }
+            }
+            //exchangeClass.ActiveSheet = ActiveSheet;
+            ExchangeValueFunc();
+        }
 
         /// <summary>
         /// $Return Date by dd.mm.yyyy$

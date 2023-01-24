@@ -20,30 +20,6 @@ using System.Diagnostics;
 using SixLabors.ImageSharp.ColorSpaces;
 using Serilog;
 
-/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
-До:
-using NPOI.POIFS.Crypt;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-//using NPOI.SS.UserModel;
-using Serilog;
-using System;
-using System.Diagnostics;
-После:
-using NPOI.XWPF.Crypt;
-using NPOI.SS.UserModel;
-using Serilog;
-using System;
-using System.Collections.Generic;
-//using System.Data;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-*/
-//using NPOI.SS.UserModel;
-//using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -61,98 +37,150 @@ namespace WrapperNetPOI
         public int rowNumber;
         public int cellNumber;
         public int level;
-        
-        public CellValue(string text, int tableNumber, int rowNumber, int cellNumber,int level)
+
+        public CellValue(string text, int tableNumber, int rowNumber, int cellNumber, int level)
         {
             this.text = text;
-            this.tableNumber= tableNumber;
-            this.rowNumber= rowNumber;
-            this.cellNumber= cellNumber;
-            this.level= level;
-    }
+            this.tableNumber = tableNumber;
+            this.rowNumber = rowNumber;
+            this.cellNumber = cellNumber;
+            this.level = level;
+        }
     }
 
 
     public class WordDoc
     {
-        public List<CellValue> cells;
+        private List<CellValue> cells;
 
-        private List<CellValue> XGetTables(IBody body, int level=0)
+        private List<CellValue> XGetTables(IBody body, ref int tableN,int level = 0)
         {
-            List<CellValue> cells=new();
-            int i = 0; int j = 0; int k = 0;
+            List<CellValue> cells = new();
+            int i = tableN; int j = 0; int k = 0;
             foreach (XWPFTable table in body.Tables)
             {
-                i++;
                 foreach (XWPFTableRow row in table.Rows)
                 {
-                    j++;
                     foreach (XWPFTableCell cell in row.GetTableICells())
                     {
-                        k++;
                         if (cell?.BodyElements.Count > 0)
                         {
-                            CellValue cellValue = new(cell.GetText(), i, j, k, level+1);
-                            XGetTables(cell);
+                            CellValue cellValue = new(cell.GetText(), i, j, k, level);
                             cells.Add(cellValue);
+                            cells.AddRange(XGetTables(cell,ref i,level+1));
                         }
                         else
                         {
                             CellValue cellValue = new(cell.GetText(), i, j, k, level);
                             cells.Add(cellValue);
                         }
+                        k++;
                     }
+                    j++;
                 }
+                i++;
             }
             return cells;
         }
 
 
-        public virtual void GetTables()
+        public virtual List<CellValue> GetCells()
         {
-            if (Document is XWPFDocument x)
+            if (Document1 is XWPFDocument x)
             {
-               
-                //foreach (var y in x.BodyElements)
-                {
-                    cells = XGetTables(x);
-                }
+                int i=0;
+                cells = XGetTables(x,ref i);
+                return cells;
+            }
+            return default;
+        }
+
+        public class TableValue
+        {
+            public int tableNumber;
+            public int level;
+
+            public List<string[]> Value;
+
+            public TableValue(int tableNumber,int level)
+            {
+                this.tableNumber = tableNumber;
+                this.level = level;
             }
         }
+
+
+        public virtual List<CellValue> GetTables()
+        {
+            var tables=cells.GroupBy(t=>t.tableNumber).
+            Select(table=>table.GroupBy(r=>r.rowNumber).OrderBy(rowN=>rowN.Key).Select(row=>row.OrderBy(cell=>cell.cellNumber).ToArray()));
+
+            var tables2=cells.GroupBy(t=>t.tableNumber).
+            Select(table=>table.GroupBy(r=>r.rowNumber).OrderBy(rowN=>rowN.Key).Select(row=>
+            new {tableNumber=table.Key,rowNumber=row.Key, value=row.OrderBy(cell=>cell.cellNumber).
+            Select(str=>str.text).ToArray()}));
+            
+            List<TableValue> tableList=new();
+            foreach (var table in tables2)
+            {
+                TableValue tableV = new(table.First().tableNumber,table.First().tableNumber);
+                List<string[]> rows=new();
+                foreach (var row in table)
+                {
+                     rows.Add(row.value);
+                }
+                tableV.Value=rows;
+                tableList.Add(tableV);
+            }
+
+
+            if (Document1 is XWPFDocument x)
+            {
+                int i=0;
+                cells = XGetTables(x,ref i);
+                return cells;
+            }
+            return default;
+        }
+
         public virtual void GetParagraphs()
         {
 
         }
+
+        public WordDoc(object doc)
+        {
+            this.Document1 = doc;
+        }
+
         private HWPFDocument hDocument;
         private XWPFDocument xDocument;
-        public object Document
+        public object Document1
         {
             set
-            { if (value is HWPFDocument h)
+            {
+                if (value is HWPFDocument)
                 {
-                    hDocument = h;
+                    HWPFDocument hDocument = new();
                 }
                 else if (value is XWPFDocument x)
                 {
                     xDocument = x;
                 }
             }
-            get 
+            get
             {
-                if (xDocument is null)
+                if (hDocument is null)
+                {
+                    return xDocument;
+                }
+                else
                 {
                     return hDocument;
                 }
-                else
-                { 
-                    return xDocument;
-                }
             }
         }
-
-
     }
-
 
     public class WrapperWord : Wrapper
     {
@@ -165,27 +193,7 @@ namespace WrapperNetPOI
 
         }
 
-        public void Exchange()
-        {
-            switch (exchangeClass.ExchangeOperationEnum)
-            {
-                case ExchangeOperation.Insert:
-                    InsertValue();
-                    break;
-                case ExchangeOperation.Read:
-                    ReadValue();
-                    break;
-                case ExchangeOperation.Update:
-                    UpdateValue();
-                    break;
-                default:
-                    Logger.Error("exchangeClass.ExchangeTypeEnum");
-                    throw (new ArgumentOutOfRangeException("exchangeClass.ExchangeTypeEnum"));
-            }
-        }
-
-
-        private void InsertValue()
+        protected override void InsertValue()
         {
             if (File.Exists(PathToFile))
             {
@@ -209,13 +217,13 @@ namespace WrapperNetPOI
             fs.Close();
         }
 
-        private void ReadValue()
+        protected override void ReadValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.ReadValue;
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream, FileShare.Read);
         }
 
-        private void UpdateValue()
+        protected override void UpdateValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.UpdateValue;
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);

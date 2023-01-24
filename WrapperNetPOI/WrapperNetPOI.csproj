@@ -35,7 +35,8 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0"/>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
     <PackageReference Include="system.text.json" Version="7.0.1"/>
-    <PackageReference Include="NPOI.HWPFCore " Version="2.3.0.1"/>
+    <PackageReference Include="ScratchPad.NPOI.HWPF" Version="*"/>
+    <!-- <PackageReference Include="NPOI.HWPFCore" Version="2.3.0.1"/>-->
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Properties\AssemblyInfo.cs"/>

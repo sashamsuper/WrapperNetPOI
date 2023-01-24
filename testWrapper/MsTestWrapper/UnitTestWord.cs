@@ -8,17 +8,13 @@ using WrapperNetPOI;
 
 namespace MsTestWrapper
 {
-    internal class UnitTestWord
+    [TestClass]
+    public class UnitTestWord
     {
         [TestMethod]
         public void ListViewTestCreateInsert()
         {
-            var path = "..//..//..//srcTest//listView.docx";
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-
+            var path = "..//..//..//srcTest//listView2.docx";
             List<string> listS = new()
             {
                 "1",
@@ -28,10 +24,7 @@ namespace MsTestWrapper
             WordExchange exchangeClass = new(ExchangeOperation.Read, null);
             WrapperWord wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
-            List<string> listGet = new();
-            exchangeClass = new(ExchangeOperation.Read, null);
-            wrapper = new(path, exchangeClass, null);
-            wrapper.Exchange();
+            var d=exchangeClass.ExchangeValue;
             CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.ToList());
         }
     }

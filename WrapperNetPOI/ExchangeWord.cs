@@ -1,42 +1,15 @@
-﻿
-/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
-До:
+﻿using NPOI.SS.UserModel;
 using NPOI.POIFS.Crypt;
-После:
-using NPOI.HWPF;
-using NPOI.HWPF.UserModel;
-using NPOI.POIFS.Crypt;
-*/
-using NPOI.SS.UserModel;
-using
-/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
-До:
 using Serilog;
-После:
-using NPOI.XWPF.UserModel;
-using Serilog;
-*/
-Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
-/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
-До:
-using System.Threading.Tasks;
-using NPOI.HWPF;
-using NPOI.HWPF.UserModel;
 using NPOI.XWPF.UserModel;
-После:
-using System.Threading.Tasks;
-*/
-
 
 namespace WrapperNetPOI
 {
     public interface IExchangeWord : IExchange
     {
-
-
     }
 
     public class WordExchange : IExchangeWord
@@ -48,21 +21,55 @@ namespace WrapperNetPOI
         }
 
         public List<List<string[]>> Tables { set; get; } = new List<List<string[]>>();
-        public IWorkbook Workbook { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public IProgress<int> ProgressValue { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public ILogger Logger { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public ExchangeOperation ExchangeOperationEnum { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public Action ExchangeValueFunc { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public bool CloseStream { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public IProgress<int> ProgressValue { get ; set ; }
+        public ILogger Logger { get; set ; }
+        public ExchangeOperation ExchangeOperationEnum { get; set; }
+        public Action ExchangeValueFunc { get ; set ; }
+        public List<CellValue> ExchangeValue { set; get; }
+        public bool CloseStream { get ; set ; }
+
+        public WordDoc Document {set;get;}
+
+        public string Password {set;get;}
 
         public void DeleteValue()
         {
             throw new NotImplementedException();
         }
 
-        public void GetInternallyObject(Stream fs, bool addNew)
+        public void GetInternallyObject(Stream tmpStream, bool addNew)
         {
-            throw new NotImplementedException();
+            
+            FileStream fs = default;
+            if (Password == null)
+            { }
+            else
+            {
+                NPOI.POIFS.FileSystem.POIFSFileSystem nfs =
+                new(fs);
+                EncryptionInfo info = new(nfs);
+                Decryptor dc = Decryptor.GetInstance(info);
+                //bool b = dc.VerifyPassword(Password);
+                dc.VerifyPassword(Password);
+                tmpStream = dc.GetDataStream(nfs);
+            }
+            if (addNew == true)
+            {
+                /*
+                Workbook = new XSSFWorkbook();
+                Workbook.CreateSheet(ActiveSheetName);
+                Ac
+                tiveSheet = Workbook.GetSheet(ActiveSheetName);
+                */
+            }
+            else
+            {
+                 XWPFDocument doc = new XWPFDocument(tmpStream);
+                 Document=new(doc);
+            }
+            //exchangeClass.ActiveSheet = ActiveSheet;
+            ExchangeValueFunc();
+        
         }
 
         public void InsertValue()
@@ -72,7 +79,7 @@ namespace WrapperNetPOI
 
         public void ReadValue()
         {
-            throw new NotImplementedException();
+            ExchangeValue=Document.GetTables();
         }
 
         public void UpdateValue()

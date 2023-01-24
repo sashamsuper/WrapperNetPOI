@@ -23,53 +23,11 @@ namespace WrapperNetPOI
 
     public class WrapperExcel : Wrapper
     {
-        /// <summary>
-        /// Gets or sets the ActiveSheet.
-        /// </summary>
-        //public ISheet ActiveSheet { set; get; } = null;
-
-        /// <summary>
-        /// Gets or sets the ActiveSheetName.
-        /// </summary>
-
-        /* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
-        До:
-                //public readonly string ActiveSheetName = "List1";
-
-                public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null):
-        После:
-                //public readonly string ActiveSheetName = "List1";
-
-                public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null):
-        */
-        //public readonly string ActiveSheetName = "List1";
-
         public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null) :
         base(pathToFile, exchangeClass, logger)
-        {
-            //ActiveSheetName = exchangeClass.ActiveSheetName;
-        }
+        {}
 
-        public void Exchange()
-        {
-            switch (exchangeClass.ExchangeOperationEnum)
-            {
-                case ExchangeOperation.Insert:
-                    InsertValue();
-                    break;
-                case ExchangeOperation.Read:
-                    ReadValue();
-                    break;
-                case ExchangeOperation.Update:
-                    UpdateValue();
-                    break;
-                default:
-                    Logger.Error("exchangeClass.ExchangeTypeEnum");
-                    throw (new ArgumentOutOfRangeException("exchangeClass.ExchangeTypeEnum"));
-            }
-        }
-
-        private void InsertValue()
+        protected override void InsertValue()
         {
             if (File.Exists(PathToFile))
             {
@@ -81,7 +39,7 @@ namespace WrapperNetPOI
             }
         }
 
-        private void CreateAndInsertValue()
+        void CreateAndInsertValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
             ViewFile(FileMode.CreateNew, FileAccess.ReadWrite, true, exchangeClass.CloseStream);
@@ -93,13 +51,13 @@ namespace WrapperNetPOI
             fs.Close();
         }
 
-        private void ReadValue()
+        protected override void ReadValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.ReadValue;
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream, FileShare.Read);
         }
 
-        private void UpdateValue()
+        protected override void UpdateValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.UpdateValue;
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
@@ -122,26 +80,8 @@ namespace WrapperNetPOI
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
-
-        /* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
-        До:
-            }
-
-
-
-
-            public abstract class Wrapper : IDisposable //Main class
-        После:
-            }
-
-
-
-
-            public abstract class Wrapper : IDisposable //Main class
-        */
+      
     }
-
-
 
 
     public abstract class Wrapper : IDisposable //Main class
@@ -156,18 +96,12 @@ namespace WrapperNetPOI
 
         protected FileStream fileStream; //For disposed. If need to open in other application 
 
-
         public string Password { set; get; } = null;
 
         /// <summary>
         /// Defines the exchangeClass.
         /// </summary>
         public readonly IExchange exchangeClass;
-
-        /// <summary>
-        /// Defines the Workbook.
-        /// </summary>
-        //public IWorkbook Workbook;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WrapperNpoi"/> class.
@@ -194,7 +128,6 @@ namespace WrapperNetPOI
         public static string ReturnTechFileName(string predict, string extension)
         {
             int i = 0;
-            string rnd = "";
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, predict);
             if (Directory.Exists(dir) == false)
             {
@@ -203,9 +136,8 @@ namespace WrapperNetPOI
             string path;
             do
             {
-                path = Path.Combine(dir, $"{predict}{DateTime.Now:yyMMddHHmmss}{rnd}.{extension}");
+                path = Path.Combine(dir, $"{predict}{DateTime.Now:yyMMddHHmmss}{i}.{extension}");
                 i += 1;
-                rnd = i.ToString();
             }
             while (File.Exists(path));
             return path;
@@ -232,7 +164,44 @@ namespace WrapperNetPOI
             }
         }
 
+        protected virtual void InsertValue()
+        {
+            throw new NotImplementedException("InsertValue");
+        }
+        protected virtual void ReadValue()
+        {
+            throw new NotImplementedException("ReadValue");
+        }
+        protected virtual void UpdateValue()
+        {
+            throw new NotImplementedException("UpdateValue");
+        }
+        protected virtual void DeleteValue()
+        {
+            throw new NotImplementedException("DeleteValue");
+        }
 
+        public void Exchange()
+        {
+            switch (exchangeClass.ExchangeOperationEnum)
+            {
+                case ExchangeOperation.Insert:
+                    InsertValue();
+                    break;
+                case ExchangeOperation.Read:
+                    ReadValue();
+                    break;
+                case ExchangeOperation.Update:
+                    UpdateValue();
+                    break;
+                case ExchangeOperation.Delete:
+                    DeleteValue();
+                    break;
+                default:
+                    Logger.Error("exchangeClass.ExchangeTypeEnum");
+                    throw (new ArgumentOutOfRangeException("exchangeClass.ExchangeTypeEnum"));
+            }
+        }
 
         protected virtual void Dispose(bool disposing)
         {
