@@ -65,9 +65,15 @@ namespace WrapperNetPOI
 
     public class WordDoc
     {
-        private List<CellValue> cells;
+        public List<CellValue> Cells {get;}
+        public List<TableValue> Tables {get;}
 
-        private List<CellValue> XGetTables(IBody body, ref int tableN,int level = 0)
+        public WordDoc(object doc)
+        {
+            this.Document = doc;
+        }
+
+        private List<CellValue> XGetCells(IBody body, ref int tableN,int level = 0)
         {
             List<CellValue> cells = new();
             int i = tableN; int j = 0; int k = 0;
@@ -81,7 +87,7 @@ namespace WrapperNetPOI
                         {
                             CellValue cellValue = new(cell.GetText(), i, j, k, level);
                             cells.Add(cellValue);
-                            cells.AddRange(XGetTables(cell,ref i,level+1));
+                            cells.AddRange(XGetCells(cell,ref i,level+1));
                         }
                         else
                         {
@@ -97,13 +103,46 @@ namespace WrapperNetPOI
             return cells;
         }
 
-
-        public virtual List<CellValue> GetCells()
+        private List<CellValue> HGetCells(Range range, ref int tableN,int level = 0)
         {
-            if (Document1 is XWPFDocument x)
+            List<CellValue> cells = new();
+            int paragraphs=range.NumParagraphs;
+            for (int par=0;par<paragraphs;par++)
+            {
+                tableN++;
+                Table table=range.GetTable(range.GetParagraph(par));
+                int rowsNums=table.NumRows;
+                for (int rowN=0;rowN<rowsNums;rowN++)
+                {
+                    TableRow row=table.GetRow(rowN);
+                    int cellNums=row.NumCells();
+                    for (int cellN=0;cellN<cellNums;cellN++)
+                    {
+                        TableCell cell=row.GetCell(cellN);
+                        CellValue cellValue = new(cell.Text, par, rowN, cellN, level);
+                        if (cell.NumParagraphs>0)
+                        {
+                           cells.AddRange(HGetCells(cell,ref tableN,level+1));
+                        }
+                        cells.Add(cellValue);
+                    }
+                }
+            }
+            return cells;
+        }
+
+        public List<CellValue> GetCells()
+        {
+            if (Document is XWPFDocument x)
             {
                 int i=0;
-                cells = XGetTables(x,ref i);
+                var cells = XGetCells(x,ref i);
+                return cells;
+            }
+            else if (Document is HWPFDocument h)
+            {
+                int tables=0;
+                var cells = HGetCells(h.GetRange(),ref tables);
                 return cells;
             }
             return default;
@@ -112,13 +151,9 @@ namespace WrapperNetPOI
         
 
 
-        public virtual List<TableValue> GetTables()
+        public List<TableValue> GetTables()
         {
-            if (Document1 is XWPFDocument x)
-            {
-                int i = 0;
-                cells = XGetTables(x, ref i);
-            }
+            var cells=GetCells();
             var tables=cells.GroupBy(t=>t.tableNumber).
             Select(table=>table.GroupBy(r=>r.rowNumber).OrderBy(rowN=>rowN.Key).Select(row=>row.OrderBy(cell=>cell.cellNumber).ToArray()));
 
@@ -141,16 +176,6 @@ namespace WrapperNetPOI
             }
 
             return tableList;
-
-            /*
-            if (Document1 is XWPFDocument x)
-            {
-                int i=0;
-                cells = XGetTables(x,ref i);
-                return cells;
-            }
-            return default;
-            */
         }
 
         public virtual void GetParagraphs()
@@ -158,20 +183,17 @@ namespace WrapperNetPOI
 
         }
 
-        public WordDoc(object doc)
-        {
-            this.Document1 = doc;
-        }
+        
 
         private HWPFDocument hDocument;
         private XWPFDocument xDocument;
-        public object Document1
+        public object Document
         {
             set
             {
-                if (value is HWPFDocument)
+                if (value is HWPFDocument h)
                 {
-                    HWPFDocument hDocument = new();
+                    hDocument = h;
                 }
                 else if (value is XWPFDocument x)
                 {

@@ -143,10 +143,7 @@ namespace WrapperNetPOI
             }
         }
 
-        
-
-        
-
+     
         public ILogger Logger { set; get; }
         public ExchangeClass(ExchangeOperation exchange, string activeSheetName, IProgress<int> progress)
         {
@@ -452,7 +449,8 @@ namespace WrapperNetPOI
         {
             RowsView rowsView = new(ExchangeOperation.Read, this.ActiveSheetName, new List<IRow>(), null)
             {
-                CloseStream = false
+                CloseStream = true
+                //CloseStream = false
             };
             WrapperExcel tmpWrapper = new(PathSource, rowsView, Logger);
             tmpWrapper.Exchange();
@@ -701,13 +699,6 @@ namespace WrapperNetPOI
         }
 
     }
-
-
-
-
-
-
-
 
 
     public static class ExcelExchange
