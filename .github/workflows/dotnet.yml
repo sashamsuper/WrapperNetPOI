@@ -21,8 +21,10 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./WrapperNetPOI/WrapperNetPOI.csproj
+
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build ./WrapperNetPOI/WrapperNetPOI.csproj --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test ./WrapperNetPOI/WrapperNetPOI.csproj --no-build --verbosity normal
+      
