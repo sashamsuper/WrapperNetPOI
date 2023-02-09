@@ -103,7 +103,7 @@ namespace WrapperNetPOI
             return cells;
         }
 
-        private List<CellValue> HGetCells(Range range, ref int tableN,int level = 0)
+        private List<CellValue> HGetCells(NPOI.HWPF.UserModel.Range range, ref int tableN,int level = 0)
         {
             List<CellValue> cells = new();
             int paragraphs=range.NumParagraphs;
