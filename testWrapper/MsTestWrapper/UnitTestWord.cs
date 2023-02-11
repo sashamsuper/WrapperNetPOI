@@ -15,14 +15,8 @@ namespace MsTestWrapper
         public void ReadCellValueTest()
         {
             var path = "..//..//..//srcTest//listView2.docx";
-            List<string> listS = new()
-            {
-                "1",
-                "2",
-                "3"
-            };
-            WordExchange exchangeClass = new(ExchangeOperation.Read, null);
-            WrapperWord wrapper = new(path, exchangeClass, null);
+            WordExchange exchangeClass = new(ExchangeOperation.Read);
+            WrapperWord wrapper = new(path, exchangeClass);
             wrapper.Exchange();
             var d=exchangeClass.ExchangeValue;
             Assert.AreEqual(36, exchangeClass.ExchangeValue.ToList().Count());

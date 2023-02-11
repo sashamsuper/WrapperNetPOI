@@ -12,9 +12,9 @@ namespace WrapperNetPOI
     {
     }
 
-    public class WordExchange : IExchangeWord
+    public abstract class WordExchange : IExchangeWord
     {
-        public WordExchange(ExchangeOperation exchange, IProgress<int> progress)
+        public WordExchange(ExchangeOperation exchange, IProgress<int> progress=null)
         {
             ExchangeOperationEnum = exchange;
             ProgressValue = progress;
@@ -64,7 +64,7 @@ namespace WrapperNetPOI
             }
             else
             {
-                 XWPFDocument doc = new XWPFDocument(tmpStream);
+                 XWPFDocument doc = new(tmpStream);
                  Document=new(doc);
             }
             //exchangeClass.ActiveSheet = ActiveSheet;
@@ -72,22 +72,33 @@ namespace WrapperNetPOI
         
         }
 
-        public void InsertValue()
+        public virtual void InsertValue()
         {
             throw new NotImplementedException();
         }
 
-        public void ReadValue()
-        {
-            ExchangeValue=Document.GetTables();
-        }
-
-        public void UpdateValue()
+        public virtual void ReadValue()
         {
             throw new NotImplementedException();
         }
 
+        public virtual void UpdateValue()
+        {
+            throw new NotImplementedException();
+        }
+    }
 
+
+    public class TableView : WordExchange
+    {
+        public TableView(ExchangeOperation exchange, IProgress<int> progress = null):
+            base(exchange,progress)
+        {}
+
+        public override void ReadValue()
+        {
+            ExchangeValue = Document.GetTables();
+        }
 
     }
 }

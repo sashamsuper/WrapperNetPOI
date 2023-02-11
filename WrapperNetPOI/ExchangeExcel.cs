@@ -45,6 +45,13 @@ namespace WrapperNetPOI
         int LastViewedColumn { set; get; }
     }
 
+    class GetCellValue
+    { 
+
+    }
+
+
+
     public static class Extension
     {
         public static int RowsCount(this ISheet sheet)
@@ -282,7 +289,7 @@ namespace WrapperNetPOI
             return $"{day}.{mounth}.{year}";
         }
 
-        public string GetCellValue(ICell cell)
+        public virtual string GetCellValue(ICell cell)
         {
             try
             {

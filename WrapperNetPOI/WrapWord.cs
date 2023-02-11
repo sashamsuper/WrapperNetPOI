@@ -154,16 +154,17 @@ namespace WrapperNetPOI
         public List<TableValue> GetTables()
         {
             var cells=GetCells();
+            /*
             var tables=cells.GroupBy(t=>t.tableNumber).
             Select(table=>table.GroupBy(r=>r.rowNumber).OrderBy(rowN=>rowN.Key).Select(row=>row.OrderBy(cell=>cell.cellNumber).ToArray()));
-
-            var tables2=cells.GroupBy(t=>t.tableNumber).
+            */
+            var tables=cells.GroupBy(t=>t.tableNumber).
             Select(table=>table.GroupBy(r=>r.rowNumber).OrderBy(rowN=>rowN.Key).Select(row=>
             new {tableNumber=table.Key,rowNumber=row.Key, value=row.OrderBy(cell=>cell.cellNumber).
             Select(str=>str.text).ToArray()}));
             
             List<TableValue> tableList=new();
-            foreach (var table in tables2)
+            foreach (var table in tables)
             {
                 TableValue tableV = new(table.First().tableNumber,table.First().tableNumber);
                 List<string[]> rows=new();
