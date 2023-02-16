@@ -361,7 +361,7 @@ namespace MsTestWrapper
         {
             IProgress<int> progress = new Progress<int>(s => Debug.WriteLine(s));
 
-            var path = "..//..//..//srcTest//listView2.xls";
+            var path = "..//..//..//srcTest//listView3.xls";
             MatrixView exchangeClass = new(ExchangeOperation.Read, "List1", null, progress);
             WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
