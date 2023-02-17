@@ -50,6 +50,8 @@ namespace WrapperNetPOI
 
     }
 
+    
+
 
 
     public static class Extension
@@ -300,6 +302,12 @@ namespace WrapperNetPOI
                     {
                         cell = GetFirstCellInMergedRegion(cell);
                     }
+
+                    ConvertType convertType = new();
+                    returnValue=convertType.GetValueString(cell);
+
+                    /*
+                    
                     if (cell?.CellType == CellType.Numeric
                       && cell.NumericCellValue > 36526 &&
                       cell.NumericCellValue < 47484)
@@ -328,6 +336,7 @@ namespace WrapperNetPOI
                     {
                         returnValue = cell?.ToString();
                     }
+                    */
                 }
                 return returnValue;
             }
