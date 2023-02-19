@@ -15,6 +15,7 @@ limitations under the License.
 ==========================================================================*/
 using System.Diagnostics;
 using WrapperNetPOI;
+using NPOI.SS.UserModel;
 
 namespace MsTestWrapper
 
@@ -34,10 +35,7 @@ namespace MsTestWrapper
         public void ListViewTestCreateInsert()
         {
             var path = "..//..//..//srcTest//listView.xlsx";
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            DeleteFile(path);
 
             List<string> listS = new()
             {
@@ -53,16 +51,14 @@ namespace MsTestWrapper
             wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.ToList());
+            DeleteFile(path);
         }
 
         [TestMethod]
         public void ListViewTestCreateInsertFirstROWColumn()
         {
             var path = "..//..//..//srcTest//listView.xlsx";
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            DeleteFile(path);
 
             List<string> listS = new()
             {
@@ -88,6 +84,7 @@ namespace MsTestWrapper
             Assert.AreEqual(listS.Count + 10, exchangeClass.ExchangeValue.ToList().Count);
             CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.
                 Where(x => String.IsNullOrEmpty(x) == false).ToList());
+            DeleteFile(path);
         }
 
 
@@ -96,10 +93,7 @@ namespace MsTestWrapper
         public void ListViewTestUpdate()
         {
             var path = "..//..//..//srcTest//listView.xlsx";
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            DeleteFile(path);
             ListView pusto = new(ExchangeOperation.Insert, "List1", null, null);
             WrapperExcel wrapper = new(path, pusto, null);
             wrapper.Exchange();
@@ -127,16 +121,14 @@ namespace MsTestWrapper
             wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.ToList());
+            DeleteFile(path);
         }
 
         [TestMethod]
         public void ListViewTestInsert2Times()
         {
             var path = "..//..//..//srcTest//listView.xlsx";
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            DeleteFile(path);
 
             List<string> listS = new()
             {
@@ -155,6 +147,7 @@ namespace MsTestWrapper
             wrapper.Exchange();
             listS.AddRange(listS);
             CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.ToList());
+            DeleteFile(path);
         }
 
 
@@ -162,10 +155,7 @@ namespace MsTestWrapper
         public void MatrixViewTestCreateInsert()
         {
             var path = "..//..//..//srcTest//listView.xlsx";
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            DeleteFile(path);
 
             List<string[]> listS = new()
             {
@@ -183,16 +173,14 @@ namespace MsTestWrapper
             var expected = listS.Select(x => String.Join("", x)).ToList();
             var actual = exchangeClass.ExchangeValue.Select(x => String.Join("", x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
+            DeleteFile(path);
         }
 
         [TestMethod]
         public void MatrixViewTestInsert2Times()
         {
             var path = "..//..//..//srcTest//listView.xlsx";
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            DeleteFile(path);
 
             List<string[]> listS = new()
             {
@@ -213,16 +201,14 @@ namespace MsTestWrapper
             var expected = listS.Select(x => String.Join("", x)).ToList();
             var actual = exchangeClass.ExchangeValue.Select(x => String.Join("", x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
+            DeleteFile(path);
         }
 
         [TestMethod]
         public void MatrixViewTestUpdate()
         {
             var path = "..//..//..//srcTest//listView.xlsx";
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            DeleteFile(path);
             ListView pusto = new(ExchangeOperation.Insert, "List1", null, null);
             WrapperExcel wrapper = new(path, pusto, null);
             wrapper.Exchange();
@@ -253,17 +239,23 @@ namespace MsTestWrapper
             var expected = listS.Select(x => String.Join("", x)).ToList();
             var actual = exchangeClass.ExchangeValue.Select(x => String.Join("", x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
+            DeleteFile(path);
         }
+
+        protected static void DeleteFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+
 
         [TestMethod]
         public void DictionaryViewTestCreateInsert()
         {
             var path = "..//..//..//srcTest//listView.xlsx";
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-
+            DeleteFile(path);
             Dictionary<string, string[]> dictSource = new()
             {
                 { "1",new[]{"2","23","233" } },
@@ -279,16 +271,14 @@ namespace MsTestWrapper
             var expectedConv = dictSource.Select(x => (x.Key, String.Join("", x.Value))).ToList();
             var actualConv = exchangeClass.ExchangeValue.Select(x => (x.Key, String.Join("", x.Value))).ToList();
             CollectionAssert.AreEqual(expectedConv, actualConv);
+            DeleteFile(path);
         }
 
         [TestMethod]
         public void DictionaryViewTestInsert()
         {
             var path = "..//..//..//srcTest//listView.xlsx";
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            DeleteFile(path);
 
             Dictionary<string, string[]> dictSource1 = new()
             {
@@ -331,6 +321,7 @@ namespace MsTestWrapper
             var expectedConv = dictSource1.Select(x => (x.Key, String.Join("", x.Value))).ToList();
             var actualConv = exchangeClass.ExchangeValue.Select(x => (x.Key, String.Join("", x.Value))).ToList();
             CollectionAssert.AreEqual(expectedConv, actualConv);
+            DeleteFile(path);
         }
 
         [TestMethod]
@@ -387,10 +378,7 @@ namespace MsTestWrapper
         public void TestCopyExcelToExcel()
         {
             var path = "..//..//..//srcTest//listViewXLSX.xlsx";
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            DeleteFile(path);
 
             List<string[]> listS = new()
             {
@@ -421,6 +409,67 @@ namespace MsTestWrapper
             var expected = listS.Select(x => String.Join("", x)).ToList();
             var actual = matrix.ExchangeValue.Select(x => String.Join("", x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
+            DeleteFile(path);
+        }
+
+        [TestMethod]
+        public void ConvertTestString()
+        {
+            var path = "..//..//..//srcTest//mapster.xlsx";
+            RowsView exchangeClass = new(ExchangeOperation.Read);
+            WrapperExcel wrapper = new(path, exchangeClass);
+            wrapper.Exchange();
+            var value=exchangeClass.ExchangeValue.First();
+            ICell cell=value.GetCell(0);
+            ConvertType convertType = new();
+            var str=convertType.GetValueString(new WrapperCell(cell));
+            Assert.AreEqual("dron",str);
+        }
+
+        [TestMethod]
+        public void ConvertTestDouble()
+        {
+            var path = "..//..//..//srcTest//mapster.xlsx";
+            RowsView exchangeClass = new(ExchangeOperation.Read);
+            WrapperExcel wrapper = new(path, exchangeClass);
+            wrapper.Exchange();
+            var value = exchangeClass.ExchangeValue;
+            var row1=value.Skip(1).First();
+            var row2 = value.Skip(2).First();
+            var row3 = value.Skip(3).First();
+            ICell cell1 = row1.GetCell(0);
+            ICell cell2 = row2.GetCell(0);
+            ICell cell3 = row3.GetCell(0);
+            ConvertType convertType = new();
+            var d1=convertType.GetValueDouble(new WrapperCell(cell1));
+            var d2 = convertType.GetValueDouble(new WrapperCell(cell2));
+            var d3 = convertType.GetValueDouble(new WrapperCell(cell3));
+            Assert.AreEqual(1, d1);
+            Assert.AreEqual(2, d2);
+            Assert.AreEqual(3, d3);
+        }
+
+        [TestMethod]
+        public void MapsterTestDouble()
+        {
+            var path = "..//..//..//srcTest//mapster.xlsx";
+            RowsView exchangeClass = new(ExchangeOperation.Read);
+            WrapperExcel wrapper = new(path, exchangeClass);
+            wrapper.Exchange();
+            var value = exchangeClass.ExchangeValue;
+            var row1 = value.Skip(1).First();
+            var row2 = value.Skip(2).First();
+            var row3 = value.Skip(3).First();
+            ICell cell1 = row1.GetCell(0);
+            ICell cell2 = row2.GetCell(0);
+            ICell cell3 = row3.GetCell(0);
+            ConvertType convertType = new();
+            var d1 = convertType.GetValueDouble(new WrapperCell(cell1));
+            var d2 = convertType.GetValueDouble(new WrapperCell(cell2));
+            var d3 = convertType.GetValueDouble(new WrapperCell(cell3));
+            Assert.AreEqual(3, convertType.GetValue<double>(new WrapperCell(cell3)));
+            //Assert.AreEqual(2, d2);
+            //Assert.AreEqual(3, d3);
         }
     }
 }

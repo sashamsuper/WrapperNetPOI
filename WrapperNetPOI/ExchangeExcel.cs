@@ -304,7 +304,7 @@ namespace WrapperNetPOI
                     }
 
                     ConvertType convertType = new();
-                    returnValue=convertType.GetValueString(cell);
+                    returnValue=convertType.GetValueString(new WrapperCell(cell));
 
                     /*
                     
@@ -436,10 +436,17 @@ namespace WrapperNetPOI
         public string PathSource { get; set; }
         public override bool CloseStream => true;
 
-        public RowsView(ExchangeOperation exchangeType, string activeSheetName, IList<IRow> exchangeValue,
+        public RowsView(ExchangeOperation exchangeType, string activeSheetName="", IList<IRow> exchangeValue=null,
             IProgress<int> progress = null) : base(exchangeType, activeSheetName, progress)
         {
-            ExchangeValue = exchangeValue;
+            if (exchangeValue == null)
+            {
+                ExchangeValue = new List<IRow>();
+            }
+            else
+            {
+                ExchangeValue = exchangeValue;
+            }
         }
 
         public override void ReadValue()
