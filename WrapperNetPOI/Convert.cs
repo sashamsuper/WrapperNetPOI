@@ -9,6 +9,7 @@ using Mapster;
 using NPOI.HSSF.Record;
 using NPOI.XWPF.UserModel;
 using System.Runtime.CompilerServices;
+using Org.BouncyCastle.Asn1.X509.Qualified;
 
 [assembly: InternalsVisibleTo("MsTestWrapper")]
 namespace WrapperNetPOI
@@ -68,9 +69,23 @@ namespace WrapperNetPOI
             get
             {
                 string value;
-                value = Cell.StringCellValue;
+
+                try
+                {
+                    value = Cell.StringCellValue;
+                }
+                catch (InvalidOperationException ex)
+                {
+                    value = null;
+                }
+                catch (FormatException ex)
+                {
+                    value = null;
+                }
+
                 return value;
             }
+
         }
 
         public DateTime DateCellValue
@@ -118,32 +133,48 @@ namespace WrapperNetPOI
         {
             Config = new TypeAdapterConfig();
 
-            //Config.ForType<WrapperCell, string>()
-            //.Map(dest => dest,      
-            //src => GetValueString(src));
+           Config.ForType<WrapperCell, string>()
+           .Map(dest => dest,      
+           src => GetValueString(src));
 
             Config.ForType<WrapperCell, double>()
             .Map(dest => dest,      
             src => GetValueDouble(src));
 
-            Config.ForType<WrapperCell, DateTime>()
+           Config.ForType<WrapperCell, DateTime>()
             .Map(dest => dest,      
             src => GetValueDateTime(src));
 
+            Config.Compile();
         }
 
-        public T GetValue<T>(WrapperCell cell) 
+        
+        public T MapGetValue<T>(NPOI.SS.UserModel.ICell cell)
         {
-            if (typeof(T) ==
-                typeof(string)
-                ||
-                typeof(T) ==
-                typeof(double)
-                ||
-                typeof(T) ==
-                typeof(double))
+            WrapperCell wrapperCell = new(cell);
+            return wrapperCell.Adapt<T>(Config);
+            //return default;
+
+        }
+        
+
+
+
+        public T GetValue<T>(NPOI.SS.UserModel.ICell cell)
+        {
+            WrapperCell wrapperCell = new(cell);
+
+            if (typeof(T) == typeof(double))
             {
-                return cell.Adapt<T>(Config);
+                return (T)Convert.ChangeType(GetValueString(wrapperCell),typeof(T));
+            }
+            else if (typeof(T)==typeof(double))
+            {
+                return (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T));
+            }
+            else if (typeof(T)==typeof(DateTime))
+            {
+                return (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T));
             }
             else
             {

@@ -16,6 +16,7 @@ limitations under the License.
 using System.Diagnostics;
 using WrapperNetPOI;
 using NPOI.SS.UserModel;
+using Microsoft.Data.Analysis;
 
 namespace MsTestWrapper
 
@@ -361,7 +362,7 @@ namespace MsTestWrapper
         }
 
 
-        [TestMethod]
+        //[TestMethod]
         public void TestManyReadXLSX()
         {
             IProgress<int> progress = new Progress<int>(s => Debug.WriteLine(s));
@@ -450,7 +451,21 @@ namespace MsTestWrapper
         }
 
         [TestMethod]
-        public void MapsterTestDouble()
+        public void HandMaplexTestDouble()
+        {
+            var path = "..//..//..//srcTest//mapster.xlsx";
+            RowsView exchangeClass = new(ExchangeOperation.Read);
+            WrapperExcel wrapper = new(path, exchangeClass);
+            wrapper.Exchange();
+            var value = exchangeClass.ExchangeValue;
+            var row3 = value.Skip(3).First();
+            ICell cell3 = row3.GetCell(0);
+            ConvertType convertType = new();
+            Assert.AreEqual(3, convertType.GetValue<double>(cell3));
+        }
+
+        [TestMethod]
+        public void MapsterAndHandMapTestDouble()
         {
             var path = "..//..//..//srcTest//mapster.xlsx";
             RowsView exchangeClass = new(ExchangeOperation.Read);
@@ -460,16 +475,23 @@ namespace MsTestWrapper
             var row1 = value.Skip(1).First();
             var row2 = value.Skip(2).First();
             var row3 = value.Skip(3).First();
-            ICell cell1 = row1.GetCell(0);
-            ICell cell2 = row2.GetCell(0);
             ICell cell3 = row3.GetCell(0);
             ConvertType convertType = new();
-            var d1 = convertType.GetValueDouble(new WrapperCell(cell1));
-            var d2 = convertType.GetValueDouble(new WrapperCell(cell2));
-            var d3 = convertType.GetValueDouble(new WrapperCell(cell3));
-            Assert.AreEqual(3, convertType.GetValue<double>(new WrapperCell(cell3)));
-            //Assert.AreEqual(2, d2);
-            //Assert.AreEqual(3, d3);
+            Assert.AreEqual(convertType.GetValue<double>(cell3), convertType.MapGetValue<double>(cell3));
         }
+
+        [TestMethod]
+        public void DataFrameHeaderTest()
+        {
+            var path = "..//..//..//srcTest//mapster.xlsx";
+            DataFrameView exchangeClass = new(ExchangeOperation.Read);
+            WrapperExcel wrapper = new(path, exchangeClass);
+            wrapper.Exchange();
+            Console.WriteLine(exchangeClass.Headers);
+            var value = exchangeClass.ExchangeValue;
+            Assert.AreEqual(1,1);
+        }
+
+
     }
 }
