@@ -11,7 +11,7 @@ using NPOI.XWPF.UserModel;
 using System.Runtime.CompilerServices;
 using Org.BouncyCastle.Asn1.X509.Qualified;
 
-[assembly: InternalsVisibleTo("MsTestWrapper")]
+[assembly: InternalsVisibleTo("UnitTest")]
 namespace WrapperNetPOI
 {
     public class WrapperCell
