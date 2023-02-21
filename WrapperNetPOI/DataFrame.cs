@@ -11,7 +11,7 @@ namespace WrapperNetPOI
     public class DataFrameView : ExchangeClass<DataFrame>
     {
         public int[] HeaderRows {set;get;}=new int[]{0};
-        public string[] Headers;
+        public string[] Header;
         
         public DataFrameView(ExchangeOperation exchangeType, string activeSheetName = "", DataFrame exchangeValue = null,
             IProgress<int> progress = null) : base(exchangeType, activeSheetName, progress) { }
@@ -21,20 +21,20 @@ namespace WrapperNetPOI
             ReadValueHoleSheet();
         }
 
-        private void ReadHeader()
+        protected internal void ReadHeader()
         {
             foreach (var head in HeaderRows)
             {
-                if (Headers==null)
-                {
-                    Headers=ActiveSheet.GetRow(head).Select(x => GetCellValue(x)).ToArray();
-                }
-                else
-                {
-                    var tmpHeaders=ActiveSheet.GetRow(head).Select(x => GetCellValue(x)).ToArray();
-                    for (int i=0;i<Headers.Length;i++)
+                for (int i = ActiveSheet.GetRow(head).FirstCellNum; i < ActiveSheet.GetRow(head).LastCellNum; i++)
+                { 
+                    if (Header == null)
                     {
-                        Headers[i]=Headers[i] +tmpHeaders.ElementAtOrDefault(i);
+                        Header = new string[ActiveSheet.GetRow(head).LastCellNum];
+                        Header[i] = GetCellValue(ActiveSheet.GetRow(head).GetCell(i));
+                    }
+                    else
+                    {
+                        Header[i] =  $"{Header[i] ??""}{GetCellValue(ActiveSheet.GetRow(head).GetCell(i))}";
                     }
                 }
             }
@@ -43,19 +43,12 @@ namespace WrapperNetPOI
 
         private void ReadValueHoleSheet() //Fast
         {
-
-            DataFrameColumn[] columns = {
-            //new StringDataFrameColumn("Name", names),
-            //new PrimitiveDataFrameColumn<int>("Age", ages),
-            //new PrimitiveDataFrameColumn<double>("Height", heights),
-};
-
             ExchangeValue = new DataFrame();
-
-            DataFrameColumn dt= new StringDataFrameColumn("Name");  
-            //ExchangeValue.Columns.Add("sdd");
-
-
+            foreach (var column in Header)
+            {
+                DataFrameColumn dt = new StringDataFrameColumn(column);
+                ExchangeValue.Columns.Add(dt);
+            }
 
 
             List<string[]> tmpListString = new();

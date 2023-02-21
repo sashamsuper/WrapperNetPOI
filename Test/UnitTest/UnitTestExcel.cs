@@ -17,6 +17,7 @@ using System.Diagnostics;
 using WrapperNetPOI;
 using NPOI.SS.UserModel;
 using Microsoft.Data.Analysis;
+using NPOI.SS.Formula.Functions;
 
 namespace MsTestWrapper
 
@@ -485,11 +486,16 @@ namespace MsTestWrapper
         {
             var path = "..//..//..//srcTest//mapster.xlsx";
             DataFrameView exchangeClass = new(ExchangeOperation.Read);
+            exchangeClass.HeaderRows = new int[] { 0, 1 };
             WrapperExcel wrapper = new(path, exchangeClass);
+            
             wrapper.Exchange();
-            Console.WriteLine(exchangeClass.Headers);
+            exchangeClass.ReadHeader();
+            Console.WriteLine(exchangeClass.Header);
             var value = exchangeClass.ExchangeValue;
-            Assert.AreEqual(1,1);
+            string[] d = {"dron1", "header44", "sdds324", "asdrrg",
+                    "asdg4",   "asd", "asd25",   "asd" ,"asdaswer"};
+            CollectionAssert.AreEqual(d,exchangeClass.Header);
         }
 
 
