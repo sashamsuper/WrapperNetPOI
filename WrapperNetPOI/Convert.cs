@@ -10,6 +10,7 @@ using NPOI.HSSF.Record;
 using NPOI.XWPF.UserModel;
 using System.Runtime.CompilerServices;
 using Org.BouncyCastle.Asn1.X509.Qualified;
+using NPOI.SS.Formula.Functions;
 
 [assembly: InternalsVisibleTo("UnitTest")]
 namespace WrapperNetPOI
@@ -22,7 +23,14 @@ namespace WrapperNetPOI
         public WrapperCell(NPOI.SS.UserModel.ICell cell)
         {
             Cell = cell;
-            CellType = cell.CellType;
+            if (cell == null)
+            {
+                CellType = CellType.Unknown;
+            }
+            else
+            {
+                CellType = cell.CellType;
+            }
         }
 
         public CellType CachedFormulaResultType 
@@ -31,7 +39,14 @@ namespace WrapperNetPOI
             {
                 try 
                 {
-                    return Cell.CachedFormulaResultType;
+                    if (Cell == null)
+                    {
+                        return CellType.Unknown;
+                    }
+                    else
+                    {
+                        return Cell.CachedFormulaResultType;
+                    }
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -49,7 +64,14 @@ namespace WrapperNetPOI
 
                 try
                 {
-                    value = Cell.NumericCellValue;
+                    if (Cell == null)
+                    {
+                        value = default;
+                    }
+                    else 
+                    {
+                        value = Cell.NumericCellValue;
+                    }
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -72,7 +94,7 @@ namespace WrapperNetPOI
 
                 try
                 {
-                    value = Cell.StringCellValue;
+                    value = Cell?.StringCellValue;
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -96,7 +118,14 @@ namespace WrapperNetPOI
 
                 try
                 {
-                    value = Cell.DateCellValue;
+                    if (Cell == null)
+                    {
+                        value = default;
+                    }
+                    else
+                    {
+                        value = Cell.DateCellValue;
+                    }
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -126,7 +155,7 @@ namespace WrapperNetPOI
 
         public ConvertType()
         {
-            CreateMapster();
+            //CreateMapster();
         }
 
         private void CreateMapster()
@@ -156,7 +185,65 @@ namespace WrapperNetPOI
             //return default;
 
         }
+
         
+
+        public dynamic GetValue (NPOI.SS.UserModel.ICell cell, Type type)
+        {
+            if (type == typeof(string))
+            {
+                GetValue(cell, out string tmp);
+                return tmp;
+            }
+            else if (type == typeof(double))
+            {
+                GetValue(cell, out double tmp);
+                return tmp;
+            }
+            else if (type == typeof(DateTime))
+            {
+                GetValue(cell, out DateTime tmp);
+                return tmp;
+            }
+            else
+            {
+                throw new NotImplementedException("Do not have handler");
+            }
+        }
+            
+            
+         
+
+
+
+
+
+
+        public void GetValue<T>(NPOI.SS.UserModel.ICell cell, out T value)
+        {
+            WrapperCell wrapperCell = new(cell);
+
+            if (typeof(T) == typeof(string))
+            {
+                value= (T)Convert.ChangeType(GetValueString(wrapperCell), typeof(T));
+            }
+            else if (typeof(T) == typeof(double))
+            {
+                value= (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T));
+            }
+            else if (typeof(T) == typeof(DateTime))
+            {
+                value= (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T));
+            }
+            else
+            {
+                throw new NotImplementedException("Do not have handler");
+            }
+        }
+
+
+
+
 
 
 
@@ -164,7 +251,7 @@ namespace WrapperNetPOI
         {
             WrapperCell wrapperCell = new(cell);
 
-            if (typeof(T) == typeof(double))
+            if (typeof(T) == typeof(string))
             {
                 return (T)Convert.ChangeType(GetValueString(wrapperCell),typeof(T));
             }

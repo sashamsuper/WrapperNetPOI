@@ -465,22 +465,7 @@ namespace MsTestWrapper
             Assert.AreEqual(3, convertType.GetValue<double>(cell3));
         }
 
-        [TestMethod]
-        public void MapsterAndHandMapTestDouble()
-        {
-            var path = "..//..//..//srcTest//mapster.xlsx";
-            RowsView exchangeClass = new(ExchangeOperation.Read);
-            WrapperExcel wrapper = new(path, exchangeClass);
-            wrapper.Exchange();
-            var value = exchangeClass.ExchangeValue;
-            var row1 = value.Skip(1).First();
-            var row2 = value.Skip(2).First();
-            var row3 = value.Skip(3).First();
-            ICell cell3 = row3.GetCell(0);
-            ConvertType convertType = new();
-            Assert.AreEqual(convertType.GetValue<double>(cell3), convertType.MapGetValue<double>(cell3));
-        }
-
+        
         [TestMethod]
         public void DataFrameHeaderTest()
         {
@@ -488,15 +473,30 @@ namespace MsTestWrapper
             DataFrameView exchangeClass = new(ExchangeOperation.Read);
             exchangeClass.HeaderRows = new int[] { 0, 1 };
             WrapperExcel wrapper = new(path, exchangeClass);
-            
             wrapper.Exchange();
-            exchangeClass.ReadHeader();
             Console.WriteLine(exchangeClass.Header);
             var value = exchangeClass.ExchangeValue;
             string[] d = {"dron1", "header44", "sdds324", "asdrrg",
-                    "asdg4",   "asd", "asd25",   "asd" ,"asdaswer"};
+                    "asdg4",   "asd", "asd25",   "asd1" ,"asdaswer"};
             CollectionAssert.AreEqual(d,exchangeClass.Header);
         }
+
+        [TestMethod]
+        public void DataFrameHeaderTest2rowDiffLenght()
+        {
+            var path = "..//..//..//srcTest//mapster.xlsx";
+            DataFrameView exchangeClass = new(ExchangeOperation.Read,"Sheet2");
+            exchangeClass.HeaderRows = new int[] { 0, 1 };
+            WrapperExcel wrapper = new(path, exchangeClass);
+            wrapper.Exchange();
+            Console.WriteLine(exchangeClass.Header);
+            var value = exchangeClass.ExchangeValue;
+            string[] d = { "dron1", "header44",    "sdds324", "a11", "a244",
+                "a3324",   "a41", "a744",    "asdas324" };
+            CollectionAssert.AreEqual(d, exchangeClass.Header);
+        }
+
+
 
 
     }

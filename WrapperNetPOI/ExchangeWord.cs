@@ -1,4 +1,4 @@
-﻿using NPOI.SS.UserModel;
+using NPOI.SS.UserModel;
 using NPOI.POIFS.Crypt;
 using Serilog;
 using System;

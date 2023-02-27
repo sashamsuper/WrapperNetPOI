@@ -1,4 +1,4 @@
-﻿/* ==================================================================
+/* ==================================================================
 Copyright 2020-2022 sashamsuper
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -163,6 +163,8 @@ namespace WrapperNetPOI
 
         public string ActiveSheetName { set; get; }
 
+       
+
         public ExchangeOperation ExchangeOperationEnum { set; get; }
         public ISheet ActiveSheet { set; get; }
         public int FirstViewedRow
@@ -230,7 +232,7 @@ namespace WrapperNetPOI
         private int? lastViewedColumn;
         public Tout ExchangeValue { set; get; }
         public Action ExchangeValueFunc { set; get; }
-        public void GetInternallyObject(Stream tmpStream, bool addNewWorkbook)
+        public virtual void GetInternallyObject(Stream tmpStream, bool addNewWorkbook)
         {
             FileStream fs = default;
             if (Password == null)
