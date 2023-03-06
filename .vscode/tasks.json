@@ -47,6 +47,15 @@
                 "${workspaceFolder}\\Test\\UnitTest\\UnitTest.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        
+        {
+            "label": "run test",
+            "dependsOn":["build","test"],
+            "problemMatcher": "$msCompile"
         }
+
+
+
     ]
 }

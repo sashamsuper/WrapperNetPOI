@@ -47,7 +47,6 @@ namespace WrapperNetPOI
                     FileShare.ReadWrite);
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
-            
         }
 
         protected override void ReadValue()
@@ -91,7 +90,5 @@ namespace WrapperNetPOI
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
-      
     }
-   
 }

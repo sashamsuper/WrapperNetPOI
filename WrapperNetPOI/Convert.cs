@@ -1,23 +1,15 @@
 ﻿using NPOI.SS.UserModel;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Globalization;
-using System.Text;
 using Mapster;
-
-using NPOI.HSSF.Record;
-using NPOI.XWPF.UserModel;
 using System.Runtime.CompilerServices;
-using Org.BouncyCastle.Asn1.X509.Qualified;
-using NPOI.SS.Formula.Functions;
 
 [assembly: InternalsVisibleTo("UnitTest")]
 namespace WrapperNetPOI
 {
     public class WrapperCell
     {
-        NPOI.SS.UserModel.ICell Cell { set; get; }
+        ICell Cell { set; get; }
         public CellType CellType { set; get; }
 
         public WrapperCell(NPOI.SS.UserModel.ICell cell)
@@ -163,21 +155,20 @@ namespace WrapperNetPOI
             Config = new TypeAdapterConfig();
 
            Config.ForType<WrapperCell, string>()
-           .Map(dest => dest,      
+           .Map(dest => dest,
            src => GetValueString(src));
 
             Config.ForType<WrapperCell, double>()
-            .Map(dest => dest,      
+            .Map(dest => dest,
             src => GetValueDouble(src));
 
            Config.ForType<WrapperCell, DateTime>()
-            .Map(dest => dest,      
+            .Map(dest => dest,
             src => GetValueDateTime(src));
 
             Config.Compile();
         }
 
-        
         public T MapGetValue<T>(NPOI.SS.UserModel.ICell cell)
         {
             WrapperCell wrapperCell = new(cell);
@@ -190,83 +181,38 @@ namespace WrapperNetPOI
 
         public dynamic GetValue (NPOI.SS.UserModel.ICell cell, Type type)
         {
-            if (type == typeof(string))
+            switch (type.Name)
             {
-                GetValue(cell, out string tmp);
-                return tmp;
-            }
-            else if (type == typeof(double))
-            {
-                GetValue(cell, out double tmp);
-                return tmp;
-            }
-            else if (type == typeof(DateTime))
-            {
-                GetValue(cell, out DateTime tmp);
-                return tmp;
-            }
-            else
-            {
-                throw new NotImplementedException("Do not have handler");
+                case "String":
+                    GetValue(cell, out string tmp);
+                    return tmp;
+                 case "Double":
+                    GetValue(cell, out double tmp1);
+                    return tmp1;
+                case "DateTime":
+                    GetValue(cell, out DateTime tmp2);
+                    return tmp2;
+                default:
+                    throw new NotImplementedException("Do not have handler");
             }
         }
-            
-            
-         
-
-
-
-
-
 
         public void GetValue<T>(NPOI.SS.UserModel.ICell cell, out T value)
         {
             WrapperCell wrapperCell = new(cell);
-
-            if (typeof(T) == typeof(string))
+            value = typeof(T).Name switch
             {
-                value= (T)Convert.ChangeType(GetValueString(wrapperCell), typeof(T));
-            }
-            else if (typeof(T) == typeof(double))
-            {
-                value= (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T));
-            }
-            else if (typeof(T) == typeof(DateTime))
-            {
-                value= (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T));
-            }
-            else
-            {
-                throw new NotImplementedException("Do not have handler");
-            }
+                "String" => (T)Convert.ChangeType(GetValueString(wrapperCell), typeof(T)),
+                "Double" => (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T)),
+                "DateTime" => (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T)),
+                _ => throw new NotImplementedException("Do not have handler"),
+            };
         }
-
-
-
-
-
-
 
         public T GetValue<T>(NPOI.SS.UserModel.ICell cell)
         {
-            WrapperCell wrapperCell = new(cell);
-
-            if (typeof(T) == typeof(string))
-            {
-                return (T)Convert.ChangeType(GetValueString(wrapperCell),typeof(T));
-            }
-            else if (typeof(T)==typeof(double))
-            {
-                return (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T));
-            }
-            else if (typeof(T)==typeof(DateTime))
-            {
-                return (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T));
-            }
-            else
-            {
-                throw new NotImplementedException("Do not have handler");
-            }
+            GetValue<T>(cell,out T value);
+            return value;
         }
 
 
@@ -310,7 +256,14 @@ namespace WrapperNetPOI
 
         public DateTime GetDateTime(double value)
         {
-            return Convert.ToDateTime(value);
+            try
+            {
+                return Convert.ToDateTime(value, ThisCultureInfo);
+            }
+            catch 
+            {
+                return default;
+            }
         }
 
 

@@ -1,17 +1,13 @@
 using Microsoft.Data.Analysis;
-using NPOI.HSSF.Record;
 using NPOI.SS.UserModel;
-using NPOI.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
+
 
 namespace WrapperNetPOI
 {
-
     public static class Extensions
     {
         public static bool TryAddStandart<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TKey key, TValue value)
@@ -29,94 +25,185 @@ namespace WrapperNetPOI
         }
     }
 
-
-    public class ColumnHeader
+    public class Header
     {
-        public string Name {set;get;}
-        public int ColumnNumber { set; get; }
-        public Type ColumnType { set; get; }
+        public int[] Rows { set; get; } = new int[] { 0 };
+        public DataColumn[] DataColumns { set; get; }
+        public DataFrameView DFView { set; private get; }
 
+        public void CreateHeaderType(Dictionary<int, Type> columns)
+        {
+            List<DataColumn> tmp = new();
+
+            foreach (var column in columns)
+            {
+                DataColumn columnHeader =
+                new("", column.Key, column.Value);
+                tmp.Add(columnHeader);
+            }
+            DataColumns = tmp.ToArray();
+        }
+        protected internal virtual void GetHeaderRow()
+        {
+            for (int j=0;j<Rows.Length;j++)
+            {
+                ConvertType convertType = new();
+                int countValue;
+                if (j==0)
+                {
+                    var firstColumn = DFView.ActiveSheet.GetRow(Rows[j]).FirstCellNum;
+                    countValue = DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum -
+                                 DFView.ActiveSheet.GetRow(Rows[j]).FirstCellNum; // +1 ruled out, NPOI feature
+                    DFView.WorkbookBorder.CorrectBorder(firstColumn: firstColumn,
+                                                        lastColumn: DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum);
+                    if (DataColumns == null)
+                    {
+                        DataColumns = new DataColumn[countValue];
+                        for (int i=0;i< DataColumns.Length;i++)
+                        {
+                            DataColumns[i] = new DataColumn("", i, typeof(String));
+                        }
+
+                    }
+                    for (int k = 0; k < DataColumns.Length; k++)
+                    {
+                        DataColumns[k].Number = k + firstColumn;
+                    }
+                }
+                for (int i = 0; i < DataColumns.Length; i++)
+                {
+                    string columnName = convertType.GetValue<string>(DFView.ActiveSheet.GetRow(Rows[j]).
+                        GetCell(i + DFView.FirstViewedColumn));
+                    columnName ??= "";
+                    DataColumns[i].Name = $"{DataColumns[i].Name ?? ""}{columnName}";
+                }
+            }
+        }
+        public void RenameDobleHeaderColumn()
+        {
+            for (int i = DataColumns.Length - 1; i >= 0; i--)
+            {
+                int j = 0;
+                string tmpHeader = DataColumns[i].Name;
+                while (DataColumns.Count(x => x.Name == DataColumns[i].Name) > 1)
+                {
+                    j++;
+                    DataColumns[i].Name = $"{tmpHeader}{j}";
+                }
+            }
+        }
+    }
+    public class DataColumn
+    {
+        public string Name { set; get; }
+        public int Number { set; get; }
+        public Type Type { set; get; }
         public override string ToString()
         {
             return Name;
         }
-
+        public DataColumn(string name, int columnNumber, Type columnType)
+        {
+            Name = name;
+            Number = columnNumber;
+            Type = columnType;
+        }
     }
 
-    
-    
+
     public class DataFrameView : ExchangeClass<DataFrame>
     {
-        
-        
-        public int[] HeaderRows {set;get;}=new int[]{0};
-        public ColumnHeader[] Header { set; get; } 
-        
+        public Header DataHeader { set; get; }
         public DataFrameView(ExchangeOperation exchangeType, string activeSheetName = "", DataFrame exchangeValue = null,
-            IProgress<int> progress = null) : base(exchangeType, activeSheetName, progress) 
-            {}
+            Border border=null, IProgress<int> progress = null) : base(exchangeType, activeSheetName, border, progress) { }
 
+        public override ISheet ActiveSheet 
+        {
+            set
+            { 
+                base.ActiveSheet= value;
+                if (DataHeader == null)
+                {
+                    DataHeader = new Header
+                    {
+                        DFView = this
+                    };
+                }
+                else
+                {
+                    DataHeader.DFView = this;
+                }
+            }
+            get
+            {
+                return base.ActiveSheet;
+
+            }
+                
+        }
+
+        
+        
         public override void ReadValue()
         {
             ReadHeader();
             ReadValueHoleSheet();
         }
 
-
-
-
-
-        protected void GetOneRow(IRow row, DataFrame dataFrame, DataFrameRow frameRow)
+        protected void AppendOneRow(IRow row, DataFrame dataFrame)
         {
+            ConvertType convert = new();
+            List<KeyValuePair<string, object>> oneRow = new();
             foreach (var column in dataFrame.Columns)
             {
-                ConvertType convert = new ();
-                var columnHeader=Header.Where(x => x.Name == column.Name).First();
-                ICell cell = row.GetCell(columnHeader.ColumnNumber);
-                var value=convert.GetValue(cell, column.DataType);
-                frameRow[columnHeader.ColumnNumber] = value;
-            }
+                ICell cell;
+                var columnHeader = DataHeader.DataColumns.First(x => x.Name == column.Name);
+                if (row != null)
+                {
+                    cell = row.GetCell(columnHeader.Number);
+                }
+                else
+                {
+                    cell = null;
+                }
 
+                var value = convert.GetValue(cell, column.DataType);
+                oneRow.Add(new KeyValuePair<string, object>(columnHeader.Name, value));
+            }
+            dataFrame.Append(oneRow, true);
         }
+
+        
 
         protected internal void ReadHeader()
         {
-            Header = default;
-            foreach (var head in HeaderRows)
-            {
-                var counValue = ActiveSheet.GetRow(head).LastCellNum -
-                                ActiveSheet.GetRow(head).FirstCellNum; // +1 ruled out, NPOI feature
+            DataHeader.GetHeaderRow();
+            DataHeader.RenameDobleHeaderColumn();
+        }
 
-
-                if (Header == null)
-                {
-                    Header = new ColumnHeader[counValue];
-                    for (int j = 0; j < Header.Length; j++)
-                    {
-                        Header[j] = new ColumnHeader 
-                        { 
-                            ColumnNumber= j
-                        };
-                    }
-                }
-                
-                for (int i = 0; i < Header.Length; i++)
-                {
-                    ConvertType convertType = new();
-                    string columnName;
-                    columnName = convertType.GetValue<string>(ActiveSheet.GetRow(head).GetCell(i));
-                    columnName ??= "";
-                    Header[i].Name= $"{Header[i].Name ?? ""}{columnName}";
-                }
-            }
-            for (int i= Header.Length-1; i>=0;i--)
+        private void CreateColumns()
+        {
+            DataFrameColumn dt;
+            foreach (var column in DataHeader.DataColumns)
             {
-                int j = 0;
-                string tmpHeader = Header[i].Name;
-                while (Header.Count(x => x == Header[i]) > 1)
+                switch (column.Type.Name)
                 {
-                    j++;
-                    Header[i].Name = $"{tmpHeader}{j}";
+                    case "String":
+                        dt = new StringDataFrameColumn(column.Name);
+                        ExchangeValue.Columns.Add(dt);
+                        break;
+                    case "Double":
+                        dt = new DoubleDataFrameColumn(column.Name);
+                        ExchangeValue.Columns.Add(dt);
+                        break;
+                    case "DateTime":
+                        dt = new DateTimeDataFrameColumn(column.Name);
+                        ExchangeValue.Columns.Add(dt);
+                        break;
+                    default:
+                        dt = new StringDataFrameColumn(column.Name);
+                        ExchangeValue.Columns.Add(dt);
+                        break;
                 }
             }
         }
@@ -124,45 +211,34 @@ namespace WrapperNetPOI
         private void ReadValueHoleSheet() //Fast
         {
             ExchangeValue = new DataFrame();
-            foreach (var column in Header)
-            {
-                DataFrameColumn dt = new StringDataFrameColumn(column.Name);
-                ExchangeValue.Columns.Add(dt);
-            }
-
+            CreateColumns();
             if (ActiveSheet != null)
             {
                 int i = 0;
-                foreach (IRow value in ActiveSheet)
+                foreach (IRow row in ActiveSheet)
                 {
-                    IRow row = value;
                     if (row.RowNum > i)
                     {
-                        while (true)
+                        do
                         {
-                            tmpListString.Add(Array.Empty<string>());
+                            AppendOneRow(null, ExchangeValue);
                             i++;
-                            if (row.RowNum == i)
-                            {
-                                break;
-                            }
                         }
+                        while (row.RowNum != i);
                     }
-                    tmpListString.Add(row.Select(x => GetCellValue(x)).ToArray());
+                    if (!DataHeader.Rows.Contains(i))
+                    {
+                        AppendOneRow(row, ExchangeValue);
+                    }
                     i++;
 #if DEBUG
                     if (i % 1000 == 0)
                     {
-
                         Debug.WriteLine(i);
-
                     }
 #endif
                 }
-                //ExchangeValue = tmpListString;
             }
         }
-
-
     }
 }

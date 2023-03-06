@@ -19,7 +19,7 @@ namespace MsTestWrapper
             WrapperWord wrapper = new(path, exchangeClass);
             wrapper.Exchange();
             var d=exchangeClass.ExchangeValue;
-            Assert.AreEqual(36, exchangeClass.ExchangeValue.ToList().Count());
+            Assert.AreEqual(36, exchangeClass.ExchangeValue.ToList().Count);
         }
 
         [TestMethod]

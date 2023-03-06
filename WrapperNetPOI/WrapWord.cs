@@ -29,7 +29,6 @@ using System.Linq;
 
 namespace WrapperNetPOI
 {
-
     public class CellValue
     {
         public string text;
@@ -62,7 +61,6 @@ namespace WrapperNetPOI
         }
     }
 
-
     public class WordDoc
     {
         public List<CellValue> Cells {get;}
@@ -81,7 +79,7 @@ namespace WrapperNetPOI
             {
                 foreach (XWPFTableRow row in table.Rows)
                 {
-                    foreach (XWPFTableCell cell in row.GetTableICells())
+                    foreach (XWPFTableCell cell in row.GetTableICells().Cast<XWPFTableCell>())
                     {
                         if (cell?.BodyElements.Count > 0)
                         {
@@ -148,9 +146,6 @@ namespace WrapperNetPOI
             return default;
         }
 
-        
-
-
         public List<TableValue> GetTables()
         {
             var cells=GetCells();
@@ -162,7 +157,7 @@ namespace WrapperNetPOI
             Select(table=>table.GroupBy(r=>r.rowNumber).OrderBy(rowN=>rowN.Key).Select(row=>
             new {tableNumber=table.Key,rowNumber=row.Key, value=row.OrderBy(cell=>cell.cellNumber).
             Select(str=>str.text).ToArray()}));
-            
+
             List<TableValue> tableList=new();
             foreach (var table in tables)
             {
@@ -181,10 +176,7 @@ namespace WrapperNetPOI
 
         public virtual void GetParagraphs()
         {
-
         }
-
-        
 
         private HWPFDocument hDocument;
         private XWPFDocument xDocument;
@@ -203,21 +195,13 @@ namespace WrapperNetPOI
             }
             get
             {
-                if (hDocument is null)
-                {
-                    return xDocument;
-                }
-                else
-                {
-                    return hDocument;
-                }
+                return hDocument ?? (object)xDocument;
             }
         }
     }
 
     public class WrapperWord : Wrapper
     {
-
         public WordDoc Document { set; get; }
 
         public WrapperWord(string pathToFile, IExchangeWord exchangeClass, ILogger logger = null) :
@@ -279,17 +263,5 @@ namespace WrapperNetPOI
             //exchangeClass.Workbook.Write(fs, false);
             fs.Close();
         }
-
-
     }
-
-
 }
-
-
-
-
-
-
-
-

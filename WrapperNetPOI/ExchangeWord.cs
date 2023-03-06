@@ -39,11 +39,8 @@ namespace WrapperNetPOI
 
         public void GetInternallyObject(Stream tmpStream, bool addNew)
         {
-            
             FileStream fs = default;
-            if (Password == null)
-            { }
-            else
+            if (Password != null)
             {
                 NPOI.POIFS.FileSystem.POIFSFileSystem nfs =
                 new(fs);
@@ -53,7 +50,7 @@ namespace WrapperNetPOI
                 dc.VerifyPassword(Password);
                 tmpStream = dc.GetDataStream(nfs);
             }
-            if (addNew == true)
+            if (addNew)
             {
                 /*
                 Workbook = new XSSFWorkbook();
@@ -69,7 +66,6 @@ namespace WrapperNetPOI
             }
             //exchangeClass.ActiveSheet = ActiveSheet;
             ExchangeValueFunc();
-        
         }
 
         public virtual void InsertValue()

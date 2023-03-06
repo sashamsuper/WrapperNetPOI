@@ -74,7 +74,6 @@ namespace WrapperNetPOI
         /// <param name="targetRowIndex"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-
         public static IRow ChangedCopyRow(ISheet sourceSheet, int sourceRowIndex, ISheet targetSheet, int targetRowIndex)
         {
             // Get the source / new row
