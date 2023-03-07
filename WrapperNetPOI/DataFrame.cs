@@ -1,10 +1,25 @@
+/* ==================================================================
+Copyright 2020-2023 sashamsuper
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==========================================================================*/
+
 using Microsoft.Data.Analysis;
 using NPOI.SS.UserModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-
 
 namespace WrapperNetPOI
 {
@@ -19,6 +34,7 @@ namespace WrapperNetPOI
             dictionary.Add(key, value);
             return true;
         }
+
         public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, KeyValuePair<TKey, TValue> value)
         {
             return TryAddStandart(dictionary, value.Key, value.Value);
@@ -43,13 +59,14 @@ namespace WrapperNetPOI
             }
             DataColumns = tmp.ToArray();
         }
+
         protected internal virtual void GetHeaderRow()
         {
-            for (int j=0;j<Rows.Length;j++)
+            for (int j = 0; j < Rows.Length; j++)
             {
                 ConvertType convertType = new();
                 int countValue;
-                if (j==0)
+                if (j == 0)
                 {
                     var firstColumn = DFView.ActiveSheet.GetRow(Rows[j]).FirstCellNum;
                     countValue = DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum -
@@ -59,11 +76,10 @@ namespace WrapperNetPOI
                     if (DataColumns == null)
                     {
                         DataColumns = new DataColumn[countValue];
-                        for (int i=0;i< DataColumns.Length;i++)
+                        for (int i = 0; i < DataColumns.Length; i++)
                         {
                             DataColumns[i] = new DataColumn("", i, typeof(String));
                         }
-
                     }
                     for (int k = 0; k < DataColumns.Length; k++)
                     {
@@ -79,6 +95,7 @@ namespace WrapperNetPOI
                 }
             }
         }
+
         public void RenameDobleHeaderColumn()
         {
             for (int i = DataColumns.Length - 1; i >= 0; i--)
@@ -93,15 +110,18 @@ namespace WrapperNetPOI
             }
         }
     }
+
     public class DataColumn
     {
         public string Name { set; get; }
         public int Number { set; get; }
         public Type Type { set; get; }
+
         public override string ToString()
         {
             return Name;
         }
+
         public DataColumn(string name, int columnNumber, Type columnType)
         {
             Name = name;
@@ -110,18 +130,18 @@ namespace WrapperNetPOI
         }
     }
 
-
     public class DataFrameView : ExchangeClass<DataFrame>
     {
         public Header DataHeader { set; get; }
-        public DataFrameView(ExchangeOperation exchangeType, string activeSheetName = "", DataFrame exchangeValue = null,
-            Border border=null, IProgress<int> progress = null) : base(exchangeType, activeSheetName, border, progress) { }
 
-        public override ISheet ActiveSheet 
+        public DataFrameView(ExchangeOperation exchangeType, string activeSheetName = "", DataFrame exchangeValue = null,
+            Border border = null, IProgress<int> progress = null) : base(exchangeType, activeSheetName, border, progress) { }
+
+        public override ISheet ActiveSheet
         {
             set
-            { 
-                base.ActiveSheet= value;
+            {
+                base.ActiveSheet = value;
                 if (DataHeader == null)
                 {
                     DataHeader = new Header
@@ -137,13 +157,9 @@ namespace WrapperNetPOI
             get
             {
                 return base.ActiveSheet;
-
             }
-                
         }
 
-        
-        
         public override void ReadValue()
         {
             ReadHeader();
@@ -173,8 +189,6 @@ namespace WrapperNetPOI
             dataFrame.Append(oneRow, true);
         }
 
-        
-
         protected internal void ReadHeader()
         {
             DataHeader.GetHeaderRow();
@@ -192,14 +206,17 @@ namespace WrapperNetPOI
                         dt = new StringDataFrameColumn(column.Name);
                         ExchangeValue.Columns.Add(dt);
                         break;
+
                     case "Double":
                         dt = new DoubleDataFrameColumn(column.Name);
                         ExchangeValue.Columns.Add(dt);
                         break;
+
                     case "DateTime":
                         dt = new DateTimeDataFrameColumn(column.Name);
                         ExchangeValue.Columns.Add(dt);
                         break;
+
                     default:
                         dt = new StringDataFrameColumn(column.Name);
                         ExchangeValue.Columns.Add(dt);

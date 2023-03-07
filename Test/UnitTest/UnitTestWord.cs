@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 using WrapperNetPOI;
 
 namespace MsTestWrapper
@@ -18,7 +12,7 @@ namespace MsTestWrapper
             TableView exchangeClass = new(ExchangeOperation.Read);
             WrapperWord wrapper = new(path, exchangeClass);
             wrapper.Exchange();
-            var d=exchangeClass.ExchangeValue;
+            var d = exchangeClass.ExchangeValue;
             Assert.AreEqual(36, exchangeClass.ExchangeValue.ToList().Count);
         }
 

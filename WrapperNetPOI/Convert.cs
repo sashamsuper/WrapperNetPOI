@@ -1,15 +1,31 @@
-﻿using NPOI.SS.UserModel;
+﻿/* ==================================================================
+Copyright 2020-2023 sashamsuper
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==========================================================================*/
+
+using NPOI.SS.UserModel;
 using System;
 using System.Globalization;
-using Mapster;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("UnitTest")]
+
 namespace WrapperNetPOI
 {
     public class WrapperCell
     {
-        ICell Cell { set; get; }
+        private ICell Cell { get; }
         public CellType CellType { set; get; }
 
         public WrapperCell(NPOI.SS.UserModel.ICell cell)
@@ -25,11 +41,11 @@ namespace WrapperNetPOI
             }
         }
 
-        public CellType CachedFormulaResultType 
+        public CellType CachedFormulaResultType
         {
             get
             {
-                try 
+                try
                 {
                     if (Cell == null)
                     {
@@ -40,9 +56,8 @@ namespace WrapperNetPOI
                         return Cell.CachedFormulaResultType;
                     }
                 }
-                catch (InvalidOperationException ex)
+                catch (InvalidOperationException)
                 {
-
                     return default;
                 }
             }
@@ -60,16 +75,16 @@ namespace WrapperNetPOI
                     {
                         value = default;
                     }
-                    else 
+                    else
                     {
                         value = Cell.NumericCellValue;
                     }
                 }
-                catch (InvalidOperationException ex)
+                catch (InvalidOperationException)
                 {
                     value = 0;
                 }
-                catch (FormatException ex)
+                catch (FormatException)
                 {
                     value = 0;
                 }
@@ -88,18 +103,17 @@ namespace WrapperNetPOI
                 {
                     value = Cell?.StringCellValue;
                 }
-                catch (InvalidOperationException ex)
+                catch (InvalidOperationException)
                 {
                     value = null;
                 }
-                catch (FormatException ex)
+                catch (FormatException)
                 {
                     value = null;
                 }
 
                 return value;
             }
-
         }
 
         public DateTime DateCellValue
@@ -119,11 +133,11 @@ namespace WrapperNetPOI
                         value = Cell.DateCellValue;
                     }
                 }
-                catch (InvalidOperationException ex)
+                catch (InvalidOperationException)
                 {
                     value = default;
                 }
-                catch (FormatException ex)
+                catch (FormatException)
                 {
                     value = default;
                 }
@@ -131,67 +145,35 @@ namespace WrapperNetPOI
                 return value;
             }
         }
-
-
-
     }
 
     public class ConvertType
     {
-
-        CultureInfo ThisCultureInfo { get; set; } = CultureInfo.CurrentCulture;
-        NumberStyles ThisNumberStyle { get; set; } = NumberStyles.Number;
-        DateTimeStyles ThisDateTimeStyle { get; set; } = DateTimeStyles.AssumeUniversal;
-        TypeAdapterConfig Config { get; set; }
-
+        private CultureInfo ThisCultureInfo { get; } = CultureInfo.CurrentCulture;
+        private NumberStyles ThisNumberStyle { get; } = NumberStyles.Number;
+        private DateTimeStyles ThisDateTimeStyle { get; } = DateTimeStyles.AssumeUniversal;
 
         public ConvertType()
         {
             //CreateMapster();
         }
 
-        private void CreateMapster()
-        {
-            Config = new TypeAdapterConfig();
-
-           Config.ForType<WrapperCell, string>()
-           .Map(dest => dest,
-           src => GetValueString(src));
-
-            Config.ForType<WrapperCell, double>()
-            .Map(dest => dest,
-            src => GetValueDouble(src));
-
-           Config.ForType<WrapperCell, DateTime>()
-            .Map(dest => dest,
-            src => GetValueDateTime(src));
-
-            Config.Compile();
-        }
-
-        public T MapGetValue<T>(NPOI.SS.UserModel.ICell cell)
-        {
-            WrapperCell wrapperCell = new(cell);
-            return wrapperCell.Adapt<T>(Config);
-            //return default;
-
-        }
-
-        
-
-        public dynamic GetValue (NPOI.SS.UserModel.ICell cell, Type type)
+        public dynamic GetValue(NPOI.SS.UserModel.ICell cell, Type type)
         {
             switch (type.Name)
             {
                 case "String":
                     GetValue(cell, out string tmp);
                     return tmp;
-                 case "Double":
+
+                case "Double":
                     GetValue(cell, out double tmp1);
                     return tmp1;
+
                 case "DateTime":
                     GetValue(cell, out DateTime tmp2);
                     return tmp2;
+
                 default:
                     throw new NotImplementedException("Do not have handler");
             }
@@ -211,10 +193,9 @@ namespace WrapperNetPOI
 
         public T GetValue<T>(NPOI.SS.UserModel.ICell cell)
         {
-            GetValue<T>(cell,out T value);
+            GetValue<T>(cell, out T value);
             return value;
         }
-
 
         protected internal DateTime GetValueDateTime(WrapperCell cell) => cell switch
         {
@@ -250,7 +231,7 @@ namespace WrapperNetPOI
 
         protected internal DateTime GetDateTime(string value)
         {
-            DateTime.TryParse(value, ThisCultureInfo,ThisDateTimeStyle, out var doubleValue);
+            DateTime.TryParse(value, ThisCultureInfo, ThisDateTimeStyle, out var doubleValue);
             return doubleValue;
         }
 
@@ -260,15 +241,11 @@ namespace WrapperNetPOI
             {
                 return Convert.ToDateTime(value, ThisCultureInfo);
             }
-            catch 
+            catch
             {
                 return default;
             }
         }
-
-
-        
-
 
         protected internal string GetValueString(WrapperCell cell) => cell switch
         {
@@ -302,10 +279,9 @@ namespace WrapperNetPOI
             => cell.StringCellValue
         };
 
-
         protected internal double GetDouble(string value)
         {
-            double.TryParse(value,ThisNumberStyle, ThisCultureInfo, out var doubleValue);
+            double.TryParse(value, ThisNumberStyle, ThisCultureInfo, out var doubleValue);
             return doubleValue;
         }
 

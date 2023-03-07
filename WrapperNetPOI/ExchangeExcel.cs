@@ -1,5 +1,5 @@
 /* ==================================================================
-Copyright 2020-2022 sashamsuper
+Copyright 2020-2023 sashamsuper
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,27 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
 
+
 using NPOI.POIFS.Crypt;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using Serilog;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using System.ComponentModel;
 
 namespace System.Runtime.CompilerServices
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
-    internal static class IsExternalInit { }
+    internal static class IsExternalInit
+    { }
 }
 
 namespace WrapperNetPOI
 {
-
     public enum ExchangeOperation
     {
         Insert,
@@ -50,6 +50,7 @@ namespace WrapperNetPOI
         private int? firstViewedRow;
         private int? lastViewedRow;
         private int? lastViewedColumn;
+
         public int FirstViewedRow
         {
             set
@@ -60,7 +61,6 @@ namespace WrapperNetPOI
             {
                 if (firstViewedRow == null)
                 {
-
                     return (ActiveSheet?.FirstRowNum) ?? 0;
                 }
                 else
@@ -69,6 +69,7 @@ namespace WrapperNetPOI
                 }
             }
         }
+
         public int FirstViewedColumn
         {
             set
@@ -80,6 +81,7 @@ namespace WrapperNetPOI
                 return firstViewedColumn ?? 0;
             }
         }
+
         public int LastViewedRow
         {
             set
@@ -98,6 +100,7 @@ namespace WrapperNetPOI
                 }
             }
         }
+
         public int LastViewedColumn
         {
             set
@@ -109,7 +112,8 @@ namespace WrapperNetPOI
                 return lastViewedColumn ?? 0;
             }
         }
-        public void CorrectBorder(int? firstRow=null,int? firstColumn = null,int? lastRow= null,int? lastColumn = null)
+
+        public void CorrectBorder(int? firstRow = null, int? firstColumn = null, int? lastRow = null, int? lastColumn = null)
         {
             if (firstRow != null)
             {
@@ -128,19 +132,11 @@ namespace WrapperNetPOI
                 LastViewedRow = lastViewedRow ?? (int)lastRow;
             }
         }
-
-
-        
     }
 
-    class GetCellValue
-    { 
-
+    internal class GetCellValue
+    {
     }
-
-    
-
-
 
     public static class Extension
     {
@@ -205,14 +201,20 @@ namespace WrapperNetPOI
     {
         //IWorkbook Workbook {set;get;}
         IProgress<int> ProgressValue { set; get; }
+
         ILogger Logger { set; get; }
         ExchangeOperation ExchangeOperationEnum { set; get; }
         Action ExchangeValueFunc { set; get; }
         bool CloseStream { get; set; }
+
         void GetInternallyObject(Stream fs, bool addNew);
+
         void ReadValue();
+
         void InsertValue();
+
         void UpdateValue();
+
         void DeleteValue();
     }
 
@@ -227,7 +229,8 @@ namespace WrapperNetPOI
         public string ActiveSheetName { set; get; }
         public ExchangeOperation ExchangeOperationEnum { set; get; }
         private ISheet activeSheet;
-        public virtual ISheet ActiveSheet 
+
+        public virtual ISheet ActiveSheet
         {
             set
             {
@@ -248,10 +251,11 @@ namespace WrapperNetPOI
                 }
             }
             get
-            { 
+            {
                 return activeSheet;
             }
         }
+
         public int FirstViewedRow => WorkbookBorder.FirstViewedRow;
         public int FirstViewedColumn => WorkbookBorder.FirstViewedColumn;
         public int LastViewedRow => WorkbookBorder.LastViewedRow;
@@ -259,24 +263,26 @@ namespace WrapperNetPOI
         public Tout ExchangeValue { set; get; }
         public Action ExchangeValueFunc { set; get; }
 
-        protected ExchangeClass(ExchangeOperation exchange, string activeSheetName,Border border=null, IProgress<int> progress=null)
+        protected ExchangeClass(ExchangeOperation exchange, string activeSheetName, Border border = null, IProgress<int> progress = null)
         {
             WorkbookBorder = border;
             ExchangeOperationEnum = exchange;
             ActiveSheetName = activeSheetName;
             ProgressValue = progress;
         }
+
         public static int ReturnProgress(int number, int total)
         {
             if (total != 0)
             {
-                return ((number * 100) / (total));
+                return (number * 100) / total;
             }
             else
             {
                 return 0;
             }
         }
+
         public virtual void GetInternallyObject(Stream tmpStream, bool addNewWorkbook)
         {
             FileStream fs = default;
@@ -337,6 +343,7 @@ namespace WrapperNetPOI
             var year = String.Format("{0:D4}", date.Year);
             return $"{day}.{mounth}.{year}";
         }
+
         public virtual string GetCellValue(ICell cell)
         {
             try
@@ -350,10 +357,10 @@ namespace WrapperNetPOI
                     }
 
                     ConvertType convertType = new();
-                    returnValue=convertType.GetValueString(new WrapperCell(cell));
+                    returnValue = convertType.GetValueString(new WrapperCell(cell));
 
                     /*
-                    
+
                     if (cell?.CellType == CellType.Numeric
                       && cell.NumericCellValue > 36526 &&
                       cell.NumericCellValue < 47484)
@@ -482,8 +489,8 @@ namespace WrapperNetPOI
         public string PathSource { get; set; }
         public override bool CloseStream => true;
 
-        public RowsView(ExchangeOperation exchangeType, string activeSheetName="", IList<IRow> exchangeValue=null,
-            IProgress<int> progress = null) : base(exchangeType, activeSheetName, new Border(),progress)
+        public RowsView(ExchangeOperation exchangeType, string activeSheetName = "", IList<IRow> exchangeValue = null,
+            IProgress<int> progress = null) : base(exchangeType, activeSheetName, new Border(), progress)
         {
             ExchangeValue = exchangeValue ?? new List<IRow>();
         }
@@ -505,7 +512,6 @@ namespace WrapperNetPOI
         {
             UpdateValue(0);
         }
-
 
         public void UpdateValue(int StartRow = 0)
         {
@@ -532,9 +538,8 @@ namespace WrapperNetPOI
 
     public class MatrixView : ExchangeClass<IList<string[]>>
     {
-
         public MatrixView(ExchangeOperation exchangeType, string activeSheetName,
-            IList<string[]> exchangeValue, Border border=null, IProgress<int> progress = null) :
+            IList<string[]> exchangeValue, Border border = null, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, border, progress)
         {
             ExchangeValue = exchangeValue;
@@ -603,7 +608,6 @@ namespace WrapperNetPOI
             return tmp.ToArray();
         }
 
-
         public override void ReadValue()
         {
             if (FirstViewedRow == 0 &&
@@ -648,9 +652,7 @@ namespace WrapperNetPOI
 #if DEBUG
                     if (i % 1000 == 0)
                     {
-
                         Debug.WriteLine(i);
-
                     }
 #endif
                 }
@@ -682,15 +684,16 @@ namespace WrapperNetPOI
     public class ListView : ExchangeClass<IList<string>>
     {
         private readonly MatrixView matrix;
+
         public ListView(ExchangeOperation exchangeType, string activeSheetName,
-            IList<string> exchangeValue, Border border,IProgress<int> progress = null) :
+            IList<string> exchangeValue, Border border, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, border, progress)
         {
             matrix = new MatrixView(exchangeType, activeSheetName,
             Extension.ConvertToMatrix(exchangeValue), border, progress)
             { };
-            
         }
+
         public override void InsertValue()
         {
             matrix.ActiveSheet = this.ActiveSheet;
@@ -717,13 +720,15 @@ namespace WrapperNetPOI
     public class DictionaryView : ExchangeClass<IDictionary<string, string[]>>
     {
         private readonly MatrixView matrix;
+
         public DictionaryView(ExchangeOperation exchangeType, string activeSheetName,
-            IDictionary<string, string[]> exchangeValue, Border border,IProgress<int> progress = null) :
-            base(exchangeType, activeSheetName, border,progress)
+            IDictionary<string, string[]> exchangeValue, Border border, IProgress<int> progress = null) :
+            base(exchangeType, activeSheetName, border, progress)
         {
             matrix = new MatrixView(exchangeType, activeSheetName,
-            Extension.ConvertToMatrix(exchangeValue), border,progress);
+            Extension.ConvertToMatrix(exchangeValue), border, progress);
         }
+
         public override void InsertValue()
         {
             matrix.ActiveSheet = this.ActiveSheet;
@@ -742,140 +747,5 @@ namespace WrapperNetPOI
             matrix.ActiveSheet = this.ActiveSheet;
             matrix.UpdateValue();
         }
-
     }
-
-
-    public static class ExcelExchange
-    {
-        // статический класс для записи и чтения данных одной строкой
-        /// <summary>
-        /// The TaskAddToExcel.
-        /// </summary>
-        /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
-        /// <param name="values">The values<see cref="List{string}"/>.</param>
-        public static void TaskAddToExcel(string pathToFile, string sheetName, List<string> values)
-        {
-            Task AddValueToExcel = Task.Run(() =>
-            {
-                ListView listView = new(ExchangeOperation.Insert, sheetName, values, null)
-                {
-                    ExchangeValue = values
-                };
-                WrapperExcel wrapper = new(pathToFile, listView, null) { };
-                wrapper.Exchange();
-            });
-        }
-
-        /// <summary>
-        /// The TaskAddToExcel.
-        /// </summary>
-        /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
-        /// <param name="values">The values<see cref="List{string[]}"/>.</param>
-        public static void TaskAddToExcel(string pathToFile, string sheetName, List<string[]> values)
-        {
-            try
-            {
-                Task AddValueToExcel = Task.Run(() => AddToExcel(pathToFile, sheetName, values));
-            }
-            catch (Exception e)
-            {
-#if DEBUG
-                Debug.WriteLine(e.Message);
-#endif
-            }
-        }
-
-        public static async Task TaskAddToExcelAsync(string pathToFile, string sheetName, List<string[]> values)
-        {
-            await Task.Run(() => AddToExcel(pathToFile, sheetName, values));
-        }
-
-        /// <summary>
-        /// The AddToExcel
-        /// </summary>
-        /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
-        /// <param name="values">The values<see cref="List{string[]}"/>.</param>
-        public static void AddToExcel(string pathToFile, string sheetName, List<string[]> values)
-        {
-            MatrixView listView = new(ExchangeOperation.Insert, sheetName, values, null)
-            {
-                ExchangeValue = values
-            };
-            WrapperExcel wrapper = new(pathToFile, listView, null)
-            {
-                //ActiveSheetName = sheetName,
-                //exchangeClass = listView
-            };
-            wrapper.Exchange();
-        }
-
-        /// <summary>
-        /// The AddToExcel.
-        /// </summary>
-        /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
-        /// <param name="values">The values<see cref="List{string}"/>.</param>
-        public static void AddToExcel(string pathToFile, string sheetName, List<string> values)
-        {
-            ListView listView = new(ExchangeOperation.Insert, sheetName, values, null)
-            {
-                ExchangeValue = values
-            };
-            WrapperExcel wrapper = new(pathToFile, listView, null)
-            {
-                //ActiveSheetName = sheetName,
-                //exchangeClass = listView
-            };
-            wrapper.Exchange();
-        }
-
-        /// <summary>
-        /// The GetFromExcel.
-        /// </summary>
-        /// <typeparam name="ReturnType">.</typeparam>
-        /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
-        /// <returns>The <see cref="ReturnType"/>.</returns>
-        public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName, int firstRow = 0, int firstCol = 0) where ReturnType : new()
-        {
-            Border border = new()
-            {
-                FirstViewedColumn = firstCol,
-                FirstViewedRow = firstRow
-            };
-            ReturnType returnValue = new();
-            if (returnValue is List<string> rL)
-            {
-                var exchangeClass = new ListView(ExchangeOperation.Read, sheetName, rL, border,null)
-                {};
-                WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
-                wrapper.Exchange();
-                return (ReturnType)exchangeClass.ExchangeValue;
-            }
-            else if (returnValue is Dictionary<string, string[]> rD)
-            {
-                var exchangeClass = new DictionaryView(ExchangeOperation.Read, sheetName, rD, border,null)
-                {};
-                WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
-                wrapper.Exchange();
-                return (ReturnType)exchangeClass.ExchangeValue;
-            }
-            else if (returnValue is List<string[]> rM)
-            {
-                var exchangeClass = new MatrixView(ExchangeOperation.Read, sheetName, rM,border, null) { };
-                WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
-                wrapper.Exchange();
-                return (ReturnType)exchangeClass.ExchangeValue;
-            }
-            else
-            {
-                throw new TypeUnloadedException("No handler for type");
-            }
-        }
-    }
-
 }

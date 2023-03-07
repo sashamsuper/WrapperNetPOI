@@ -13,22 +13,19 @@
    limitations under the License.
 ==================================================================== */
 
-
-
 using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using System;
-
 
 namespace WrapperNetPOI
 {
     /// <summary>
     /// Source code copied from https://github.com/nissl-lab/npoi/blob/master/main/SS/Util/SheetUtil.cs
     /// </summary>
-    public class ChangedNPOI
+    public static class ChangedNPOI
     {
         /// <summary>
-        /// Source file has been taken from npoi/main/SS/Util/SheetUtil.cs 
+        /// Source file has been taken from npoi/main/SS/Util/SheetUtil.cs
         /// </summary>
         /// <param name="oldCell"></param>
         /// <param name="newCell"></param>
@@ -39,18 +36,23 @@ namespace WrapperNetPOI
                 case CellType.Blank:
                     newCell.SetCellValue(oldCell.StringCellValue);
                     break;
+
                 case CellType.Boolean:
                     newCell.SetCellValue(oldCell.BooleanCellValue);
                     break;
+
                 case CellType.Error:
                     newCell.SetCellErrorValue(oldCell.ErrorCellValue);
                     break;
+
                 case CellType.Formula:
                     newCell.SetCellFormula(oldCell.CellFormula);
                     break;
+
                 case CellType.Numeric:
                     newCell.SetCellValue(oldCell.NumericCellValue);
                     break;
+
                 case CellType.String:
                     if (oldCell.GetType() != newCell.GetType())
                     {
@@ -64,9 +66,8 @@ namespace WrapperNetPOI
             }
         }
 
-
         /// <summary>
-        /// Source file has been taken from npoi/main/SS/Util/SheetUtil.cs 
+        /// Source file has been taken from npoi/main/SS/Util/SheetUtil.cs
         /// </summary>
         /// <param name="sourceSheet"></param>
         /// <param name="sourceRowIndex"></param>
@@ -106,13 +107,12 @@ namespace WrapperNetPOI
 
                 if (oldCell.CellStyle != null)
                 {
-
                     var CellStyle = targetSheet.Workbook.CreateCellStyle();
 
                     if (oldCell.GetType() != newCell.GetType())
                     {
                         CopyStyle(oldCell.CellStyle, CellStyle);
-                        // not copy all format. Until I came up with something else 
+                        // not copy all format. Until I came up with something else
                     }
                     else
                     {
@@ -188,7 +188,6 @@ namespace WrapperNetPOI
                     }
                 }
             }
-
         }
     }
 }

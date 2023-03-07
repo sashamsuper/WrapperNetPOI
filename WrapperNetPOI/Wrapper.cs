@@ -1,5 +1,5 @@
 /* ==================================================================
-Copyright 2020-2022 sashamsuper
+Copyright 2020-2023 sashamsuper
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
+
+
 using Serilog;
 using System;
 using System.IO;
@@ -23,13 +25,15 @@ namespace WrapperNetPOI
     {
         // To detect redundant calls
         private bool disposed = false;
+
         internal static ILogger Logger { set; get; }
 
-        /// Gets or sets the PathToFile.
+        ///<summary>
+        /// /// Gets or sets the PathToFile.
         /// </summary>
         public readonly string PathToFile;
 
-        protected FileStream fileStream; //For disposed. If need to open in other application 
+        protected FileStream fileStream; //For disposed. If need to open in other application
 
         public string Password { set; get; } = null;
 
@@ -50,15 +54,14 @@ namespace WrapperNetPOI
             {
                 this.exchangeClass = exchangeClass;
                 exchangeClass.Logger = Logger;
-
             }
             else
             {
                 Logger.Error(pathToFile, nameof(exchangeClass));
                 throw new ArgumentNullException(nameof(exchangeClass));
             }
-
         }
+
         public static string ReturnTechFileName(string predict, string extension)
         {
             int i = 0;
@@ -71,7 +74,7 @@ namespace WrapperNetPOI
             do
             {
                 path = Path.Combine(dir, $"{predict}{DateTime.Now:yyMMddHHmmss}{i}.{extension}");
-                i += 1;
+                i++;
             }
             while (File.Exists(path));
             return path;
@@ -79,7 +82,7 @@ namespace WrapperNetPOI
 
         protected void ViewFile(FileMode fileMode, FileAccess fileAccess, bool addNew, bool closeStream = true, FileShare fileShare = FileShare.ReadWrite)
         {
-            if (closeStream == true) 
+            if (closeStream)
             {
                 using FileStream fs = new(PathToFile,
                     fileMode,
@@ -102,14 +105,17 @@ namespace WrapperNetPOI
         {
             throw new NotImplementedException("InsertValue");
         }
+
         protected virtual void ReadValue()
         {
             throw new NotImplementedException("ReadValue");
         }
+
         protected virtual void UpdateValue()
         {
             throw new NotImplementedException("UpdateValue");
         }
+
         protected virtual void DeleteValue()
         {
             throw new NotImplementedException("DeleteValue");
@@ -122,15 +128,19 @@ namespace WrapperNetPOI
                 case ExchangeOperation.Insert:
                     InsertValue();
                     break;
+
                 case ExchangeOperation.Read:
                     ReadValue();
                     break;
+
                 case ExchangeOperation.Update:
                     UpdateValue();
                     break;
+
                 case ExchangeOperation.Delete:
                     DeleteValue();
                     break;
+
                 default:
                     Logger.Error("exchangeClass.ExchangeTypeEnum");
                     throw (new ArgumentOutOfRangeException("exchangeClass.ExchangeTypeEnum"));
@@ -153,6 +163,7 @@ namespace WrapperNetPOI
             }
             disposed = true;
         }
+
         // This code added by Visual Basic to
         // correctly implement the disposable pattern.
         public void Dispose()
@@ -164,6 +175,7 @@ namespace WrapperNetPOI
             GC.SuppressFinalize(this);
             GC.Collect();
         }
+
         ~Wrapper()
         {
             // Do not change this code.
@@ -171,6 +183,5 @@ namespace WrapperNetPOI
             // Dispose(ByVal disposing As Boolean) above.
             Dispose(false);
         }
-
     }
 }
