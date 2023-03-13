@@ -1,5 +1,5 @@
-﻿/* ==================================================================
-Copyright 2020-2022 sashamsuper
+/* ==================================================================
+Copyright 2020-2023 sashamsuper
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,23 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
+
+
 using NPOI.HWPF;
 using NPOI.HWPF.UserModel;
 using NPOI.XWPF.UserModel;
-using System.Diagnostics;
-using SixLabors.ImageSharp.ColorSpaces;
 using Serilog;
-
-using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 
 namespace WrapperNetPOI
 {
-
     public class CellValue
     {
         public string text;
@@ -62,18 +58,17 @@ namespace WrapperNetPOI
         }
     }
 
-
     public class WordDoc
     {
-        public List<CellValue> Cells {get;}
-        public List<TableValue> Tables {get;}
+        public List<CellValue> Cells { get; }
+        public List<TableValue> Tables { get; }
 
         public WordDoc(object doc)
         {
             this.Document = doc;
         }
 
-        private List<CellValue> XGetCells(IBody body, ref int tableN,int level = 0)
+        private List<CellValue> XGetCells(IBody body, ref int tableN, int level = 0)
         {
             List<CellValue> cells = new();
             int i = tableN; int j = 0; int k = 0;
@@ -81,13 +76,13 @@ namespace WrapperNetPOI
             {
                 foreach (XWPFTableRow row in table.Rows)
                 {
-                    foreach (XWPFTableCell cell in row.GetTableICells())
+                    foreach (XWPFTableCell cell in row.GetTableICells().Cast<XWPFTableCell>())
                     {
                         if (cell?.BodyElements.Count > 0)
                         {
                             CellValue cellValue = new(cell.GetText(), i, j, k, level);
                             cells.Add(cellValue);
-                            cells.AddRange(XGetCells(cell,ref i,level+1));
+                            cells.AddRange(XGetCells(cell, ref i, level + 1));
                         }
                         else
                         {
@@ -103,26 +98,26 @@ namespace WrapperNetPOI
             return cells;
         }
 
-        private List<CellValue> HGetCells(NPOI.HWPF.UserModel.Range range, ref int tableN,int level = 0)
+        private List<CellValue> HGetCells(NPOI.HWPF.UserModel.Range range, ref int tableN, int level = 0)
         {
             List<CellValue> cells = new();
-            int paragraphs=range.NumParagraphs;
-            for (int par=0;par<paragraphs;par++)
+            int paragraphs = range.NumParagraphs;
+            for (int par = 0; par < paragraphs; par++)
             {
                 tableN++;
-                Table table=range.GetTable(range.GetParagraph(par));
-                int rowsNums=table.NumRows;
-                for (int rowN=0;rowN<rowsNums;rowN++)
+                Table table = range.GetTable(range.GetParagraph(par));
+                int rowsNums = table.NumRows;
+                for (int rowN = 0; rowN < rowsNums; rowN++)
                 {
-                    TableRow row=table.GetRow(rowN);
-                    int cellNums=row.NumCells();
-                    for (int cellN=0;cellN<cellNums;cellN++)
+                    TableRow row = table.GetRow(rowN);
+                    int cellNums = row.NumCells();
+                    for (int cellN = 0; cellN < cellNums; cellN++)
                     {
-                        TableCell cell=row.GetCell(cellN);
+                        TableCell cell = row.GetCell(cellN);
                         CellValue cellValue = new(cell.Text, par, rowN, cellN, level);
-                        if (cell.NumParagraphs>0)
+                        if (cell.NumParagraphs > 0)
                         {
-                           cells.AddRange(HGetCells(cell,ref tableN,level+1));
+                            cells.AddRange(HGetCells(cell, ref tableN, level + 1));
                         }
                         cells.Add(cellValue);
                     }
@@ -135,44 +130,46 @@ namespace WrapperNetPOI
         {
             if (Document is XWPFDocument x)
             {
-                int i=0;
-                var cells = XGetCells(x,ref i);
+                int i = 0;
+                var cells = XGetCells(x, ref i);
                 return cells;
             }
             else if (Document is HWPFDocument h)
             {
-                int tables=0;
-                var cells = HGetCells(h.GetRange(),ref tables);
+                int tables = 0;
+                var cells = HGetCells(h.GetRange(), ref tables);
                 return cells;
             }
             return default;
         }
 
-        
-
-
         public List<TableValue> GetTables()
         {
-            var cells=GetCells();
+            var cells = GetCells();
             /*
             var tables=cells.GroupBy(t=>t.tableNumber).
             Select(table=>table.GroupBy(r=>r.rowNumber).OrderBy(rowN=>rowN.Key).Select(row=>row.OrderBy(cell=>cell.cellNumber).ToArray()));
             */
-            var tables=cells.GroupBy(t=>t.tableNumber).
-            Select(table=>table.GroupBy(r=>r.rowNumber).OrderBy(rowN=>rowN.Key).Select(row=>
-            new {tableNumber=table.Key,rowNumber=row.Key, value=row.OrderBy(cell=>cell.cellNumber).
-            Select(str=>str.text).ToArray()}));
-            
-            List<TableValue> tableList=new();
+            var tables = cells.GroupBy(t => t.tableNumber).
+            Select(table => table.GroupBy(r => r.rowNumber).OrderBy(rowN => rowN.Key).Select(row =>
+            new
+            {
+                tableNumber = table.Key,
+                rowNumber = row.Key,
+                value = row.OrderBy(cell => cell.cellNumber).
+            Select(str => str.text).ToArray()
+            }));
+
+            List<TableValue> tableList = new();
             foreach (var table in tables)
             {
-                TableValue tableV = new(table.First().tableNumber,table.First().tableNumber);
-                List<string[]> rows=new();
+                TableValue tableV = new(table.First().tableNumber, table.First().tableNumber);
+                List<string[]> rows = new();
                 foreach (var row in table)
                 {
-                     rows.Add(row.value);
+                    rows.Add(row.value);
                 }
-                tableV.Value=rows;
+                tableV.Value = rows;
                 tableList.Add(tableV);
             }
 
@@ -181,13 +178,11 @@ namespace WrapperNetPOI
 
         public virtual void GetParagraphs()
         {
-
         }
-
-        
 
         private HWPFDocument hDocument;
         private XWPFDocument xDocument;
+
         public object Document
         {
             set
@@ -203,27 +198,18 @@ namespace WrapperNetPOI
             }
             get
             {
-                if (hDocument is null)
-                {
-                    return xDocument;
-                }
-                else
-                {
-                    return hDocument;
-                }
+                return hDocument ?? (object)xDocument;
             }
         }
     }
 
     public class WrapperWord : Wrapper
     {
-
         public WordDoc Document { set; get; }
 
         public WrapperWord(string pathToFile, IExchangeWord exchangeClass, ILogger logger = null) :
         base(pathToFile, exchangeClass, logger)
         {
-
         }
 
         protected override void InsertValue()
@@ -279,17 +265,5 @@ namespace WrapperNetPOI
             //exchangeClass.Workbook.Write(fs, false);
             fs.Close();
         }
-
-
     }
-
-
 }
-
-
-
-
-
-
-
-

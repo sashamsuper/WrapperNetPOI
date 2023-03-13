@@ -1,10 +1,24 @@
-﻿using NPOI.SS.UserModel;
+/* ==================================================================
+Copyright 2020-2023 sashamsuper
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==========================================================================*/
 using NPOI.POIFS.Crypt;
+using NPOI.XWPF.UserModel;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using NPOI.XWPF.UserModel;
 
 namespace WrapperNetPOI
 {
@@ -14,23 +28,23 @@ namespace WrapperNetPOI
 
     public abstract class WordExchange : IExchangeWord
     {
-        public WordExchange(ExchangeOperation exchange, IProgress<int> progress=null)
+        protected WordExchange(ExchangeOperation exchange, IProgress<int> progress = null)
         {
             ExchangeOperationEnum = exchange;
             ProgressValue = progress;
         }
 
         public List<List<string[]>> Tables { set; get; } = new List<List<string[]>>();
-        public IProgress<int> ProgressValue { get ; set ; }
-        public ILogger Logger { get; set ; }
+        public IProgress<int> ProgressValue { get; set; }
+        public ILogger Logger { get; set; }
         public ExchangeOperation ExchangeOperationEnum { get; set; }
-        public Action ExchangeValueFunc { get ; set ; }
+        public Action ExchangeValueFunc { get; set; }
         public List<TableValue> ExchangeValue { set; get; }
-        public bool CloseStream { get ; set ; }
+        public bool CloseStream { get; set; }
 
-        public WordDoc Document {set;get;}
+        public WordDoc Document { set; get; }
 
-        public string Password {set;get;}
+        public string Password { set; get; }
 
         public void DeleteValue()
         {
@@ -39,11 +53,8 @@ namespace WrapperNetPOI
 
         public void GetInternallyObject(Stream tmpStream, bool addNew)
         {
-            
             FileStream fs = default;
-            if (Password == null)
-            { }
-            else
+            if (Password != null)
             {
                 NPOI.POIFS.FileSystem.POIFSFileSystem nfs =
                 new(fs);
@@ -53,7 +64,7 @@ namespace WrapperNetPOI
                 dc.VerifyPassword(Password);
                 tmpStream = dc.GetDataStream(nfs);
             }
-            if (addNew == true)
+            if (addNew)
             {
                 /*
                 Workbook = new XSSFWorkbook();
@@ -64,12 +75,11 @@ namespace WrapperNetPOI
             }
             else
             {
-                 XWPFDocument doc = new(tmpStream);
-                 Document=new(doc);
+                XWPFDocument doc = new(tmpStream);
+                Document = new(doc);
             }
             //exchangeClass.ActiveSheet = ActiveSheet;
             ExchangeValueFunc();
-        
         }
 
         public virtual void InsertValue()
@@ -88,17 +98,15 @@ namespace WrapperNetPOI
         }
     }
 
-
     public class TableView : WordExchange
     {
-        public TableView(ExchangeOperation exchange, IProgress<int> progress = null):
-            base(exchange,progress)
-        {}
+        public TableView(ExchangeOperation exchange, IProgress<int> progress = null) :
+            base(exchange, progress)
+        { }
 
         public override void ReadValue()
         {
             ExchangeValue = Document.GetTables();
         }
-
     }
 }

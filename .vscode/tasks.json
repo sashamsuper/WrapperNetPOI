@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}\\testWrapper\\MsTestWrapper\\MsTestWrapper.csproj",
+                "${workspaceFolder}\\Test\\UnitTest\\UnitTest.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}\\testWrapper\\MsTestWrapper\\MsTestWrapper.csproj",
+                "${workspaceFolder}\\Test\\UnitTest\\UnitTest.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,9 +33,29 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}\\testWrapper\\MsTestWrapper\\MsTestWrapper.csproj"
+                "${workspaceFolder}\\Test\\UnitTest\\UnitTest.csproj"
             ],
             "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "test",
+            "command": "dotnet",
+            "type": "process",
+            "isTestCommand": true,
+            "args": [
+                "test",
+                "${workspaceFolder}\\Test\\UnitTest\\UnitTest.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        
+        {
+            "label": "run test",
+            "dependsOn":["build","test"],
+            "problemMatcher": "$msCompile"
         }
+
+
+
     ]
 }
