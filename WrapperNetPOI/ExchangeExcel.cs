@@ -171,13 +171,13 @@ namespace WrapperNetPOI
 
         public static IList<string> ConvertToList(IList<string[]> list)
         {
-            return list.Select(x => String.Concat(x)).ToList();
+            return list.Select(x => x.FirstOrDefault()).ToList();
         }
 
         public static IDictionary<string, string[]> ConvertToDictionary(IList<string[]> list)
         {
             Dictionary<string, string[]> dict = new();
-            var groupValue = list.Where(x => x[0] != null).GroupBy(y => y[0], (value) => value[1]);
+            var groupValue = list?.Where(x => x.Length>=2).Where(x => x[0] != null).GroupBy(y => y[0], (value) => value[1]);
             foreach (var group in groupValue)
             {
                 dict[group.Key] = group.Select(x => x).ToArray();

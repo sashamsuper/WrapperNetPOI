@@ -506,6 +506,26 @@ namespace MsTestWrapper
         }
 
         [TestMethod]
+        public void SimpleGetFromExcel()
+        {
+            //DataFrame
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet1");
+            Debug.WriteLine(df);
+            //List<string>
+            Simple.GetFromExcel(out List<string> ls, path, "Sheet1");
+            Debug.WriteLine(String.Join("\n",ls));
+            //List<string[]>
+            Simple.GetFromExcel(out List<string[]> lsm, path, "Sheet1");
+            Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));
+            //Dictionary<string,string>  bbbb not work
+            Simple.GetFromExcel(out Dictionary<string, string[]> ld, path, "Sheet1");
+            Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Join("",x.Value)}") ));
+        }
+
+
+
+        [TestMethod]
         public void DataFrameTestValue()
         {
             const string path = "..//..//..//srcTest//dataframe.xlsx";
