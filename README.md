@@ -1,6 +1,6 @@
 ©sashamsuper, 2020–2023
-# WrapperNPOI
-Wrapper for NPOI lib
+# WrapperNetPOI
+Wrapper for NetPOI lib
 
 Entering or introducing a list, dictionary or matrix into an Excel sheet
 Example in testWrapper\MsTestWrapper\
