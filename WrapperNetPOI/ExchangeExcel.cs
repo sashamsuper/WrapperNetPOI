@@ -46,70 +46,70 @@ namespace WrapperNetPOI
     public class Border // in developing
     {
         public ISheet ActiveSheet { get; set; }
-        private int? firstViewedColumn;
-        private int? firstViewedRow;
-        private int? lastViewedRow;
-        private int? lastViewedColumn;
+        private int? firstColumn;
+        private int? firstRow;
+        private int? lastRow;
+        private int? lastColumn;
 
-        public int FirstViewedRow
+        public int FirstRow
         {
             set
             {
-                firstViewedRow = value;
+                firstRow = value;
             }
             get
             {
-                if (firstViewedRow == null)
+                if (firstRow == null)
                 {
                     return (ActiveSheet?.FirstRowNum) ?? 0;
                 }
                 else
                 {
-                    return firstViewedRow ?? 0;
+                    return firstRow ?? 0;
                 }
             }
         }
 
-        public int FirstViewedColumn
+        public int FirstColumn
         {
             set
             {
-                firstViewedColumn = value;
+                firstColumn = value;
             }
             get
             {
-                return firstViewedColumn ?? 0;
+                return firstColumn ?? 0;
             }
         }
 
-        public int LastViewedRow
+        public int LastRow
         {
             set
             {
-                lastViewedRow = value;
+                lastRow = value;
             }
             get
             {
-                if (lastViewedRow == null || lastViewedRow == 0)
+                if (lastRow == null || lastRow == 0)
                 {
                     return (ActiveSheet?.LastRowNum) ?? 0;
                 }
                 else
                 {
-                    return lastViewedRow ?? 0;
+                    return lastRow ?? 0;
                 }
             }
         }
 
-        public int LastViewedColumn
+        public int LastColumn
         {
             set
             {
-                lastViewedColumn = value;
+                lastColumn = value;
             }
             get
             {
-                return lastViewedColumn ?? 0;
+                return lastColumn ?? 0;
             }
         }
 
@@ -117,19 +117,19 @@ namespace WrapperNetPOI
         {
             if (firstRow != null)
             {
-                FirstViewedRow = firstViewedRow ?? (int)firstRow;
+                FirstRow = firstRow ?? (int)firstRow;
             }
             if (firstColumn != null)
             {
-                FirstViewedColumn = firstViewedColumn ?? (int)firstColumn;
+                FirstColumn = firstColumn ?? (int)firstColumn;
             }
             if (lastColumn != null)
             {
-                LastViewedColumn = lastViewedColumn ?? (int)lastColumn;
+                LastColumn = lastColumn ?? (int)lastColumn;
             }
             if (lastRow != null)
             {
-                LastViewedRow = lastViewedRow ?? (int)lastRow;
+                LastRow = lastRow ?? (int)lastRow;
             }
         }
     }
@@ -256,10 +256,10 @@ namespace WrapperNetPOI
             }
         }
 
-        public int FirstViewedRow => WorkbookBorder.FirstViewedRow;
-        public int FirstViewedColumn => WorkbookBorder.FirstViewedColumn;
-        public int LastViewedRow => WorkbookBorder.LastViewedRow;
-        public int LastViewedColumn => WorkbookBorder.LastViewedColumn;
+        public int FirstViewedRow => WorkbookBorder.FirstRow;
+        public int FirstViewedColumn => WorkbookBorder.FirstColumn;
+        public int LastViewedRow => WorkbookBorder.LastRow;
+        public int LastViewedColumn => WorkbookBorder.LastColumn;
         public Tout ExchangeValue { set; get; }
         public Action ExchangeValueFunc { set; get; }
 

@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace WrapperNetPOI
 {
-    public static class ExcelExchange
+    public static class Simple
     {
         // статический класс для записи и чтения данных одной строкой
         /// <summary>
@@ -109,13 +109,8 @@ namespace WrapperNetPOI
             wrapper.Exchange();
         }
 
-        public static void GetFromExcel<ReturnType>(out ReturnType value, string pathToFile, string sheetName, int firstRow = 0, int firstCol = 0) where ReturnType : new()
+        public static void GetFromExcel<ReturnType>(out ReturnType value, string pathToFile, string sheetName, Border border=null) where ReturnType : new()
         {
-            Border border = new()
-            {
-                FirstViewedColumn = firstCol,
-                FirstViewedRow = firstRow
-            };
             ReturnType returnValue = new();
             if (returnValue is List<string> rL)
             {
@@ -141,24 +136,23 @@ namespace WrapperNetPOI
                 value = (ReturnType)exchangeClass.ExchangeValue;
                 return;
             }
-            else if (returnValue is DataFrame dTf)
-            {
-                var exchangeClass = new DataFrameView(ExchangeOperation.Read, sheetName, dTf, border, null);
-                WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
-                wrapper.Exchange();
-                if (exchangeClass.ExchangeValue is ReturnType val)
-                {
-                    value = val;
-                    return;
-                }
-            }
             else
             {
                 throw new TypeUnloadedException("No handler for type");
             }
-            value = default;
-            return;
+            //value = default;
+            //return;
         }
+
+
+        public static void GetFromExcel(out DataFrame value, string pathToFile, string sheetName, Border border=null)
+        {
+            var exchangeClass = new DataFrameView(ExchangeOperation.Read, sheetName, null, border);
+            WrapperExcel wrapper = new(pathToFile, exchangeClass, null);
+            wrapper.Exchange();
+            value= exchangeClass.ExchangeValue;
+        }
+
 
         /// <summary>
         /// The GetFromExcel.
@@ -167,9 +161,9 @@ namespace WrapperNetPOI
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
         /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
         /// <returns>The <see cref="ReturnType"/>.</returns>
-        public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName, int firstRow = 0, int firstCol = 0) where ReturnType : new()
+        public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName, Border border) where ReturnType : new()
         {
-            GetFromExcel(out ReturnType value, pathToFile, sheetName, firstRow, firstCol);
+            GetFromExcel(out ReturnType value, pathToFile, sheetName, border);
             return value;
         }
     }

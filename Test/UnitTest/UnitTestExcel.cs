@@ -129,36 +129,7 @@ namespace MsTestWrapper
             CollectionAssert.AreEqual(d, value2);
         }
 
-        [TestMethod]
-        public void DataFrameTestValue()
-        {
-            const string path = "..//..//..//srcTest//dataframe.xlsx";
-            DataFrameView exchangeClass = new(ExchangeOperation.Read, "Sheet3")
-            {
-                DataHeader = new()
-                {
-                    Rows = new int[] { 0 }
-                }
-            };
-
-            Dictionary<int, Type> header = new()
-            {   { 0, typeof(String) } ,
-                { 1, typeof(DateTime) },
-                { 2, typeof(Double) }
-            };
-            exchangeClass.DataHeader.CreateHeaderType(header);
-            WrapperExcel wrapper = new(path, exchangeClass);
-            wrapper.Exchange();
-            Debug.WriteLine(exchangeClass.ExchangeValue);
-            var value = exchangeClass.ExchangeValue;
-            var col1 = new StringDataFrameColumn("col1", new string[] { "1", "3", "6" });
-            var col2 = new DateTimeDataFrameColumn("col2",
-                new DateTime[] { new DateTime(2), new DateTime(4), new DateTime(7) });
-            var col3 = new DoubleDataFrameColumn("col3",
-                new Double[] { 3.1, 5.1, 8.1 });
-            var sample = new DataFrame(col1, col2, col3).Rows.Select(x => x.ToString()).ToList();
-            CollectionAssert.AreEqual(sample, exchangeClass.ExchangeValue.Rows.Select(x => x.ToString()).ToList());
-        }
+        
 
         [TestMethod]
         public void DictionaryViewTestCreateInsert()
@@ -284,8 +255,8 @@ namespace MsTestWrapper
 
             Border border = new()
             {
-                FirstViewedRow = 10,
-                FirstViewedColumn = 10
+                FirstRow = 10,
+                FirstColumn = 10
             };
 
             ListView exchangeClass = new(ExchangeOperation.Insert, "List1", listS, border, null)
@@ -296,8 +267,8 @@ namespace MsTestWrapper
 
             Border border2 = new()
             {
-                FirstViewedRow = 0,
-                FirstViewedColumn = 0
+                FirstRow = 0,
+                FirstColumn = 0
             };
 
             exchangeClass = new(ExchangeOperation.Read, "List1", listGet, border2, null)
@@ -532,6 +503,57 @@ namespace MsTestWrapper
             wrapper.Exchange();
             var dd = exchangeClass.ExchangeValue;
             //Assert.AreEqual(5,dd.Count);
+        }
+
+        [TestMethod]
+        public void DataFrameTestValue()
+        {
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet3");
+
+            Dictionary<int, Type> header = new()
+            {   { 0, typeof(String) } ,
+                { 1, typeof(String) },
+                { 2, typeof(String) }
+            };
+            var col1 = new StringDataFrameColumn("col1", new string[] { "1", "3", "6" });
+            var col2 = new StringDataFrameColumn("col2",
+                new String[] { "2", "4", "7" });
+            var col3 = new StringDataFrameColumn("col3",
+                new String[] { "3,1", "5,1", "8,1" });
+            var sample = new DataFrame(col1, col2, col3).Rows.Select(x => x.ToString()).ToList();
+            CollectionAssert.AreEqual(sample, df.Rows.Select(x => x.ToString()).ToList());
+        }
+
+        [TestMethod]
+        public void DataFrameTestValueSimple()
+        {
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            DataFrameView exchangeClass = new(ExchangeOperation.Read, "Sheet3")
+            {
+                DataHeader = new()
+                {
+                    Rows = new int[] { 0 }
+                }
+            };
+
+            Dictionary<int, Type> header = new()
+            {   { 0, typeof(String) } ,
+                { 1, typeof(DateTime) },
+                { 2, typeof(Double) }
+            };
+            exchangeClass.DataHeader.CreateHeaderType(header);
+            WrapperExcel wrapper = new(path, exchangeClass);
+            wrapper.Exchange();
+            Debug.WriteLine(exchangeClass.ExchangeValue);
+            var value = exchangeClass.ExchangeValue;
+            var col1 = new StringDataFrameColumn("col1", new string[] { "1", "3", "6" });
+            var col2 = new DateTimeDataFrameColumn("col2",
+                new DateTime[] { new DateTime(2), new DateTime(4), new DateTime(7) });
+            var col3 = new DoubleDataFrameColumn("col3",
+                new Double[] { 3.1, 5.1, 8.1 });
+            var sample = new DataFrame(col1, col2, col3).Rows.Select(x => x.ToString()).ToList();
+            CollectionAssert.AreEqual(sample, exchangeClass.ExchangeValue.Rows.Select(x => x.ToString()).ToList());
         }
 
         protected static void DeleteFile(string path)
