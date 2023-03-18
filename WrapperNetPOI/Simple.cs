@@ -161,7 +161,7 @@ namespace WrapperNetPOI
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
         /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
         /// <returns>The <see cref="ReturnType"/>.</returns>
-        public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName, Border border) where ReturnType : new()
+        public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName, Border border=null) where ReturnType : new()
         {
             GetFromExcel(out ReturnType value, pathToFile, sheetName, border);
             return value;

@@ -239,10 +239,7 @@ namespace WrapperNetPOI
                     activeSheet = value;
                     if (WorkbookBorder == null)
                     {
-                        WorkbookBorder = new()
-                        {
-                            ActiveSheet = activeSheet
-                        };
+                        
                     }
                     else
                     {
@@ -686,7 +683,7 @@ namespace WrapperNetPOI
         private readonly MatrixView matrix;
 
         public ListView(ExchangeOperation exchangeType, string activeSheetName,
-            IList<string> exchangeValue, Border border, IProgress<int> progress = null) :
+            IList<string> exchangeValue, Border border=null, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, border, progress)
         {
             matrix = new MatrixView(exchangeType, activeSheetName,
@@ -722,7 +719,7 @@ namespace WrapperNetPOI
         private readonly MatrixView matrix;
 
         public DictionaryView(ExchangeOperation exchangeType, string activeSheetName,
-            IDictionary<string, string[]> exchangeValue, Border border, IProgress<int> progress = null) :
+            IDictionary<string, string[]> exchangeValue, Border border=null, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, border, progress)
         {
             matrix = new MatrixView(exchangeType, activeSheetName,

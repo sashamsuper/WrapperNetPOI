@@ -112,10 +112,9 @@ namespace WrapperNetPOI
                     if (Border == null)
                     {
                         var firstColumn = DFView.ActiveSheet.GetRow(Rows[j]).FirstCellNum;
-                        var tmpcountValue = DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum -
-                                     DFView.ActiveSheet.GetRow(Rows[j]).FirstCellNum; // +1 ruled out, NPOI feature
-                        DFView.WorkbookBorder.CorrectBorder(firstColumn: firstColumn,
-                                                            lastColumn: DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum);
+                        DFView.WorkbookBorder.
+                               CorrectBorder(firstColumn: firstColumn,
+                                             lastColumn: DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum);
                     }
                     var countValue = Border.LastColumn - Border.FirstRow + 1;
                     if (DataColumns == null)
@@ -140,46 +139,7 @@ namespace WrapperNetPOI
                 }
             }
         }
-
-
-
-
-        protected internal virtual void GetHeaderRowOLD()
-        {
-            for (int j = 0; j < Rows.Length; j++)
-            {
-                ConvertType convertType = new();
-                int countValue;
-                if (j == 0)
-                {
-                    var firstColumn = DFView.ActiveSheet.GetRow(Rows[j]).FirstCellNum;
-                    countValue = DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum -
-                                 DFView.ActiveSheet.GetRow(Rows[j]).FirstCellNum; // +1 ruled out, NPOI feature
-                    DFView.WorkbookBorder.CorrectBorder(firstColumn: firstColumn,
-                                                        lastColumn: DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum);
-                    if (DataColumns == null)
-                    {
-                        DataColumns = new DataColumn[countValue];
-                        for (int i = 0; i < DataColumns.Length; i++)
-                        {
-                            DataColumns[i] = new DataColumn("", i, typeof(String));
-                        }
-                    }
-                    for (int k = 0; k < DataColumns.Length; k++)
-                    {
-                        DataColumns[k].Number = k + firstColumn;
-                    }
-                }
-                for (int i = 0; i < DataColumns.Length; i++)
-                {
-                    string columnName = convertType.GetValue<string>(DFView.ActiveSheet.GetRow(Rows[j]).
-                        GetCell(i + DFView.FirstViewedColumn));
-                    columnName ??= "";
-                    DataColumns[i].Name = $"{DataColumns[i].Name ?? ""}{columnName}";
-                }
-            }
-        }
-
+                
         public void RenameDobleHeaderColumn()
         {
             for (int i = DataColumns.Length - 1; i >= 0; i--)
