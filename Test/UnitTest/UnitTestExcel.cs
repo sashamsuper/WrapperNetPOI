@@ -506,11 +506,32 @@ namespace MsTestWrapper
         }
 
         [TestMethod]
+        public void SimpleGetFromExcelBorder()
+        {
+            //DataFrame
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet4",
+                    new Border
+                    {
+                        FirstColumn = 5,
+                        FirstRow = 5,
+                        LastColumn = 10,
+                        LastRow = 10
+                    });
+            Debug.WriteLine(df);
+        }
+
+
+            [TestMethod]
         public void SimpleGetFromExcel()
         {
             //DataFrame
             const string path = "..//..//..//srcTest//dataframe.xlsx";
-            Simple.GetFromExcel(out DataFrame df, path, "Sheet1");
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet1",
+                    new Border { FirstColumn=5,
+                                 FirstRow=5,
+                                 LastColumn=10,
+                                 LastRow=10});
             Debug.WriteLine(df);
             //List<string>
             Simple.GetFromExcel(out List<string> ls, path, "Sheet1");
@@ -518,7 +539,7 @@ namespace MsTestWrapper
             //List<string[]>
             Simple.GetFromExcel(out List<string[]> lsm, path, "Sheet1");
             Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));
-            //Dictionary<string,string>  bbbb not work
+            //Dictionary<string,string>
             Simple.GetFromExcel(out Dictionary<string, string[]> ld, path, "Sheet1");
             Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Join("",x.Value)}") ));
         }
