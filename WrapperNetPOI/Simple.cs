@@ -145,6 +145,13 @@ namespace WrapperNetPOI
         }
 
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="pathToFile"></param>
+        /// <param name="sheetName"></param>
+        /// <param name="border"></param>
         public static void GetFromExcel(out DataFrame value, string pathToFile, string sheetName, Border border=null)
         {
             var exchangeClass = new DataFrameView(ExchangeOperation.Read, sheetName, null, border);
@@ -152,6 +159,20 @@ namespace WrapperNetPOI
             wrapper.Exchange();
             value= exchangeClass.ExchangeValue;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="pathToFile"></param>
+        public static void GetFromWord(out List<TableValue> value, string pathToFile)
+        {
+            var exchangeClass = new TableView(ExchangeOperation.Read);
+            WrapperWord wrapper = new(pathToFile, exchangeClass, null);
+            wrapper.Exchange();
+            value = exchangeClass.ExchangeValue;
+        }
+
 
 
         /// <summary>
