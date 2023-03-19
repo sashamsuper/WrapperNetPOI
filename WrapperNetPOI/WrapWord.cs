@@ -56,6 +56,13 @@ namespace WrapperNetPOI
             this.tableNumber = tableNumber;
             this.level = level;
         }
+
+        public TableValue(List<string[]> value,int tableNumber, int level)
+        {
+            this.Value = value;
+            this.tableNumber = tableNumber;
+            this.level = level;
+        }
     }
 
     public class WordDoc
