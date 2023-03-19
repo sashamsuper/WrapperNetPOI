@@ -46,7 +46,7 @@ namespace WrapperNetPOI
         /// Initializes a new instance of the <see cref="WrapperNpoi"/> class.
         /// </summary>
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        public Wrapper(string pathToFile, IExchange exchangeClass, ILogger logger = null)
+        protected Wrapper(string pathToFile, IExchange exchangeClass, ILogger logger = null)
         {
             Logger = logger;
             PathToFile = pathToFile;
@@ -66,7 +66,7 @@ namespace WrapperNetPOI
         {
             int i = 0;
             string dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, predict);
-            if (Directory.Exists(dir) == false)
+            if (!Directory.Exists(dir))
             {
                 Directory.CreateDirectory(dir);
             }

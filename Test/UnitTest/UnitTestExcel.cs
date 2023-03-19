@@ -28,7 +28,7 @@ namespace MsTestWrapper
         [TestMethod]
         public void ConvertTestDouble()
         {
-            var path = "..//..//..//srcTest//dataframe.xlsx";
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
             RowsView exchangeClass = new(ExchangeOperation.Read);
             WrapperExcel wrapper = new(path, exchangeClass);
             wrapper.Exchange();
@@ -55,7 +55,7 @@ namespace MsTestWrapper
             RowsView exchangeClass = new(ExchangeOperation.Read);
             WrapperExcel wrapper = new(path, exchangeClass);
             wrapper.Exchange();
-            var value = exchangeClass.ExchangeValue.First();
+            var value = exchangeClass.ExchangeValue[0];
             ICell cell = value.GetCell(0);
             ConvertType convertType = new();
             var str = convertType.GetValueString(new WrapperCell(cell));
@@ -134,7 +134,7 @@ namespace MsTestWrapper
         [TestMethod]
         public void DictionaryViewTestCreateInsert()
         {
-            var path = "..//..//..//srcTest//listView.xlsx";
+            const string path = "..//..//..//srcTest//listView.xlsx";
             DeleteFile(path);
             Dictionary<string, string[]> dictSource = new()
             {
@@ -157,7 +157,7 @@ namespace MsTestWrapper
         [TestMethod]
         public void DictionaryViewTestInsert()
         {
-            var path = "..//..//..//srcTest//listView.xlsx";
+            const string path = "..//..//..//srcTest//listView.xlsx";
             DeleteFile(path);
 
             Dictionary<string, string[]> dictSource1 = new()
@@ -268,7 +268,7 @@ namespace MsTestWrapper
             Border border2 = new()
             {
                 FirstRow = 0,
-                FirstColumn = 0
+                FirstColumn = 10
             };
 
             exchangeClass = new(ExchangeOperation.Read, "List1", listGet, border2, null)
@@ -284,7 +284,7 @@ namespace MsTestWrapper
         [TestMethod]
         public void ListViewTestInsert2Times()
         {
-            var path = "..//..//..//srcTest//listView.xlsx";
+            const string path = "..//..//..//srcTest//listView.xlsx";
             DeleteFile(path);
 
             List<string> listS = new()
@@ -310,7 +310,7 @@ namespace MsTestWrapper
         [TestMethod]
         public void ListViewTestUpdate()
         {
-            var path = "..//..//..//srcTest//listView.xlsx";
+            const string path = "..//..//..//srcTest//listView.xlsx";
             DeleteFile(path);
             ListView pusto = new(ExchangeOperation.Insert, "List1", null, null);
             WrapperExcel wrapper = new(path, pusto, null);
@@ -345,7 +345,7 @@ namespace MsTestWrapper
         [TestMethod]
         public void MatrixViewTestCreateInsert()
         {
-            var path = "..//..//..//srcTest//listView.xlsx";
+            const string path = "..//..//..//srcTest//listView.xlsx";
             DeleteFile(path);
 
             List<string[]> listS = new()
@@ -398,7 +398,7 @@ namespace MsTestWrapper
         [TestMethod]
         public void MatrixViewTestUpdate()
         {
-            var path = "..//..//..//srcTest//listView.xlsx";
+            const string path = "..//..//..//srcTest//listView.xlsx";
             DeleteFile(path);
             ListView pusto = new(ExchangeOperation.Insert, "List1", null, null);
             WrapperExcel wrapper = new(path, pusto, null);
@@ -538,10 +538,10 @@ namespace MsTestWrapper
             Debug.WriteLine(String.Join("\n",ls));
             //List<string[]>
             Simple.GetFromExcel(out List<string[]> lsm, path, "Sheet1");
-            Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));
+            Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Concat(x))));
             //Dictionary<string,string>
             Simple.GetFromExcel(out Dictionary<string, string[]> ld, path, "Sheet1");
-            Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Join("",x.Value)}") ));
+            Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Concat(x.Value)}") ));
         }
 
 

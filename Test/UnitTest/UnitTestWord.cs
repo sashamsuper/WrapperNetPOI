@@ -8,7 +8,7 @@ namespace MsTestWrapper
         [TestMethod]
         public void ReadCellValueTest()
         {
-            var path = "..//..//..//srcTest//listView2.docx";
+            const string path = "..//..//..//srcTest//listView2.docx";
             TableView exchangeClass = new(ExchangeOperation.Read);
             WrapperWord wrapper = new(path, exchangeClass);
             wrapper.Exchange();
@@ -19,7 +19,7 @@ namespace MsTestWrapper
         [TestMethod]
         public void ReadTableValueTest()
         {
-            var path = "..//..//..//srcTest//listView2.docx";
+            const string path = "..//..//..//srcTest//listView2.docx";
             List<string> listS = new()
             {
                 "1",

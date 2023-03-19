@@ -78,7 +78,25 @@ namespace WrapperNetPOI
             }
             get
             {
-                return firstColumn ?? 0;
+                if (firstColumn == null)
+                {
+
+                    firstColumn = ActiveSheet?.GetRow(ActiveSheet?.FirstRowNum ?? 0).FirstCellNum;
+                    if (firstColumn == -1)
+                    {
+                        firstColumn = 0;
+                        return 0;
+                    }
+                    else
+                    {
+                        return firstColumn ?? 0;
+                    }
+
+                }
+                else
+                {
+                    return firstColumn ?? 0;
+                }
             }
         }
 
@@ -109,7 +127,25 @@ namespace WrapperNetPOI
             }
             get
             {
-                return lastColumn ?? 0;
+                if (lastColumn == null)
+                {
+
+                    lastColumn = ActiveSheet?.GetRow(ActiveSheet?.FirstRowNum ?? 0).LastCellNum;
+                    if (lastColumn == -1)
+                    {
+                        lastColumn = 0;
+                        return 0;
+                    }
+                    else
+                    {
+                        return lastColumn ?? 0;
+                    }
+
+                }
+                else
+                {
+                    return lastColumn ?? 0;
+                }
             }
         }
 
@@ -189,10 +225,10 @@ namespace WrapperNetPOI
     public interface IExchangeExcel : IExchange
     {
         string ActiveSheetName { set; get; }
-        int FirstViewedRow { get; }
-        int LastViewedRow { get; }
-        int FirstViewedColumn { get; }
-        int LastViewedColumn { get; }
+        //int FirstViewedRow { get; }
+        //int LastViewedRow { get; }
+        //int FirstViewedColumn { get; }
+        //int LastViewedColumn { get; }
         ISheet ActiveSheet { set; get; }
         IWorkbook Workbook { set; get; }
     }
@@ -218,7 +254,22 @@ namespace WrapperNetPOI
         void DeleteValue();
     }
 
-    public abstract class ExchangeClass<Tout> : IExchangeExcel
+    public abstract class NewBaseType
+    {
+        public static int ReturnProgress(int number, int total)
+        {
+            if (total != 0)
+            {
+                return (number * 100) / total;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+    }
+
+    public abstract class ExchangeClass<Tout> : NewBaseType, IExchangeExcel
     {
         public Border WorkbookBorder { set; get; }
         public IWorkbook Workbook { set; get; }
@@ -234,18 +285,9 @@ namespace WrapperNetPOI
         {
             set
             {
-                if (value != null)
-                {
-                    activeSheet = value;
-                    if (WorkbookBorder == null)
-                    {
-                        
-                    }
-                    else
-                    {
-                        WorkbookBorder.ActiveSheet = activeSheet;
-                    }
-                }
+                activeSheet = value;
+                WorkbookBorder ??= new();    
+                WorkbookBorder.ActiveSheet = activeSheet;
             }
             get
             {
@@ -253,10 +295,10 @@ namespace WrapperNetPOI
             }
         }
 
-        public int FirstViewedRow => WorkbookBorder.FirstRow;
-        public int FirstViewedColumn => WorkbookBorder.FirstColumn;
-        public int LastViewedRow => WorkbookBorder.LastRow;
-        public int LastViewedColumn => WorkbookBorder.LastColumn;
+        //public int FirstViewedRow => WorkbookBorder.FirstRow;
+        //public int FirstViewedColumn => WorkbookBorder.FirstColumn;
+        //public int LastViewedRow => WorkbookBorder.LastRow;
+        //public int LastViewedColumn => WorkbookBorder.LastColumn;
         public Tout ExchangeValue { set; get; }
         public Action ExchangeValueFunc { set; get; }
 
@@ -268,24 +310,11 @@ namespace WrapperNetPOI
             ProgressValue = progress;
         }
 
-        public static int ReturnProgress(int number, int total)
-        {
-            if (total != 0)
-            {
-                return (number * 100) / total;
-            }
-            else
-            {
-                return 0;
-            }
-        }
-
         public virtual void GetInternallyObject(Stream tmpStream, bool addNewWorkbook)
         {
             FileStream fs = default;
-            if (Password == null)
-            { }
-            else
+            if (Password
+                != null)
             {
                 NPOI.POIFS.FileSystem.POIFSFileSystem nfs =
                 new(fs);
@@ -439,18 +468,18 @@ namespace WrapperNetPOI
         {
             if (ActiveSheet != null)
             {
-                int countRows = LastViewedRow - FirstViewedRow + 1;
-                for (int i = FirstViewedRow; i <= LastViewedRow; i++)
+                int countRows = WorkbookBorder.LastRow - WorkbookBorder.FirstRow + 1;
+                for (int i = WorkbookBorder.FirstRow; i <= WorkbookBorder.LastRow; i++)
                 {
                     var row = ActiveSheet.GetRow(i);
                     if (row != null)
                     {
                         var lastCol = row.LastCellNum;
-                        if (lastCol < LastViewedColumn)
+                        if (lastCol < WorkbookBorder.LastColumn)
                         {
-                            lastCol = (short)LastViewedColumn;
+                            lastCol = (short)WorkbookBorder.LastColumn;
                         }
-                        for (int ValueColumn = FirstViewedColumn; ValueColumn <= lastCol; ValueColumn++)
+                        for (int ValueColumn = WorkbookBorder.FirstColumn; ValueColumn <= lastCol; ValueColumn++)
                         {
                             ICell cell = row.GetCell(ValueColumn);
                             if (ValueColumn <= row.LastCellNum - 1)// -1 это особенность NPOI
@@ -494,7 +523,7 @@ namespace WrapperNetPOI
 
         public override void ReadValue()
         {
-            for (int i = FirstViewedRow; i <= LastViewedRow; i++)
+            for (int i = WorkbookBorder.FirstRow; i <= WorkbookBorder.LastRow; i++)
             {
                 ExchangeValue.Add(ActiveSheet.GetRow(i));
             }
@@ -521,7 +550,7 @@ namespace WrapperNetPOI
             tmpWrapper.Exchange();
             {
                 rowsView.CloseStream = true;
-                for (int i = rowsView.FirstViewedRow; i <= rowsView.LastViewedRow; i++)
+                for (int i = rowsView.WorkbookBorder.FirstRow; i <= rowsView.WorkbookBorder.LastRow; i++)
                 {
                     var row = rowsView.ActiveSheet.GetRow(i);
                     if (row != null)
@@ -549,10 +578,10 @@ namespace WrapperNetPOI
                 int rowsCount = ActiveSheet.RowsCount();
                 for (int i = 0; i < ExchangeValue.Count; i++)
                 {
-                    IRow row = ActiveSheet.CreateRow(i + FirstViewedRow + rowsCount);
+                    IRow row = ActiveSheet.CreateRow(i + WorkbookBorder.FirstRow + rowsCount);
                     for (int j = 0; j < ExchangeValue[i].Length; j++)
                     {
-                        ICell cell = row.GetCell(j) ?? row.CreateCell(j + FirstViewedColumn);
+                        ICell cell = row.GetCell(j) ?? row.CreateCell(j + WorkbookBorder.FirstColumn);
                         cell.SetCellValue(ExchangeValue[i][j]);
                     }
                     ProgressValue?.Report(ReturnProgress(i, ExchangeValue.Count));
@@ -567,8 +596,8 @@ namespace WrapperNetPOI
 
         public override void UpdateValue()
         {
-            int fRow = FirstViewedRow;
-            int lRow = LastViewedRow;
+            int fRow = WorkbookBorder.FirstRow;
+            int lRow = WorkbookBorder.LastRow;
             int total = lRow - fRow;
             for (int i = lRow; i >= fRow; i--)
             {
@@ -607,10 +636,10 @@ namespace WrapperNetPOI
 
         public override void ReadValue()
         {
-            if (FirstViewedRow == 0 &&
-                LastViewedRow == 0 &&
-                LastViewedColumn == 0 &&
-                FirstViewedColumn == 0)
+            if (WorkbookBorder.FirstRow == 0 &&
+                WorkbookBorder.LastRow == 0 &&
+                WorkbookBorder.LastColumn == 0 &&
+                WorkbookBorder.FirstColumn == 0)
             {
                 ReadValueHoleSheet();
             }
@@ -623,10 +652,10 @@ namespace WrapperNetPOI
         private void ReadValueHoleSheet() //Fast
         {
             ExchangeValue = new List<string[]>();
-            int firstViewedRow = FirstViewedRow;
+            int firstViewedRow = WorkbookBorder.FirstRow;
             //int lastViewedRow = LastViewedRow;
-            int lastViewedColumn = LastViewedColumn;
-            int firstViewedColumn = FirstViewedColumn;
+            int lastViewedColumn = WorkbookBorder.LastColumn;
+            int firstViewedColumn = WorkbookBorder.FirstColumn;
             List<string[]> tmpListString = new();
 
             if (ActiveSheet != null)
@@ -660,10 +689,10 @@ namespace WrapperNetPOI
         private void ReadValueWithBorders() //Slow
         {
             ExchangeValue = new List<string[]>();
-            int lastViewedRow = LastViewedRow;
-            int lastViewedColumn = LastViewedColumn;
-            int firstViewedColumn = FirstViewedColumn;
-            int firstViewedRow = FirstViewedRow;
+            int lastViewedRow = WorkbookBorder.LastRow;
+            int lastViewedColumn = WorkbookBorder.LastColumn;
+            int firstViewedColumn = WorkbookBorder.FirstColumn;
+            int firstViewedRow = WorkbookBorder.FirstRow;
             List<string[]> tmp = new();
             if (ActiveSheet != null)
             {

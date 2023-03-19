@@ -109,6 +109,7 @@ namespace WrapperNetPOI
                 //int countValue;
                 if (j == Rows[0])
                 {
+                    /*
                     if (Border == null)
                     {
                         var firstColumn = DFView.ActiveSheet.GetRow(Rows[j]).FirstCellNum;
@@ -116,7 +117,19 @@ namespace WrapperNetPOI
                                CorrectBorder(firstColumn: firstColumn,
                                              lastColumn: DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum);
                     }
-                    var countValue = Border.LastColumn - Border.FirstRow + 1;
+                    */
+                    int countValue;
+                    if (Border.LastColumn != Border.FirstColumn)
+                    {
+                        countValue = Border.LastColumn - Border.FirstColumn;
+                    }
+                    else 
+                    {
+                        var lastColumn = DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum;
+                        countValue = lastColumn-Border.FirstColumn;
+                        DFView.WorkbookBorder.
+                               CorrectBorder(lastColumn: lastColumn);
+                    }
                     if (DataColumns == null)
                     {
                         DataColumns = new DataColumn[countValue];
@@ -132,8 +145,8 @@ namespace WrapperNetPOI
                 }
                 for (int i = 0; i < DataColumns.Length; i++)
                 {
-                    string columnName = convertType.GetValue<string>(DFView.ActiveSheet.
-                        GetRow(j).GetCell(i + DFView.FirstViewedColumn));
+                    ICell cell=DFView.ActiveSheet.GetRow(j)?.GetCell(i + DFView.WorkbookBorder.FirstColumn);
+                    string columnName = convertType.GetValue<string>(cell);
                     columnName ??= "";
                     DataColumns[i].Name = $"{DataColumns[i].Name ?? ""}{columnName}";
                 }
