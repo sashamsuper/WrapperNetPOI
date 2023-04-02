@@ -1,9 +1,4 @@
-using Org.BouncyCastle.Bcpg;
 using System.Collections;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Globalization;
-using System.Reflection.Metadata.Ecma335;
 using WrapperNetPOI;
 
 namespace MsTestWrapper
@@ -11,7 +6,6 @@ namespace MsTestWrapper
     [TestClass]
     public class UnitTestWord
     {
-
         [TestMethod]
         public void ReadTableValueTest()
         {
@@ -20,7 +14,6 @@ namespace MsTestWrapper
             {
                 new string[]{"1", "2", "7" },
                 new string[]{"3", "4", "8"}
-
             };
             List<TableValue> sample = new();
             var tableValue = new TableValue(listS, 0, 0);
@@ -31,10 +24,19 @@ namespace MsTestWrapper
             CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
         }
 
+        [TestMethod]
+        public void ReadParagraphValueTest()
+        {
+            const string path = "..//..//..//srcTest//listView2.docx";
+            ParagraphView exchangeClass = new(ExchangeOperation.Read, null);
+            WrapperWord wrapper = new(path, exchangeClass, null);
+            var v = exchangeClass.ExchangeValue;
+            wrapper.Exchange();
+            //CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
+        }
 
         public class ListComparerClass : IComparer
         {
-
             // Call CaseInsensitiveComparer.Compare with the parameters reversed.
             public int Compare(object? x, object? y)
             {
@@ -66,7 +68,7 @@ namespace MsTestWrapper
                             return 0;
                         }
                     }
-                    else 
+                    else
                     {
                         return -1;
                     }

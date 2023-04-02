@@ -15,7 +15,6 @@ limitations under the License.
 ==========================================================================*/
 
 using Microsoft.Data.Analysis;
-using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using System;
 using System.Collections.Generic;
@@ -44,15 +43,15 @@ namespace WrapperNetPOI
 
     public class Header
     {
-        private int[] rows=new int[] { 0 };
+        private int[] rows = new int[] { 0 };
 
-        public int[] Rows 
+        public int[] Rows
         {
             init
             {
                 rows = value;
             }
-            get 
+            get
             {
                 if (Border == null)
                 {
@@ -68,24 +67,25 @@ namespace WrapperNetPOI
                     }
                     return headRows.ToArray();
                 }
-
-            } 
+            }
         }
 
         public DataColumn[] DataColumns { set; get; }
         private DataFrameView dataFrameView;
-        public DataFrameView DFView 
-        { 
+
+        public DataFrameView DFView
+        {
             set
             {
                 dataFrameView = value;
                 Border = dataFrameView.WorkbookBorder;
             }
-            private get 
+            private get
             {
                 return dataFrameView;
-            } 
+            }
         }
+
         public Border Border { set; get; }
 
         public void CreateHeaderType(Dictionary<int, Type> columns)
@@ -106,27 +106,17 @@ namespace WrapperNetPOI
             foreach (var j in Rows)
             {
                 ConvertType convertType = new();
-                //int countValue;
                 if (j == Rows[0])
                 {
-                    /*
-                    if (Border == null)
-                    {
-                        var firstColumn = DFView.ActiveSheet.GetRow(Rows[j]).FirstCellNum;
-                        DFView.WorkbookBorder.
-                               CorrectBorder(firstColumn: firstColumn,
-                                             lastColumn: DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum);
-                    }
-                    */
                     int countValue;
                     if (Border.LastColumn != Border.FirstColumn)
                     {
                         countValue = Border.LastColumn - Border.FirstColumn;
                     }
-                    else 
+                    else
                     {
                         var lastColumn = DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum;
-                        countValue = lastColumn-Border.FirstColumn;
+                        countValue = lastColumn - Border.FirstColumn;
                         DFView.WorkbookBorder.
                                CorrectBorder(lastColumn: lastColumn);
                     }
@@ -145,14 +135,14 @@ namespace WrapperNetPOI
                 }
                 for (int i = 0; i < DataColumns.Length; i++)
                 {
-                    ICell cell=DFView.ActiveSheet.GetRow(j)?.GetCell(i + DFView.WorkbookBorder.FirstColumn);
+                    ICell cell = DFView.ActiveSheet.GetRow(j)?.GetCell(i + DFView.WorkbookBorder.FirstColumn);
                     string columnName = convertType.GetValue<string>(cell);
                     columnName ??= "";
                     DataColumns[i].Name = $"{DataColumns[i].Name ?? ""}{columnName}";
                 }
             }
         }
-                
+
         public void RenameDobleHeaderColumn()
         {
             for (int i = DataColumns.Length - 1; i >= 0; i--)
@@ -239,7 +229,6 @@ namespace WrapperNetPOI
                 {
                     cell = null;
                 }
-
                 var value = convert.GetValue(cell, column.DataType);
                 oneRow.Add(new KeyValuePair<string, object>(columnHeader.Name, value));
             }
@@ -308,7 +297,7 @@ namespace WrapperNetPOI
                         }
                         else if (WorkbookBorder != null)
                         {
-                            if (i>=WorkbookBorder.FirstRow  && i<=WorkbookBorder.LastRow )
+                            if (i >= WorkbookBorder.FirstRow && i <= WorkbookBorder.LastRow)
                             {
                                 AppendOneRow(row, ExchangeValue);
                             }
@@ -317,7 +306,6 @@ namespace WrapperNetPOI
                                 break;
                             }
                         }
-
                     }
                     i++;
 #if DEBUG

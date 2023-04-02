@@ -22,8 +22,8 @@ namespace WrapperNetPOI
     public class WrapperExcel : Wrapper
     {
         public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null) :
-        base(pathToFile, exchangeClass, logger) { }
-        
+        base(pathToFile, exchangeClass, logger)
+        { }
 
         protected override void InsertValue()
         {

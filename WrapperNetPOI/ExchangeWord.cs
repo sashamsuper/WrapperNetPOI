@@ -13,6 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
+
 using NPOI.POIFS.Crypt;
 using NPOI.XWPF.UserModel;
 using Serilog;
@@ -26,7 +27,7 @@ namespace WrapperNetPOI
     {
     }
 
-    public abstract class WordExchange : IExchangeWord
+    public abstract class WordExchange<Tout> : IExchangeWord
     {
         protected WordExchange(ExchangeOperation exchange, IProgress<int> progress = null)
         {
@@ -34,12 +35,12 @@ namespace WrapperNetPOI
             ProgressValue = progress;
         }
 
-        public List<List<string[]>> Tables { set; get; } = new List<List<string[]>>();
+        //public List<List<string[]>> Tables { set; get; } = new List<List<string[]>>();
         public IProgress<int> ProgressValue { get; set; }
         public ILogger Logger { get; set; }
         public ExchangeOperation ExchangeOperationEnum { get; set; }
         public Action ExchangeValueFunc { get; set; }
-        public List<TableValue> ExchangeValue { set; get; }
+        public List<Tout> ExchangeValue { set; get; }
         public bool CloseStream { get; set; }
 
         public WordDoc Document { set; get; }
@@ -98,15 +99,29 @@ namespace WrapperNetPOI
         }
     }
 
-    public class TableView : WordExchange
+    public class TableView : WordExchange<TableValue>
     {
+        
+
         public TableView(ExchangeOperation exchange, IProgress<int> progress = null) :
             base(exchange, progress)
         { }
 
         public override void ReadValue()
         {
-            ExchangeValue = Document.GetTables();
+            ExchangeValue = Document.Tables;
+        }
+    }
+
+    public class ParagraphView : WordExchange<string>
+    {
+        public ParagraphView(ExchangeOperation exchange, IProgress<int> progress = null) :
+            base(exchange, progress)
+        { }
+
+        public override void ReadValue()
+        {
+            ExchangeValue = Document.Paragraphs;
         }
     }
 }

@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
 
-
 using NPOI.HWPF;
 using NPOI.HWPF.UserModel;
+using NPOI.WP.UserModel;
 using NPOI.XWPF.UserModel;
 using Serilog;
 using System.Collections.Generic;
@@ -57,7 +57,7 @@ namespace WrapperNetPOI
             this.level = level;
         }
 
-        public TableValue(List<string[]> value,int tableNumber, int level)
+        public TableValue(List<string[]> value, int tableNumber, int level)
         {
             this.Value = value;
             this.tableNumber = tableNumber;
@@ -67,12 +67,55 @@ namespace WrapperNetPOI
 
     public class WordDoc
     {
-        public List<CellValue> Cells { get; }
-        public List<TableValue> Tables { get; }
+        public List<CellValue> Cells 
+        {
+            get
+            {
+                return GetCells();
+            }
+        }
+        public List<TableValue> Tables 
+        {
+            get            
+            {
+                return GetTables();
+            }
+        }
+        public List<string> Paragraphs { set; get; }
+        
+        private HWPFDocument hDocument;
+        private XWPFDocument xDocument;
 
-        public WordDoc(object doc)
+        public dynamic Document
+        {
+            set
+            {
+                if (value is HWPFDocument h)
+                {
+                    hDocument = h;
+                }
+                else if (value is XWPFDocument x)
+                {
+                    xDocument = x;
+                }
+            }
+            get
+            {
+                return hDocument ?? (object)xDocument;
+            }
+        }
+
+        public WordDoc(dynamic doc)
         {
             this.Document = doc;
+            if (doc is HWPFDocument _doc)
+            {
+                GetParagraphs(_doc);
+            }
+            else if (doc is XWPFDocument _docx)
+            {
+                GetParagraphs(_docx);
+            }
         }
 
         private List<CellValue> XGetCells(IBody body, ref int tableN, int level = 0)
@@ -133,7 +176,7 @@ namespace WrapperNetPOI
             return cells;
         }
 
-        public List<CellValue> GetCells()
+        private List<CellValue> GetCells()
         {
             if (Document is XWPFDocument x)
             {
@@ -150,13 +193,9 @@ namespace WrapperNetPOI
             return default;
         }
 
-        public List<TableValue> GetTables()
+        private List<TableValue> GetTables()
         {
             var cells = GetCells();
-            /*
-            var tables=cells.GroupBy(t=>t.tableNumber).
-            Select(table=>table.GroupBy(r=>r.rowNumber).OrderBy(rowN=>rowN.Key).Select(row=>row.OrderBy(cell=>cell.cellNumber).ToArray()));
-            */
             var tables = cells.GroupBy(t => t.tableNumber).
             Select(table => table.GroupBy(r => r.rowNumber).OrderBy(rowN => rowN.Key).Select(row =>
             new
@@ -183,31 +222,27 @@ namespace WrapperNetPOI
             return tableList;
         }
 
-        public virtual void GetParagraphs()
+        
+        
+               
+        private  void GetParagraphs(HWPFDocument doc)
         {
-        }
-
-        private HWPFDocument hDocument;
-        private XWPFDocument xDocument;
-
-        public object Document
-        {
-            set
+            Paragraphs = new();
+            var range = doc.GetRange();
+            for (int i = 0; i < range.NumParagraphs; i++)
             {
-                if (value is HWPFDocument h)
-                {
-                    hDocument = h;
-                }
-                else if (value is XWPFDocument x)
-                {
-                    xDocument = x;
-                }
-            }
-            get
-            {
-                return hDocument ?? (object)xDocument;
+                Paragraphs.Add(range.GetParagraph(i).Text);
             }
         }
+
+        private  void GetParagraphs(XWPFDocument doc)
+        {
+            var paragraphs = doc.Paragraphs;
+            Paragraphs = paragraphs.Select(x => x.Text).ToList();
+        }
+
+        
+        
     }
 
     public class WrapperWord : Wrapper

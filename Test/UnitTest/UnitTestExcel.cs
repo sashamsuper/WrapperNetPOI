@@ -15,9 +15,14 @@ limitations under the License.
 ==========================================================================*/
 
 using Microsoft.Data.Analysis;
+using MsTestWrapper;
 using NPOI.SS.UserModel;
 using System.Diagnostics;
 using WrapperNetPOI;
+
+Console.WriteLine(22);
+UnitTestExcel unitTestExcel = new();
+unitTestExcel.SimpleGetFromExcel();
 
 namespace MsTestWrapper
 
@@ -128,8 +133,6 @@ namespace MsTestWrapper
             var value2 = exchangeClass.DataHeader.DataColumns.Select(x => x.Name).ToArray();
             CollectionAssert.AreEqual(d, value2);
         }
-
-        
 
         [TestMethod]
         public void DictionaryViewTestCreateInsert()
@@ -521,30 +524,30 @@ namespace MsTestWrapper
             Debug.WriteLine(df);
         }
 
-
-            [TestMethod]
+        [TestMethod]
         public void SimpleGetFromExcel()
         {
             //DataFrame
             const string path = "..//..//..//srcTest//dataframe.xlsx";
             Simple.GetFromExcel(out DataFrame df, path, "Sheet1",
-                    new Border { FirstColumn=5,
-                                 FirstRow=5,
-                                 LastColumn=10,
-                                 LastRow=10});
+                    new Border
+                    {
+                        FirstColumn = 5,
+                        FirstRow = 5,
+                        LastColumn = 10,
+                        LastRow = 10
+                    });
             Debug.WriteLine(df);
             //List<string>
             Simple.GetFromExcel(out List<string> ls, path, "Sheet1");
-            Debug.WriteLine(String.Join("\n",ls));
+            Debug.WriteLine(String.Join("\n", ls));
             //List<string[]>
             Simple.GetFromExcel(out List<string[]> lsm, path, "Sheet1");
             Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Concat(x))));
             //Dictionary<string,string>
             Simple.GetFromExcel(out Dictionary<string, string[]> ld, path, "Sheet1");
-            Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Concat(x.Value)}") ));
+            Debug.WriteLine(string.Join("\n", ld.Select(x => $"Key:{x.Key}Value:{String.Concat(x.Value)}")));
         }
-
-
 
         [TestMethod]
         public void DataFrameTestValue()

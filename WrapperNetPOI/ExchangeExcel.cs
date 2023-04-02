@@ -14,7 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
 
-
 using NPOI.POIFS.Crypt;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -80,7 +79,6 @@ namespace WrapperNetPOI
             {
                 if (firstColumn == null)
                 {
-
                     firstColumn = ActiveSheet?.GetRow(ActiveSheet?.FirstRowNum ?? 0).FirstCellNum;
                     if (firstColumn == -1)
                     {
@@ -91,7 +89,6 @@ namespace WrapperNetPOI
                     {
                         return firstColumn ?? 0;
                     }
-
                 }
                 else
                 {
@@ -129,7 +126,6 @@ namespace WrapperNetPOI
             {
                 if (lastColumn == null)
                 {
-
                     lastColumn = ActiveSheet?.GetRow(ActiveSheet?.FirstRowNum ?? 0).LastCellNum;
                     if (lastColumn == -1)
                     {
@@ -140,7 +136,6 @@ namespace WrapperNetPOI
                     {
                         return lastColumn ?? 0;
                     }
-
                 }
                 else
                 {
@@ -213,7 +208,7 @@ namespace WrapperNetPOI
         public static IDictionary<string, string[]> ConvertToDictionary(IList<string[]> list)
         {
             Dictionary<string, string[]> dict = new();
-            var groupValue = list?.Where(x => x.Length>=2).Where(x => x[0] != null).GroupBy(y => y[0], (value) => value[1]);
+            var groupValue = list?.Where(x => x.Length >= 2).Where(x => x[0] != null).GroupBy(y => y[0], (value) => value[1]);
             foreach (var group in groupValue)
             {
                 dict[group.Key] = group.Select(x => x).ToArray();
@@ -225,11 +220,13 @@ namespace WrapperNetPOI
     public interface IExchangeExcel : IExchange
     {
         string ActiveSheetName { set; get; }
+
         //int FirstViewedRow { get; }
         //int LastViewedRow { get; }
         //int FirstViewedColumn { get; }
         //int LastViewedColumn { get; }
         ISheet ActiveSheet { set; get; }
+
         IWorkbook Workbook { set; get; }
     }
 
@@ -286,7 +283,7 @@ namespace WrapperNetPOI
             set
             {
                 activeSheet = value;
-                WorkbookBorder ??= new();    
+                WorkbookBorder ??= new();
                 WorkbookBorder.ActiveSheet = activeSheet;
             }
             get
@@ -300,6 +297,7 @@ namespace WrapperNetPOI
         //public int LastViewedRow => WorkbookBorder.LastRow;
         //public int LastViewedColumn => WorkbookBorder.LastColumn;
         public Tout ExchangeValue { set; get; }
+
         public Action ExchangeValueFunc { set; get; }
 
         protected ExchangeClass(ExchangeOperation exchange, string activeSheetName, Border border = null, IProgress<int> progress = null)
@@ -712,7 +710,7 @@ namespace WrapperNetPOI
         private readonly MatrixView matrix;
 
         public ListView(ExchangeOperation exchangeType, string activeSheetName,
-            IList<string> exchangeValue, Border border=null, IProgress<int> progress = null) :
+            IList<string> exchangeValue, Border border = null, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, border, progress)
         {
             matrix = new MatrixView(exchangeType, activeSheetName,
@@ -748,7 +746,7 @@ namespace WrapperNetPOI
         private readonly MatrixView matrix;
 
         public DictionaryView(ExchangeOperation exchangeType, string activeSheetName,
-            IDictionary<string, string[]> exchangeValue, Border border=null, IProgress<int> progress = null) :
+            IDictionary<string, string[]> exchangeValue, Border border = null, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, border, progress)
         {
             matrix = new MatrixView(exchangeType, activeSheetName,

@@ -17,6 +17,7 @@ limitations under the License.
 using Microsoft.Data.Analysis;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -109,7 +110,7 @@ namespace WrapperNetPOI
             wrapper.Exchange();
         }
 
-        public static void GetFromExcel<ReturnType>(out ReturnType value, string pathToFile, string sheetName, Border border=null) where ReturnType : new()
+        public static void GetFromExcel<ReturnType>(out ReturnType value, string pathToFile, string sheetName, Border border = null) where ReturnType : new()
         {
             ReturnType returnValue = new();
             if (returnValue is List<string> rL)
@@ -144,24 +145,31 @@ namespace WrapperNetPOI
             //return;
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="value"></param>
-        /// <param name="pathToFile"></param>
-        /// <param name="sheetName"></param>
-        /// <param name="border"></param>
-        public static void GetFromExcel(out DataFrame value, string pathToFile, string sheetName, Border border=null)
+        public static void GetFromExcel(out DataFrame value, string pathToFile, string sheetName, Border border = null, Dictionary<int, Type> header = null, int[] rows=null)
         {
             var exchangeClass = new DataFrameView(ExchangeOperation.Read, sheetName, null, border);
+            if (rows != null)
+            {
+                exchangeClass.DataHeader = new()
+                {
+                    Rows = rows
+                };
+            }
+            else
+            {
+                exchangeClass.DataHeader = new();
+            }
+            if (header!=null)
+            {
+                exchangeClass.DataHeader.CreateHeaderType(header);
+            }
             WrapperExcel wrapper = new(pathToFile, exchangeClass, null);
             wrapper.Exchange();
-            value= exchangeClass.ExchangeValue;
+            value = exchangeClass.ExchangeValue;
         }
 
         /// <summary>
-        /// 
+        ///
         /// </summary>
         /// <param name="value"></param>
         /// <param name="pathToFile"></param>
@@ -173,8 +181,6 @@ namespace WrapperNetPOI
             value = exchangeClass.ExchangeValue;
         }
 
-
-
         /// <summary>
         /// The GetFromExcel.
         /// </summary>
@@ -182,7 +188,7 @@ namespace WrapperNetPOI
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
         /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
         /// <returns>The <see cref="ReturnType"/>.</returns>
-        public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName, Border border=null) where ReturnType : new()
+        public static ReturnType GetFromExcel<ReturnType>(string pathToFile, string sheetName, Border border = null) where ReturnType : new()
         {
             GetFromExcel(out ReturnType value, pathToFile, sheetName, border);
             return value;
