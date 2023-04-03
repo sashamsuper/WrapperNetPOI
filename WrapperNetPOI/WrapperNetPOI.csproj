@@ -20,7 +20,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>latestMajor</LangVersion>
     <AssemblyName>WrapperNetPOI</AssemblyName>
-    <Copyright>©sashamsuper, 2020-2022</Copyright>
+    <Copyright>©sashamsuper, 2020-2023</Copyright>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Version>0.1.1-alpha</Version>
   </PropertyGroup>
