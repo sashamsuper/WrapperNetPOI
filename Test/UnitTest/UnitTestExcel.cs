@@ -68,9 +68,9 @@ namespace MsTestWrapper
             ICell cell2 = row2.GetCell(0);
             ICell cell3 = row3.GetCell(0);
             ConvertType convertType = new();
-            var d1 = convertType.GetValueInt(new WrapperCell(cell1));
-            var d2 = convertType.GetValueInt(new WrapperCell(cell2));
-            var d3 = convertType.GetValueInt(new WrapperCell(cell3));
+            var d1 = convertType.GetValueInt32(new WrapperCell(cell1));
+            var d2 = convertType.GetValueInt32(new WrapperCell(cell2));
+            var d3 = convertType.GetValueInt32(new WrapperCell(cell3));
             Assert.AreEqual(1, d1);
             Assert.AreEqual(2, d2);
             Assert.AreEqual(3, d3);
