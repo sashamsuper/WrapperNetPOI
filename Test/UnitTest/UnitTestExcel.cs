@@ -54,6 +54,29 @@ namespace MsTestWrapper
         }
 
         [TestMethod]
+        public void ConvertTestInt()
+        {
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            RowsView exchangeClass = new(ExchangeOperation.Read);
+            WrapperExcel wrapper = new(path, exchangeClass);
+            wrapper.Exchange();
+            var value = exchangeClass.ExchangeValue;
+            var row1 = value.Skip(1).First();
+            var row2 = value.Skip(2).First();
+            var row3 = value.Skip(3).First();
+            ICell cell1 = row1.GetCell(0);
+            ICell cell2 = row2.GetCell(0);
+            ICell cell3 = row3.GetCell(0);
+            ConvertType convertType = new();
+            var d1 = convertType.GetValueInt(new WrapperCell(cell1));
+            var d2 = convertType.GetValueInt(new WrapperCell(cell2));
+            var d3 = convertType.GetValueInt(new WrapperCell(cell3));
+            Assert.AreEqual(1, d1);
+            Assert.AreEqual(2, d2);
+            Assert.AreEqual(3, d3);
+        }
+
+        [TestMethod]
         public void ConvertTestString()
         {
             var path = "..//..//..//srcTest//dataframe.xlsx";
@@ -592,6 +615,37 @@ namespace MsTestWrapper
             Debug.WriteLine(exchangeClass.ExchangeValue);
             var value = exchangeClass.ExchangeValue;
             var col1 = new StringDataFrameColumn("col1", new string[] { "1", "3", "6" });
+            var col2 = new DateTimeDataFrameColumn("col2",
+                new DateTime[] { new DateTime(2), new DateTime(4), new DateTime(7) });
+            var col3 = new DoubleDataFrameColumn("col3",
+                new Double[] { 3.1, 5.1, 8.1 });
+            var sample = new DataFrame(col1, col2, col3).Rows.Select(x => x.ToString()).ToList();
+            CollectionAssert.AreEqual(sample, exchangeClass.ExchangeValue.Rows.Select(x => x.ToString()).ToList());
+        }
+
+        [TestMethod]
+        public void DataFrameIntegerSimple()
+        {
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            DataFrameView exchangeClass = new(ExchangeOperation.Read, "Sheet3")
+            {
+                DataHeader = new()
+                {
+                    Rows = new int[] { 0 }
+                }
+            };
+
+            Dictionary<int, Type> header = new()
+            {   { 0, typeof(int) } ,
+                { 1, typeof(DateTime) },
+                { 2, typeof(Double) }
+            };
+            exchangeClass.DataHeader.CreateHeaderType(header);
+            WrapperExcel wrapper = new(path, exchangeClass);
+            wrapper.Exchange();
+            Debug.WriteLine(exchangeClass.ExchangeValue);
+            var value = exchangeClass.ExchangeValue;
+            var col1 = new Int32DataFrameColumn("col1", new int[] { 1, 3, 6 });
             var col2 = new DateTimeDataFrameColumn("col2",
                 new DateTime[] { new DateTime(2), new DateTime(4), new DateTime(7) });
             var col3 = new DoubleDataFrameColumn("col3",

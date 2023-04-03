@@ -174,6 +174,10 @@ namespace WrapperNetPOI
                     GetValue(cell, out DateTime tmp2);
                     return tmp2;
 
+                case "Int32":
+                    GetValue(cell, out int tmp3);
+                    return tmp3;
+
                 default:
                     throw new NotImplementedException("Do not have handler");
             }
@@ -187,6 +191,8 @@ namespace WrapperNetPOI
                 "String" => (T)Convert.ChangeType(GetValueString(wrapperCell), typeof(T)),
                 "Double" => (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T)),
                 "DateTime" => (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T)),
+                "Int32" => (T)Convert.ChangeType(GetValueInt(wrapperCell), typeof(T)),
+
                 _ => throw new NotImplementedException("Do not have handler"),
             };
         }
@@ -285,6 +291,12 @@ namespace WrapperNetPOI
             return doubleValue;
         }
 
+        protected internal int GetInt(string value)
+        {
+            int.TryParse(value, ThisNumberStyle, ThisCultureInfo, out var returnValue);
+            return returnValue;
+        }
+
         protected internal double GetValueDouble(WrapperCell cell) => cell switch
         {
             {
@@ -316,5 +328,39 @@ namespace WrapperNetPOI
             _
             => GetDouble(cell.StringCellValue)
         };
+
+        protected internal double GetValueInt(WrapperCell cell) => cell switch
+        {
+            {
+                CellType: var cellType,
+                NumericCellValue: var numericCellValue,
+            }
+            when cellType == CellType.Numeric => numericCellValue,
+            {
+                CellType: var cellType,
+                StringCellValue: var stringCellValue,
+            }
+            when cellType == CellType.String => GetInt(stringCellValue),
+            {
+                CellType: var cellType,
+                StringCellValue: var stringCellValue,
+                CachedFormulaResultType: var cachedFormulaResultType
+            }
+            when cellType == CellType.Formula &&
+            cachedFormulaResultType == CellType.String
+            => GetInt(stringCellValue),
+            {
+                CellType: var cellType,
+                NumericCellValue: var numericCellValue,
+                CachedFormulaResultType: var cachedFormulaResultType
+            }
+            when cellType == CellType.Formula &&
+            cachedFormulaResultType == CellType.Numeric
+            => numericCellValue,
+            _
+            => GetInt(cell.StringCellValue)
+        };
     }
 }
+
+    
