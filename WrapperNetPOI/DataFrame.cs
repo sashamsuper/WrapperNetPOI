@@ -213,6 +213,30 @@ namespace WrapperNetPOI
             ReadValueHoleSheet();
         }
 
+        public override void InsertValue()
+        { 
+            base.InsertValue();
+        }
+        
+
+        public void CreateHeader()
+        { 
+            if (DataHeader != null) 
+            { 
+                if (WorkbookBorder!=null)
+                {
+                    for (int i = WorkbookBorder.FirstColumn; 
+                        i < WorkbookBorder.LastColumn; i++)
+                    { 
+                        
+
+                    }
+                }
+            }
+        }
+
+
+
         protected void AppendOneRow(IRow row, DataFrame dataFrame)
         {
             ConvertType convert = new();
