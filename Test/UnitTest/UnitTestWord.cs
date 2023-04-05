@@ -30,7 +30,6 @@ namespace MsTestWrapper
             const string path = "..//..//..//srcTest//listView2.docx";
             ParagraphView exchangeClass = new(ExchangeOperation.Read, null);
             WrapperWord wrapper = new(path, exchangeClass, null);
-            var v = exchangeClass.ExchangeValue;
             wrapper.Exchange();
             //CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
         }
@@ -75,7 +74,7 @@ namespace MsTestWrapper
                 }
                 else
                 {
-                    if (x == null && y == null)
+                    if (x == null || y == null)
                     {
                         return 0;
                     }

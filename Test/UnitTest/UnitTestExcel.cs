@@ -85,8 +85,8 @@ namespace MsTestWrapper
             wrapper.Exchange();
             var value = exchangeClass.ExchangeValue[0];
             ICell cell = value.GetCell(0);
-            ConvertType convertType = new();
-            var str = convertType.GetValueString(new WrapperCell(cell));
+            //ConvertType convertType = new();
+            var str = ConvertType.GetValueString(new WrapperCell(cell));
             Assert.AreEqual("dron", str);
         }
 

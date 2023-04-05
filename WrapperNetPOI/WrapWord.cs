@@ -16,7 +16,6 @@ limitations under the License.
 
 using NPOI.HWPF;
 using NPOI.HWPF.UserModel;
-using NPOI.WP.UserModel;
 using NPOI.XWPF.UserModel;
 using Serilog;
 using System.Collections.Generic;
@@ -67,22 +66,24 @@ namespace WrapperNetPOI
 
     public class WordDoc
     {
-        public List<CellValue> Cells 
+        public List<CellValue> Cells
         {
             get
             {
                 return GetCells();
             }
         }
-        public List<TableValue> Tables 
+
+        public List<TableValue> Tables
         {
-            get            
+            get
             {
                 return GetTables();
             }
         }
+
         public List<string> Paragraphs { set; get; }
-        
+
         private HWPFDocument hDocument;
         private XWPFDocument xDocument;
 
@@ -222,10 +223,7 @@ namespace WrapperNetPOI
             return tableList;
         }
 
-        
-        
-               
-        private  void GetParagraphs(HWPFDocument doc)
+        private void GetParagraphs(HWPFDocument doc)
         {
             Paragraphs = new();
             var range = doc.GetRange();
@@ -235,14 +233,11 @@ namespace WrapperNetPOI
             }
         }
 
-        private  void GetParagraphs(XWPFDocument doc)
+        private void GetParagraphs(XWPFDocument doc)
         {
             var paragraphs = doc.Paragraphs;
             Paragraphs = paragraphs.Select(x => x.Text).ToList();
         }
-
-        
-        
     }
 
     public class WrapperWord : Wrapper

@@ -37,6 +37,7 @@ namespace WrapperNetPOI
 
         //public List<List<string[]>> Tables { set; get; } = new List<List<string[]>>();
         public IProgress<int> ProgressValue { get; set; }
+
         public ILogger Logger { get; set; }
         public ExchangeOperation ExchangeOperationEnum { get; set; }
         public Action ExchangeValueFunc { get; set; }
@@ -101,8 +102,6 @@ namespace WrapperNetPOI
 
     public class TableView : WordExchange<TableValue>
     {
-        
-
         public TableView(ExchangeOperation exchange, IProgress<int> progress = null) :
             base(exchange, progress)
         { }

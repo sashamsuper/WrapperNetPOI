@@ -19,7 +19,9 @@ Simple.GetFromExcel(out List<string[]> lsm, path, "Sheet1");
 Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));  
 //Dictionary<string,string>  
 Simple.GetFromExcel(out Dictionary<string, string[]> ld, path, "Sheet1");  
-Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Join("",x.Value)}") ));  
+Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Join("",x.Value)}") ));
+
+https://github.com/sashamsuper/WrapperNetPOI  
   
 
 ![example workflow](https://github.com/sashamsuper/WrapperNetPOI/actions/workflows/dotnet.yml/badge.svg)

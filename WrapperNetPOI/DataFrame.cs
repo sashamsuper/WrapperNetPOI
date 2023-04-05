@@ -214,28 +214,23 @@ namespace WrapperNetPOI
         }
 
         public override void InsertValue()
-        { 
+        {
             base.InsertValue();
         }
-        
 
         public void CreateHeader()
-        { 
-            if (DataHeader != null) 
-            { 
-                if (WorkbookBorder!=null)
+        {
+            if (DataHeader != null)
+            {
+                if (WorkbookBorder != null)
                 {
-                    for (int i = WorkbookBorder.FirstColumn; 
+                    for (int i = WorkbookBorder.FirstColumn;
                         i < WorkbookBorder.LastColumn; i++)
-                    { 
-                        
-
+                    {
                     }
                 }
             }
         }
-
-
 
         protected void AppendOneRow(IRow row, DataFrame dataFrame)
         {
@@ -332,12 +327,6 @@ namespace WrapperNetPOI
                         }
                     }
                     i++;
-#if DEBUG
-                    if (i % 1000 == 0)
-                    {
-                        Debug.WriteLine(i);
-                    }
-#endif
                 }
             }
         }

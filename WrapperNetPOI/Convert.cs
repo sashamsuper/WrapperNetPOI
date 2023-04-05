@@ -93,17 +93,21 @@ namespace WrapperNetPOI
             }
         }
 
-
-
         public string StringCellValue
         {
             get
             {
                 string value;
-
                 try
                 {
-                    value = Cell?.StringCellValue;
+                    if (Cell?.CellType == CellType.String)
+                    {
+                        value = Cell?.StringCellValue;
+                    }
+                    else
+                    {
+                        value = null;
+                    }
                 }
                 catch (InvalidOperationException)
                 {
@@ -113,7 +117,6 @@ namespace WrapperNetPOI
                 {
                     value = null;
                 }
-
                 return value;
             }
         }
@@ -175,9 +178,11 @@ namespace WrapperNetPOI
                 case "DateTime":
                     GetValue(cell, out DateTime tmp2);
                     return tmp2;
+
                 case "Int32":
                     GetValue(cell, out int tmp3);
                     return tmp3;
+
                 default:
                     throw new NotImplementedException("Do not have handler");
             }
@@ -188,7 +193,7 @@ namespace WrapperNetPOI
             WrapperCell wrapperCell = new(cell);
             value = typeof(T).Name switch
             {
-                "String" => (T)Convert.ChangeType(GetValueString(wrapperCell), typeof(T)),
+                "String" => (T)Convert.ChangeType(ConvertType.GetValueString(wrapperCell), typeof(T)),
                 "Double" => (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T)),
                 "DateTime" => (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T)),
                 "Int32" => (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T)),
@@ -204,6 +209,10 @@ namespace WrapperNetPOI
 
         protected internal DateTime GetValueDateTime(WrapperCell cell) => cell switch
         {
+            {
+                CellType: var cellType,
+            }
+            when cellType == CellType.Blank => default,
             {
                 CellType: var cellType,
                 StringCellValue: var stringCellValue,
@@ -252,8 +261,12 @@ namespace WrapperNetPOI
             }
         }
 
-        protected internal string GetValueString(WrapperCell cell) => cell switch
+        protected internal static string GetValueString(WrapperCell cell) => cell switch
         {
+            {
+                CellType: var cellType,
+            }
+            when cellType == CellType.Blank => null,
             {
                 CellType: var cellType,
                 StringCellValue: var stringCellValue,
@@ -281,7 +294,7 @@ namespace WrapperNetPOI
             cachedFormulaResultType == CellType.Numeric
             => numericCellValue.ToString(),
             _
-            => cell.StringCellValue
+            => cell.StringCellValue,
         };
 
         protected internal double GetDouble(string value)
@@ -298,6 +311,10 @@ namespace WrapperNetPOI
 
         protected internal double GetValueDouble(WrapperCell cell) => cell switch
         {
+            {
+                CellType: var cellType,
+            }
+            when cellType == CellType.Blank => 0.0,
             {
                 CellType: var cellType,
                 NumericCellValue: var numericCellValue,
@@ -330,6 +347,10 @@ namespace WrapperNetPOI
 
         protected internal Int32 GetValueInt32(WrapperCell cell) => cell switch
         {
+            {
+                CellType: var cellType,
+            }
+            when cellType == CellType.Blank => 0,
             {
                 CellType: var cellType,
                 NumericCellValue: var numericCellValue,

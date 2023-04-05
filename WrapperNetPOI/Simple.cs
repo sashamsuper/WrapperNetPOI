@@ -17,7 +17,6 @@ limitations under the License.
 using Microsoft.Data.Analysis;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -145,7 +144,7 @@ namespace WrapperNetPOI
             //return;
         }
 
-        public static void GetFromExcel(out DataFrame value, string pathToFile, string sheetName, Border border = null, Dictionary<int, Type> header = null, int[] rows=null)
+        public static void GetFromExcel(out DataFrame value, string pathToFile, string sheetName, Border border = null, Dictionary<int, Type> header = null, int[] rows = null)
         {
             var exchangeClass = new DataFrameView(ExchangeOperation.Read, sheetName, null, border);
             if (rows != null)
@@ -159,7 +158,7 @@ namespace WrapperNetPOI
             {
                 exchangeClass.DataHeader = new();
             }
-            if (header!=null)
+            if (header != null)
             {
                 exchangeClass.DataHeader.CreateHeaderType(header);
             }

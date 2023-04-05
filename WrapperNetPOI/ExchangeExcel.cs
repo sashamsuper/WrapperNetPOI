@@ -381,7 +381,7 @@ namespace WrapperNetPOI
                     }
 
                     ConvertType convertType = new();
-                    returnValue = convertType.GetValueString(new WrapperCell(cell));
+                    returnValue = ConvertType.GetValueString(new WrapperCell(cell));
 
                     /*
 
