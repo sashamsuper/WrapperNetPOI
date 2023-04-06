@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace WrapperNetPOI
+namespace WrapperNetPOI.Excel
 {
     public static class Extensions
     {

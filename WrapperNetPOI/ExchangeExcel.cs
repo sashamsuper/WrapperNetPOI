@@ -32,15 +32,8 @@ namespace System.Runtime.CompilerServices
     { }
 }
 
-namespace WrapperNetPOI
+namespace WrapperNetPOI.Excel
 {
-    public enum ExchangeOperation
-    {
-        Insert,
-        Read,
-        Update,
-        Delete
-    }
 
     public class Border // in developing
     {
@@ -230,26 +223,7 @@ namespace WrapperNetPOI
         IWorkbook Workbook { set; get; }
     }
 
-    public interface IExchange
-    {
-        //IWorkbook Workbook {set;get;}
-        IProgress<int> ProgressValue { set; get; }
-
-        ILogger Logger { set; get; }
-        ExchangeOperation ExchangeOperationEnum { set; get; }
-        Action ExchangeValueFunc { set; get; }
-        bool CloseStream { get; set; }
-
-        void GetInternallyObject(Stream fs, bool addNew);
-
-        void ReadValue();
-
-        void InsertValue();
-
-        void UpdateValue();
-
-        void DeleteValue();
-    }
+    
 
     public abstract class NewBaseType
     {

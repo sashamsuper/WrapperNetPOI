@@ -17,7 +17,7 @@ limitations under the License.
 using Serilog;
 using System.IO;
 
-namespace WrapperNetPOI
+namespace WrapperNetPOI.Excel
 {
     public class WrapperExcel : Wrapper
     {

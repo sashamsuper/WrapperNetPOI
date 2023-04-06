@@ -17,7 +17,7 @@ using NPOI.SS.UserModel;
 using NPOI.SS.Util;
 using System;
 
-namespace WrapperNetPOI
+namespace WrapperNetPOI.Excel
 {
     /// <summary>
     /// Source code copied from https://github.com/nissl-lab/npoi/blob/master/main/SS/Util/SheetUtil.cs
@@ -147,9 +147,9 @@ namespace WrapperNetPOI
                 if (cellRangeAddress != null && cellRangeAddress.FirstRow == sourceRow.RowNum)
                 {
                     CellRangeAddress newCellRangeAddress = new(newRow.RowNum,
-                            (newRow.RowNum +
+                            newRow.RowNum +
                                     (cellRangeAddress.LastRow - cellRangeAddress.FirstRow
-                                            )),
+                                            ),
                             cellRangeAddress.FirstColumn,
                             cellRangeAddress.LastColumn);
                     targetSheet.AddMergedRegion(newCellRangeAddress);

@@ -21,7 +21,7 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("UnitTest")]
 
-namespace WrapperNetPOI
+namespace WrapperNetPOI.Excel
 {
     public class WrapperCell
     {

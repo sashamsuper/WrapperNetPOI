@@ -1,5 +1,6 @@
 using System.Collections;
 using WrapperNetPOI;
+using WrapperNetPOI.Word;
 
 namespace MsTestWrapper
 {

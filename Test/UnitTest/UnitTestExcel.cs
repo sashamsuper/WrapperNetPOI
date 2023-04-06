@@ -19,6 +19,7 @@ using MsTestWrapper;
 using NPOI.SS.UserModel;
 using System.Diagnostics;
 using WrapperNetPOI;
+using WrapperNetPOI.Excel;
 
 Console.WriteLine(22);
 UnitTestExcel unitTestExcel = new();

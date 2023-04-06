@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace WrapperNetPOI
+namespace WrapperNetPOI.Word
 {
     public interface IExchangeWord : IExchange
     {
