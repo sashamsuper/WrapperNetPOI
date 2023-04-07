@@ -27,7 +27,7 @@ jobs:
     - name: Test
       run: dotnet test ./WrapperNetPOI/WrapperNetPOI.csproj --no-build --verbosity normal
     - name: Publish  
-      uses: brandedoutcast/publish-nuget@v2.5.5  
+      uses: brandedoutcast/publish-nuget@v2.5.4 
       with:
         PROJECT_FILE_PATH: ./WrapperNetPOI/WrapperNetPOI.csproj  
         NUGET_KEY: ${{secrets.NUGET_KEY_REPR}} 
