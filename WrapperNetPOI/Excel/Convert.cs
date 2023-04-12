@@ -28,7 +28,7 @@ namespace WrapperNetPOI.Excel
         private ICell Cell { get; }
         public CellType CellType { set; get; }
 
-        public WrapperCell(NPOI.SS.UserModel.ICell cell)
+        public WrapperCell(ICell cell)
         {
             Cell = cell;
             if (cell == null)
@@ -163,7 +163,7 @@ namespace WrapperNetPOI.Excel
             //CreateMapster();
         }
 
-        public dynamic GetValue(NPOI.SS.UserModel.ICell cell, Type type)
+        public dynamic GetValue(ICell cell, Type type)
         {
             switch (type.Name)
             {
@@ -188,12 +188,12 @@ namespace WrapperNetPOI.Excel
             }
         }
 
-        public void GetValue<T>(NPOI.SS.UserModel.ICell cell, out T value)
+        public void GetValue<T>(ICell cell, out T value)
         {
             WrapperCell wrapperCell = new(cell);
             value = typeof(T).Name switch
             {
-                "String" => (T)Convert.ChangeType(ConvertType.GetValueString(wrapperCell), typeof(T)),
+                "String" => (T)Convert.ChangeType(GetValueString(wrapperCell), typeof(T)),
                 "Double" => (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T)),
                 "DateTime" => (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T)),
                 "Int32" => (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T)),
@@ -201,9 +201,9 @@ namespace WrapperNetPOI.Excel
             };
         }
 
-        public T GetValue<T>(NPOI.SS.UserModel.ICell cell)
+        public T GetValue<T>(ICell cell)
         {
-            GetValue<T>(cell, out T value);
+            GetValue(cell, out T value);
             return value;
         }
 
@@ -303,9 +303,9 @@ namespace WrapperNetPOI.Excel
             return doubleValue;
         }
 
-        protected internal Int32 GetInt32(string value)
+        protected internal int GetInt32(string value)
         {
-            Int32.TryParse(value, ThisNumberStyle, ThisCultureInfo, out var intValue);
+            int.TryParse(value, ThisNumberStyle, ThisCultureInfo, out var intValue);
             return intValue;
         }
 
@@ -345,7 +345,7 @@ namespace WrapperNetPOI.Excel
             => GetDouble(cell.StringCellValue)
         };
 
-        protected internal Int32 GetValueInt32(WrapperCell cell) => cell switch
+        protected internal int GetValueInt32(WrapperCell cell) => cell switch
         {
             {
                 CellType: var cellType,
@@ -355,7 +355,7 @@ namespace WrapperNetPOI.Excel
                 CellType: var cellType,
                 NumericCellValue: var numericCellValue,
             }
-            when cellType == CellType.Numeric => (Int32)numericCellValue,
+            when cellType == CellType.Numeric => (int)numericCellValue,
             {
                 CellType: var cellType,
                 StringCellValue: var stringCellValue,
@@ -376,7 +376,7 @@ namespace WrapperNetPOI.Excel
             }
             when cellType == CellType.Formula &&
             cachedFormulaResultType == CellType.Numeric
-            => (Int32)numericCellValue,
+            => (int)numericCellValue,
             _
             => GetInt32(cell.StringCellValue)
         };

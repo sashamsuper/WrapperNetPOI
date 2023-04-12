@@ -25,7 +25,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-namespace System.Runtime.CompilerServices
+namespace WrapperNetPOI.Excel
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
     internal static class IsExternalInit
@@ -223,7 +223,7 @@ namespace WrapperNetPOI.Excel
         IWorkbook Workbook { set; get; }
     }
 
-    
+
 
     public abstract class NewBaseType
     {
@@ -231,7 +231,7 @@ namespace WrapperNetPOI.Excel
         {
             if (total != 0)
             {
-                return (number * 100) / total;
+                return number * 100 / total;
             }
             else
             {
@@ -336,9 +336,9 @@ namespace WrapperNetPOI.Excel
         /// <returns>The <see cref="string"/>.</returns>
         public static string ReturnStringDate(DateTime date)
         {
-            var day = String.Format("{0:D2}", date.Day);
-            var mounth = String.Format("{0:D2}", date.Month);
-            var year = String.Format("{0:D4}", date.Year);
+            var day = string.Format("{0:D2}", date.Day);
+            var mounth = string.Format("{0:D2}", date.Month);
+            var year = string.Format("{0:D4}", date.Year);
             return $"{day}.{mounth}.{year}";
         }
 
@@ -513,7 +513,7 @@ namespace WrapperNetPOI.Excel
 
         public void UpdateValue(int StartRow = 0)
         {
-            RowsView rowsView = new(ExchangeOperation.Read, this.ActiveSheetName, new List<IRow>(), null)
+            RowsView rowsView = new(ExchangeOperation.Read, ActiveSheetName, new List<IRow>(), null)
             {
                 CloseStream = true
                 //CloseStream = false
@@ -527,7 +527,7 @@ namespace WrapperNetPOI.Excel
                     var row = rowsView.ActiveSheet.GetRow(i);
                     if (row != null)
                     {
-                        ChangedNPOI.ChangedCopyRow(rowsView.ActiveSheet, i, this.ActiveSheet, StartRow + i);
+                        ChangedNPOI.ChangedCopyRow(rowsView.ActiveSheet, i, ActiveSheet, StartRow + i);
                     }
                 }
             }
@@ -694,23 +694,23 @@ namespace WrapperNetPOI.Excel
 
         public override void InsertValue()
         {
-            matrix.ActiveSheet = this.ActiveSheet;
-            matrix.WorkbookBorder = this.WorkbookBorder;
+            matrix.ActiveSheet = ActiveSheet;
+            matrix.WorkbookBorder = WorkbookBorder;
             matrix.InsertValue();
         }
 
         public override void ReadValue()
         {
-            matrix.ActiveSheet = this.ActiveSheet;
-            matrix.WorkbookBorder = this.WorkbookBorder;
+            matrix.ActiveSheet = ActiveSheet;
+            matrix.WorkbookBorder = WorkbookBorder;
             matrix.ReadValue();
             ExchangeValue = Extension.ConvertToList(matrix.ExchangeValue);
         }
 
         public override void UpdateValue()
         {
-            matrix.ActiveSheet = this.ActiveSheet;
-            matrix.WorkbookBorder = this.WorkbookBorder;
+            matrix.ActiveSheet = ActiveSheet;
+            matrix.WorkbookBorder = WorkbookBorder;
             matrix.UpdateValue();
         }
     }
@@ -729,20 +729,20 @@ namespace WrapperNetPOI.Excel
 
         public override void InsertValue()
         {
-            matrix.ActiveSheet = this.ActiveSheet;
+            matrix.ActiveSheet = ActiveSheet;
             matrix.InsertValue();
         }
 
         public override void ReadValue()
         {
-            matrix.ActiveSheet = this.ActiveSheet;
+            matrix.ActiveSheet = ActiveSheet;
             matrix.ReadValue();
             ExchangeValue = Extension.ConvertToDictionary(matrix.ExchangeValue);
         }
 
         public override void UpdateValue()
         {
-            matrix.ActiveSheet = this.ActiveSheet;
+            matrix.ActiveSheet = ActiveSheet;
             matrix.UpdateValue();
         }
     }

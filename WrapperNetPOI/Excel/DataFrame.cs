@@ -18,8 +18,16 @@ using Microsoft.Data.Analysis;
 using NPOI.SS.UserModel;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+
+namespace System.Runtime.CompilerServices
+{
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    internal class IsExternalInit { }
+}
+
 
 namespace WrapperNetPOI.Excel
 {
