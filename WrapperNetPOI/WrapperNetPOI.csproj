@@ -22,7 +22,7 @@
     <AssemblyName>WrapperNetPOI</AssemblyName>
     <Copyright>©sashamsuper, 2020-2023</Copyright>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>0.1.4-alpha</Version>
+    <Version>0.1.5-alpha</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
     <WarningLevel>5</WarningLevel>
