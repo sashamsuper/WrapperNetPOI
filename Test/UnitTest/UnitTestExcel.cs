@@ -1,6 +1,5 @@
 /* ==================================================================
 Copyright 2020-2022 sashamsuper
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -17,7 +16,9 @@ limitations under the License.
 using Microsoft.Data.Analysis;
 using MsTestWrapper;
 using NPOI.SS.UserModel;
+using System;
 using System.Diagnostics;
+using System.Globalization;
 using WrapperNetPOI;
 using WrapperNetPOI.Excel;
 
@@ -91,6 +92,7 @@ namespace MsTestWrapper
             Assert.AreEqual("dron", str);
         }
 
+
         [TestMethod]
         public void ConvertToDictionaryTest()
         {
@@ -114,6 +116,7 @@ namespace MsTestWrapper
             CollectionAssert.AreEqual(expectedConv, actualConv);
         }
 
+        
         [TestMethod]
         public void DataFrameHeaderTest()
         {
@@ -394,6 +397,55 @@ namespace MsTestWrapper
             DeleteFile(path);
         }
 
+        //[TestMethod]
+        public void MatrixViewTest()
+        {
+            const string path = @"B:\Новая папка\Отметки водохранилищ 01.09.2021-22.09.2021\20220104_maketDPVBY_2022-01-03.xls";
+            List<string[]> listS = new()
+            {
+                new []{ "34","2r3","34" },
+                new[]{ "1","3we","34" },
+                new[]{ "wer1","3wer","34wr" }
+            };
+            MatrixView exchangeClass = new(ExchangeOperation.Read, null, null, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
+            wrapper.Exchange();
+            var expected = listS.ConvertAll(x => String.Concat(x));
+            var actual = exchangeClass.ExchangeValue.Select(x => String.Concat(x)).ToList();
+            CollectionAssert.AreEqual(expected, actual);
+            DeleteFile(path);
+        }
+
+
+
+
+
+        [TestMethod]
+        public void MatrixViewGenericTest()
+        {
+            const string path = "..//..//..//srcTest//listView.xlsx";
+            DeleteFile(path);
+
+            List<string[]> listS = new()
+            {
+                new []{ "34","2r3","34" },
+                new[]{ "1","3we","34" },
+                new[]{ "wer1","3wer","34wr" }
+            };
+            MatrixView exchangeClass = new(ExchangeOperation.Insert, "List1455", listS, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
+            wrapper.Exchange();
+            //exchangeClass.Dispose();
+            
+            MatrixViewGeneric<int> exchangeClass2 = new(ExchangeOperation.Read, null, null, null);
+            wrapper = new(path, exchangeClass2, null);
+            wrapper.Exchange();
+            var expected = listS.ConvertAll(x => String.Concat(x));
+            var actual = exchangeClass2.ExchangeValue.Select(x => String.Concat(x)).ToList();
+            CollectionAssert.AreEqual(expected, actual);
+            DeleteFile(path);
+        }
+
         [TestMethod]
         public void MatrixViewTestInsert2Times()
         {
@@ -616,12 +668,21 @@ namespace MsTestWrapper
             Debug.WriteLine(exchangeClass.ExchangeValue);
             var value = exchangeClass.ExchangeValue;
             var col1 = new StringDataFrameColumn("col1", new string[] { "1", "3", "6" });
+
+            
+
+            DateTime.TryParse("4", CultureInfo.CurrentCulture, DateTimeStyles.AssumeUniversal,
+            out var outValue2);
+
+            
+
             var col2 = new DateTimeDataFrameColumn("col2",
-                new DateTime[] { new DateTime(2), new DateTime(4), new DateTime(7) });
+                new DateTime[] { DateTime.FromOADate(2), outValue2, DateTime.FromOADate(7) });
             var col3 = new DoubleDataFrameColumn("col3",
                 new Double[] { 3.1, 5.1, 8.1 });
             var sample = new DataFrame(col1, col2, col3).Rows.Select(x => x.ToString()).ToList();
-            CollectionAssert.AreEqual(sample, exchangeClass.ExchangeValue.Rows.Select(x => x.ToString()).ToList());
+            var value2 = exchangeClass.ExchangeValue.Rows.Select(x => x.ToString()).ToList();
+            CollectionAssert.AreEqual(sample, value2);
         }
 
         [TestMethod]
@@ -647,12 +708,17 @@ namespace MsTestWrapper
             Debug.WriteLine(exchangeClass.ExchangeValue);
             var value = exchangeClass.ExchangeValue;
             var col1 = new Int32DataFrameColumn("col1", new int[] { 1, 3, 6 });
+
+            DateTime.TryParse("4", CultureInfo.CurrentCulture, DateTimeStyles.AssumeUniversal,
+            out var outValue);
+
             var col2 = new DateTimeDataFrameColumn("col2",
-                new DateTime[] { new DateTime(2), new DateTime(4), new DateTime(7) });
+                new DateTime[] { DateTime.FromOADate(2), outValue, DateTime.FromOADate(7) });
             var col3 = new DoubleDataFrameColumn("col3",
                 new Double[] { 3.1, 5.1, 8.1 });
             var sample = new DataFrame(col1, col2, col3).Rows.Select(x => x.ToString()).ToList();
-            CollectionAssert.AreEqual(sample, exchangeClass.ExchangeValue.Rows.Select(x => x.ToString()).ToList());
+            var value2 = exchangeClass.ExchangeValue.Rows.Select(x => x.ToString()).ToList();
+            CollectionAssert.AreEqual(sample,value2 );
         }
 
         protected static void DeleteFile(string path)

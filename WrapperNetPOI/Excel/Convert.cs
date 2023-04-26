@@ -196,7 +196,7 @@ namespace WrapperNetPOI.Excel
                 "String" => (T)Convert.ChangeType(GetValueString(wrapperCell), typeof(T)),
                 "Double" => (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T)),
                 "DateTime" => (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T)),
-                "Int32" => (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T)),
+                "Int32" => (T)Convert.ChangeType(GetValueInt32(wrapperCell), typeof(T)),
                 _ => throw new NotImplementedException("Do not have handler"),
             };
         }
@@ -245,18 +245,22 @@ namespace WrapperNetPOI.Excel
 
         protected internal DateTime GetDateTime(string value)
         {
-            DateTime.TryParse(value, ThisCultureInfo, ThisDateTimeStyle, out var doubleValue);
-            return doubleValue;
+            DateTime.TryParse(value, ThisCultureInfo, ThisDateTimeStyle, out var outValue);
+            return outValue;
         }
 
         public DateTime GetDateTime(double value)
         {
             try
             {
-                return Convert.ToDateTime(value, ThisCultureInfo);
+                return DateTime.FromOADate(value);
+                //return default;
+                //Convert.ToDateTime(value, ThisCultureInfo);
             }
-            catch
+            catch (Exception e)
             {
+                Wrapper.Logger?.Error(e.Message);
+                Wrapper.Logger?.Error(e.StackTrace);
                 return default;
             }
         }
