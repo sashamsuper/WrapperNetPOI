@@ -58,9 +58,11 @@ namespace WrapperNetPOI
             }
             catch (Exception e)
             {
-#if DEBUG
+//#if DEBUG
+                Wrapper.Logger?.Error(e.Message);
+                Wrapper.Logger?.Error(e.StackTrace);
                 Debug.WriteLine(e.Message);
-#endif
+//#endif
             }
         }
 
@@ -138,12 +140,28 @@ namespace WrapperNetPOI
             }
             else
             {
-                throw new TypeUnloadedException("No handler for type");
+                var exchangeClass = new Excel.MatrixViewGeneric<ReturnType>(ExchangeOperation.Read, sheetName, null, border, null);
+                Excel.WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
+                wrapper.Exchange();
+                value = (ReturnType)exchangeClass.ExchangeValue;
+                return;
             }
             //value = default;
             //return;
         }
 
+        
+        public static void GetFromExcelListArray<ReturnType>(out IList<ReturnType[]> value, string pathToFile, string sheetName, Excel.Border border = null) where ReturnType : new()
+        {
+                var exchangeClass = new Excel.MatrixViewGeneric<ReturnType>(ExchangeOperation.Read, sheetName, null, border, null);
+                Excel.WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
+                wrapper.Exchange();
+                value = exchangeClass.ExchangeValue;
+                return;
+        }
+        
+        
+        
         public static void GetFromExcel(out DataFrame value, string pathToFile, string sheetName, Excel.Border border = null, Dictionary<int, Type> header = null, int[] rows = null)
         {
             var exchangeClass = new Excel.DataFrameView(ExchangeOperation.Read, sheetName, null, border);

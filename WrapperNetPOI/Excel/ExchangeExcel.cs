@@ -1,3 +1,5 @@
+#define DEBUG
+
 /* ==================================================================
 Copyright 2020-2023 sashamsuper
 
@@ -393,10 +395,10 @@ namespace WrapperNetPOI.Excel
             }
             catch (Exception e)
             {
-#if DEBUG
+//#if DEBUG
                 Logger?.Error(e.Message);
                 Logger?.Error(e.StackTrace);
-#endif
+//#endif
                 return default;
             }
         }
@@ -534,6 +536,183 @@ namespace WrapperNetPOI.Excel
         }
     }
 
+    public class MatrixViewGeneric<T> : ExchangeClass<IList<T[]>>
+    {
+        public MatrixViewGeneric(ExchangeOperation exchangeType, string activeSheetName,
+            IList<T[]> exchangeValue, Border border = null, IProgress<int> progress = null) :
+            base(exchangeType, activeSheetName, border, progress)
+        {
+            ExchangeValue = exchangeValue;
+        }
+
+        /*
+        private void AddValue()
+        {
+            if (ExchangeValue != null)
+            {
+                int rowsCount = ActiveSheet.RowsCount();
+                for (int i = 0; i < ExchangeValue.Count; i++)
+                {
+                    IRow row = ActiveSheet.CreateRow(i + WorkbookBorder.FirstRow + rowsCount);
+                    for (int j = 0; j < ExchangeValue[i].Length; j++)
+                    {
+                        ICell cell = row.GetCell(j) ?? row.CreateCell(j + WorkbookBorder.FirstColumn);
+                        cell.SetCellValue(ExchangeValue[i][j]);
+                    }
+                    ProgressValue?.Report(ReturnProgress(i, ExchangeValue.Count));
+                }
+            }
+        }
+        */
+
+/*
+        public override void InsertValue()
+        {
+            AddValue();
+        }
+        */
+/*
+        public override void UpdateValue()
+        {
+            int fRow = WorkbookBorder.FirstRow;
+            int lRow = WorkbookBorder.LastRow;
+            int total = lRow - fRow;
+            for (int i = lRow; i >= fRow; i--)
+            {
+                var row = ActiveSheet.GetRow(i);
+                if (row != null)
+                {
+                    ActiveSheet.RemoveRow(row);
+                }
+                ProgressValue?.Report(ReturnProgress(i - fRow, total));
+            }
+            AddValue();
+        }
+        */
+
+        private string[] GetStringFromRow(int i, int firstViewedColumn, int lastViewedColumn)
+        {
+            var row = ActiveSheet.GetRow(i);
+            List<string> tmp = new();
+            if (row != null)
+            {
+                var lastCol = row.LastCellNum;
+                if (lastCol < lastViewedColumn)
+                {
+                    lastCol = (short)lastViewedColumn;
+                }
+                for (int valueColumn = firstViewedColumn; valueColumn <= lastCol; valueColumn++)
+                {
+                    ICell cell = row.GetCell(valueColumn);
+                    if (valueColumn <= row.LastCellNum - 1)// -1 это особенность NPOI
+                    {
+                        tmp.Add(GetCellValue(cell));
+                    }
+                }
+            }
+            return tmp.ToArray();
+        }
+
+        private T[] GetArrayFromRow(int i, int firstViewedColumn, int lastViewedColumn)
+        {
+            var row = ActiveSheet.GetRow(i);
+            List<T> tmp = new();
+            if (row != null)
+            {
+                var lastCol = row.LastCellNum;
+                if (lastCol < lastViewedColumn)
+                {
+                    lastCol = (short)lastViewedColumn;
+                }
+                for (int valueColumn = firstViewedColumn; valueColumn <= lastCol; valueColumn++)
+                {
+                    ICell cell = row.GetCell(valueColumn);
+                    if (valueColumn <= row.LastCellNum - 1)// -1 это особенность NPOI
+                    {
+                        WrapperCell wrapper = new WrapperCell(cell);
+                        ConvertType convert = new();
+                        convert.GetValue<T>(cell,out var value);;
+                        tmp.Add(value);
+                    }
+                }
+            }
+            return tmp.ToArray();
+        }
+
+        public override void ReadValue()
+        {
+            if (WorkbookBorder.FirstRow == 0 &&
+                WorkbookBorder.LastRow == 0 &&
+                WorkbookBorder.LastColumn == 0 &&
+                WorkbookBorder.FirstColumn == 0)
+            {
+                ReadValueHoleSheet();
+            }
+            else
+            {
+                ReadValueWithBorders();
+            }
+        }
+
+        private void ReadValueHoleSheet() //Fast
+        {
+            ExchangeValue = new List<T[]>();
+            int firstViewedRow = WorkbookBorder.FirstRow;
+            //int lastViewedRow = LastViewedRow;
+            int lastViewedColumn = WorkbookBorder.LastColumn;
+            int firstViewedColumn = WorkbookBorder.FirstColumn;
+            List<T[]> tmpListString = new();
+
+            if (ActiveSheet != null)
+            {
+                int i = 0;
+                foreach (IRow value in ActiveSheet)
+                {
+                    IRow row = value;
+                    if (row.RowNum > i)
+                    {
+                        do
+                        {
+                            tmpListString.Add(Array.Empty<T>());
+                            i++;
+                        }
+                        while (row.RowNum != i);
+                    }
+                    ConvertType convert = new();
+                    tmpListString.Add(row.Select(x => convert.GetValue<T>(x)).ToArray());
+                    i++;
+#if DEBUG
+                    if (i % 1000 == 0)
+                    {
+                        Debug.WriteLine(i);
+                    }
+#endif
+                }
+                ExchangeValue = tmpListString;
+            }
+        }
+
+        private void ReadValueWithBorders() //Slow
+        {
+            ExchangeValue = new List<T[]>();
+            int lastViewedRow = WorkbookBorder.LastRow;
+            int lastViewedColumn = WorkbookBorder.LastColumn;
+            int firstViewedColumn = WorkbookBorder.FirstColumn;
+            int firstViewedRow = WorkbookBorder.FirstRow;
+            List<T[]> tmp = new();
+            if (ActiveSheet != null)
+            {
+                int countValue = lastViewedRow - firstViewedRow + 1;
+                for (int i = firstViewedRow; i <= lastViewedRow; i++)
+                {
+                    tmp.Add(GetArrayFromRow(i, firstViewedColumn, lastViewedColumn));
+                    ProgressValue?.Report(ReturnProgress(i, countValue));
+                }
+                ExchangeValue = tmp;
+            }
+        }
+    }
+    
     public class MatrixView : ExchangeClass<IList<string[]>>
     {
         public MatrixView(ExchangeOperation exchangeType, string activeSheetName,
