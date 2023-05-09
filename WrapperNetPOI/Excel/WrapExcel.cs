@@ -16,7 +16,6 @@ limitations under the License.
 
 using Serilog;
 using System.IO;
-
 namespace WrapperNetPOI.Excel
 {
     public class WrapperExcel : Wrapper
@@ -24,7 +23,6 @@ namespace WrapperNetPOI.Excel
         public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null) :
         base(pathToFile, exchangeClass, logger)
         { }
-
         protected override void InsertValue()
         {
             if (File.Exists(PathToFile))
@@ -36,7 +34,6 @@ namespace WrapperNetPOI.Excel
                 CreateAndInsertValue();
             }
         }
-
         private void CreateAndInsertValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
@@ -48,13 +45,11 @@ namespace WrapperNetPOI.Excel
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
-
         protected override void ReadValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.ReadValue;
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream, FileShare.Read);
         }
-
         protected override void UpdateValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.UpdateValue;
@@ -66,7 +61,6 @@ namespace WrapperNetPOI.Excel
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
-
         protected override void DeleteValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.DeleteValue;
@@ -78,7 +72,6 @@ namespace WrapperNetPOI.Excel
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
-
         private void OnlyInsertValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;

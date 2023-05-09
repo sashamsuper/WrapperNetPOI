@@ -11,12 +11,19 @@ The simplest use for receiving data
 const string path = "..//..//..//srcTest//dataframe.xlsx";  
 Simple.GetFromExcel(out DataFrame df, path, "Sheet1");  
 Debug.WriteLine(df);  
+
 //List<string>  
 Simple.GetFromExcel(out List<string> ls, path, "Sheet1");  
 Debug.WriteLine(String.Join("\n",ls));  
-//List<string[]>  
+
+//List<string[]> 
 Simple.GetFromExcel(out List<string[]> lsm, path, "Sheet1");  
-Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));  
+Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));
+
+//List<int[]>  
+Simple.GetFromExcel(out List<int[]> lsm, path, "Sheet1");  
+Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));
+
 //Dictionary<string,string>  
 Simple.GetFromExcel(out Dictionary<string, string[]> ld, path, "Sheet1");  
 Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Join("",x.Value)}") ));

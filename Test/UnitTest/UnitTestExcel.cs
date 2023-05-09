@@ -1,3 +1,4 @@
+using System.Security.AccessControl;
 /* ==================================================================
 Copyright 2020-2022 sashamsuper
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +22,7 @@ using System.Diagnostics;
 using System.Globalization;
 using WrapperNetPOI;
 using WrapperNetPOI.Excel;
+using System.Reflection;
 
 Console.WriteLine(22);
 UnitTestExcel unitTestExcel = new();
@@ -116,7 +118,7 @@ namespace MsTestWrapper
             CollectionAssert.AreEqual(expectedConv, actualConv);
         }
 
-        
+
         [TestMethod]
         public void DataFrameHeaderTest()
         {
@@ -436,11 +438,49 @@ namespace MsTestWrapper
             WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             //exchangeClass.Dispose();
-            
-            MatrixViewGeneric<int> exchangeClass2 = new(ExchangeOperation.Read, null, null, null);
+
+            MatrixViewGeneric<string> exchangeClass2 = new(ExchangeOperation.Read, null, null, null);
             wrapper = new(path, exchangeClass2, null);
             wrapper.Exchange();
             var expected = listS.ConvertAll(x => String.Concat(x));
+            var actual = exchangeClass2.ExchangeValue.Select(x => String.Concat(x)).ToList();
+            CollectionAssert.AreEqual(expected, actual);
+            DeleteFile(path);
+        }
+
+        [TestMethod]
+        public void MatrixViewGenericIntTest()
+        {
+            const string path = "..//..//..//srcTest//listView.xlsx";
+            DeleteFile(path);
+
+            List<string[]> listS = new()
+            {
+                new []{ "34","2r3","34" },
+                new[]{ "1","3we","34" },
+                new[]{ "wer1","3wer","34wr" }
+            };
+            MatrixView exchangeClass = new(ExchangeOperation.Insert, "List1455", listS, null);
+            WrapperExcel wrapper = new(path, exchangeClass, null);
+            wrapper.Exchange();
+            //exchangeClass.Dispose();
+
+            MatrixViewGeneric<int> exchangeClass2 = new(ExchangeOperation.Read, null, null, null);
+            wrapper = new(path, exchangeClass2, null);
+            wrapper.Exchange();
+
+            List<string> expected = new();
+            foreach (var x in listS)
+            {
+                var row = new List<string>();
+                foreach (var y in x)
+                {
+                    ConvertType cT = new();
+                    var value=cT.GetInt32(y).ToString();
+                    row.Add(value);
+                }
+                expected.Add(String.Concat(row.ToArray()));
+            }
             var actual = exchangeClass2.ExchangeValue.Select(x => String.Concat(x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
             DeleteFile(path);
@@ -669,12 +709,12 @@ namespace MsTestWrapper
             var value = exchangeClass.ExchangeValue;
             var col1 = new StringDataFrameColumn("col1", new string[] { "1", "3", "6" });
 
-            
+
 
             DateTime.TryParse("4", CultureInfo.CurrentCulture, DateTimeStyles.AssumeUniversal,
             out var outValue2);
 
-            
+
 
             var col2 = new DateTimeDataFrameColumn("col2",
                 new DateTime[] { DateTime.FromOADate(2), outValue2, DateTime.FromOADate(7) });
@@ -718,7 +758,7 @@ namespace MsTestWrapper
                 new Double[] { 3.1, 5.1, 8.1 });
             var sample = new DataFrame(col1, col2, col3).Rows.Select(x => x.ToString()).ToList();
             var value2 = exchangeClass.ExchangeValue.Rows.Select(x => x.ToString()).ToList();
-            CollectionAssert.AreEqual(sample,value2 );
+            CollectionAssert.AreEqual(sample, value2);
         }
 
         protected static void DeleteFile(string path)
@@ -727,6 +767,34 @@ namespace MsTestWrapper
             {
                 File.Delete(path);
             }
+        }
+
+
+        public static Array GetArrayFromList(dynamic value) => value switch
+        {
+            IList<string[]> => Array.Empty<string>(),
+            IList<int[]> => Array.Empty<int>(),
+            IList<double[]> => Array.Empty<double>(),
+            IList<bool[]> => Array.Empty<bool>(),
+            _ => null
+        };
+
+        public void ReflectionView<T>(T value)
+        {
+            Type type = value.GetType();
+            string fullName = type.FullName;
+            Debug.WriteLine($"Generic-{ type.IsGenericType}");
+            Debug.WriteLine($"Full Name-{type.FullName}");
+            Debug.WriteLine(type.Name);
+        } 
+        
+        
+        [TestMethod]
+        public void GetReflection()
+        {
+            List<string[]> DDD= new();
+            var d= GetArrayFromList(DDD);
+            ReflectionView(DDD);
         }
     }
 }

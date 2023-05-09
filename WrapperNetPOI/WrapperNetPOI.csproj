@@ -22,18 +22,9 @@
     <AssemblyName>WrapperNetPOI</AssemblyName>
     <Copyright>©sashamsuper, 2020-2023</Copyright>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>0.1.5-alpha</Version>
+    <Version>0.1.6-alpha</Version>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
-    <WarningLevel>5</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-</PropertyGroup>
-<PropertyGroup>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-</PropertyGroup>
-<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
     <WarningLevel>5</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
@@ -44,9 +35,25 @@
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="system.text.json" Version="7.0.2" />
-    <PackageReference Include="ScratchPad.NPOI.HWPF" Version="*" />
+    <PackageReference Include="ScratchPad.NPOI.HWPF" Version="2.5.6" />
     <!-- <PackageReference Include="NPOI.HWPFCore" Version="2.3.0.1"/>-->
   </ItemGroup>
+  <PropertyGroup>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+</PropertyGroup>
+<PropertyGroup>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
+    <WarningLevel>5</WarningLevel>
+  </PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
+  <WarningLevel>5</WarningLevel>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
+  <WarningLevel>5</WarningLevel>
+</PropertyGroup>
   <ItemGroup>
     <Compile Remove="Properties\AssemblyInfo.cs" />
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
