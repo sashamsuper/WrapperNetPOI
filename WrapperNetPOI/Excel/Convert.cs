@@ -197,6 +197,7 @@ namespace WrapperNetPOI.Excel
                 "Double" => (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T)),
                 "DateTime" => (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T)),
                 "Int32" => (T)Convert.ChangeType(GetValueInt32(wrapperCell), typeof(T)),
+                "Boolean"=>(T)Convert.ChangeType(GetValueBoolean(wrapperCell), typeof(T)),
                 _ => throw new NotImplementedException("Do not have handler"),
             };
         }
@@ -313,6 +314,21 @@ namespace WrapperNetPOI.Excel
             return intValue;
         }
 
+        protected internal bool GetBoolean(string value)
+        {
+            bool.TryParse(value, out var boolValue);
+            return boolValue;
+        }
+
+        protected internal bool GetBoolean(double value)
+        {
+            return value switch
+            {
+                0.0 => false,
+                _ => true,
+            };
+        }
+
         protected internal double GetValueDouble(WrapperCell cell) => cell switch
         {
             {
@@ -383,6 +399,42 @@ namespace WrapperNetPOI.Excel
             => (int)numericCellValue,
             _
             => GetInt32(cell.StringCellValue)
+        };
+
+        protected internal bool GetValueBoolean(WrapperCell cell) => cell switch
+        {
+            {
+                CellType: var cellType,
+            }
+            when cellType == CellType.Blank => false,
+            {
+                CellType: var cellType,
+                NumericCellValue: var numericCellValue,
+            }
+            when cellType == CellType.Numeric => GetBoolean(numericCellValue),
+            {
+                CellType: var cellType,
+                StringCellValue: var stringCellValue,
+            }
+            when cellType == CellType.String => GetBoolean(stringCellValue),
+            {
+                CellType: var cellType,
+                StringCellValue: var stringCellValue,
+                CachedFormulaResultType: var cachedFormulaResultType
+            }
+            when cellType == CellType.Formula &&
+            cachedFormulaResultType == CellType.String
+            => GetBoolean(stringCellValue),
+            {
+                CellType: var cellType,
+                NumericCellValue: var numericCellValue,
+                CachedFormulaResultType: var cachedFormulaResultType
+            }
+            when cellType == CellType.Formula &&
+            cachedFormulaResultType == CellType.Numeric
+            => GetBoolean(numericCellValue),
+            _
+            => GetBoolean(cell.StringCellValue)
         };
     }
 }

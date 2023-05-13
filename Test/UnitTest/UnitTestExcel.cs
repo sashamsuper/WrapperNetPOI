@@ -665,6 +665,32 @@ namespace MsTestWrapper
             Debug.WriteLine(string.Join("\n", ld.Select(x => $"Key:{x.Key}Value:{String.Concat(x.Value)}")));
         }
 
+
+        [TestMethod]
+        public void SimpleGetFromExcelWithGeneric()
+        {
+            //DataFrame
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet1",
+                    new Border
+                    {
+                        FirstColumn = 5,
+                        FirstRow = 5,
+                        LastColumn = 10,
+                        LastRow = 10
+                    });
+            Debug.WriteLine(df);
+            //List<string>
+            Simple.GetFromExcel<List<string>>(out List<string> ls, path, "Sheet1");
+            Debug.WriteLine(String.Join("\n", ls));
+            //List<string[]>
+            Simple.GetFromExcel<List<string[]>>(out List<string[]> lsm, path, "Sheet1");
+            Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Concat(x))));
+            //Dictionary<string,string>
+            Simple.GetFromExcel<Dictionary<string, string[]>>(out Dictionary<string, string[]> ld, path, "Sheet1");
+            Debug.WriteLine(string.Join("\n", ld.Select(x => $"Key:{x.Key}Value:{String.Concat(x.Value)}")));
+        }
+
         [TestMethod]
         public void DataFrameTestValue()
         {
@@ -724,6 +750,11 @@ namespace MsTestWrapper
             var value2 = exchangeClass.ExchangeValue.Rows.Select(x => x.ToString()).ToList();
             CollectionAssert.AreEqual(sample, value2);
         }
+
+
+
+
+
 
         [TestMethod]
         public void DataFrameIntegerSimple()
