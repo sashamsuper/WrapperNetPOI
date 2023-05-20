@@ -49,9 +49,9 @@ namespace MsTestWrapper
             ICell cell2 = row2.GetCell(0);
             ICell cell3 = row3.GetCell(0);
             ConvertType convertType = new();
-            var d1 = convertType.GetValueDouble(new WrapperCell(cell1));
-            var d2 = convertType.GetValueDouble(new WrapperCell(cell2));
-            var d3 = convertType.GetValueDouble(new WrapperCell(cell3));
+            var d1 = convertType.GetValue<Double>(cell1);
+            var d2 = convertType.GetValue<Double>(cell2);
+            var d3 = convertType.GetValue<Double>(cell3);
             Assert.AreEqual(1, d1);
             Assert.AreEqual(2, d2);
             Assert.AreEqual(3, d3);
@@ -72,9 +72,9 @@ namespace MsTestWrapper
             ICell cell2 = row2.GetCell(0);
             ICell cell3 = row3.GetCell(0);
             ConvertType convertType = new();
-            var d1 = convertType.GetValueInt32(new WrapperCell(cell1));
-            var d2 = convertType.GetValueInt32(new WrapperCell(cell2));
-            var d3 = convertType.GetValueInt32(new WrapperCell(cell3));
+            var d1 = convertType.GetValue<Int32>(cell1);
+            var d2 = convertType.GetValue<Int32>(cell2);
+            var d3 = convertType.GetValue<Int32>(cell3);
             Assert.AreEqual(1, d1);
             Assert.AreEqual(2, d2);
             Assert.AreEqual(3, d3);
@@ -89,8 +89,8 @@ namespace MsTestWrapper
             wrapper.Exchange();
             var value = exchangeClass.ExchangeValue[0];
             ICell cell = value.GetCell(0);
-            //ConvertType convertType = new();
-            var str = ConvertType.GetValueString(new WrapperCell(cell));
+            ConvertType convertType = new();
+            var str = convertType.GetValue<String>(cell);
             Assert.AreEqual("dron", str);
         }
 
@@ -475,8 +475,8 @@ namespace MsTestWrapper
                 var row = new List<string>();
                 foreach (var y in x)
                 {
-                    ConvertType cT = new();
-                    var value=cT.GetInt32(y).ToString();
+                    int.TryParse(y, out var intValue);
+                    var value=intValue.ToString();
                     row.Add(value);
                 }
                 expected.Add(String.Concat(row.ToArray()));
@@ -807,10 +807,10 @@ namespace MsTestWrapper
             IList<int[]> => Array.Empty<int>(),
             IList<double[]> => Array.Empty<double>(),
             IList<bool[]> => Array.Empty<bool>(),
-            _ => null
+            _ => Array.Empty<dynamic>()
         };
 
-        public void ReflectionView<T>(T value)
+        public static void ReflectionView<T>(T value)
         {
             Type type = value.GetType();
             string fullName = type.FullName;

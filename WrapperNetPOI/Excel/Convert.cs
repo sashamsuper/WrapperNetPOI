@@ -16,6 +16,7 @@ limitations under the License.
 
 using NPOI.SS.UserModel;
 using System;
+using System.Configuration;
 using System.Globalization;
 using System.Runtime.CompilerServices;
 
@@ -91,6 +92,10 @@ namespace WrapperNetPOI.Excel
 
                 return value;
             }
+            set
+            {
+                Cell.SetCellValue(value);
+            }
         }
 
         public string StringCellValue
@@ -118,6 +123,10 @@ namespace WrapperNetPOI.Excel
                     value = null;
                 }
                 return value;
+            }
+            set
+            {
+                Cell.SetCellValue(value);
             }
         }
 
@@ -149,45 +158,50 @@ namespace WrapperNetPOI.Excel
 
                 return value;
             }
+            set
+            {
+                Cell.SetCellValue(value);
+            }
         }
+
     }
 
     public class ConvertType
     {
-        private CultureInfo ThisCultureInfo { get; } = CultureInfo.CurrentCulture;
-        private NumberStyles ThisNumberStyle { get; } = NumberStyles.Number;
-        private DateTimeStyles ThisDateTimeStyle { get; } = DateTimeStyles.AssumeUniversal;
+        public CultureInfo ThisCultureInfo { get; } = CultureInfo.CurrentCulture;
+        public NumberStyles ThisNumberStyle { get; } = NumberStyles.Number;
+        public DateTimeStyles ThisDateTimeStyle { get; } = DateTimeStyles.AssumeUniversal;
+        public ConvertType() {}
 
-        public ConvertType()
+        public static void SetValue<T>(ICell cell,T value)
         {
-            //CreateMapster();
+            Action b=value switch
+            {
+                String when value is string str  => new Action(()=>cell.SetCellValue(str)),
+                Double when value is string dbl => new Action(()=>cell.SetCellValue(dbl)),
+                DateTime when value is DateTime dateTime => new Action(() => cell.SetCellValue(dateTime)),
+                Int32 when value is Int32 int32 => new Action(() => cell.SetCellValue(int32)),
+                Boolean when value is Boolean boolean  => new Action(() => cell.SetCellValue(boolean)),
+                _ => throw new NotImplementedException("Do not have handler"),
+            };
+            b.Invoke();
         }
 
         public dynamic GetValue(ICell cell, Type type)
         {
-            switch (type.Name)
+            dynamic value;
+            WrapperCell wrapperCell = new(cell);
+            value = type.Name switch
             {
-                case "String":
-                    GetValue(cell, out string tmp);
-                    return tmp;
-
-                case "Double":
-                    GetValue(cell, out double tmp1);
-                    return tmp1;
-
-                case "DateTime":
-                    GetValue(cell, out DateTime tmp2);
-                    return tmp2;
-
-                case "Int32":
-                    GetValue(cell, out int tmp3);
-                    return tmp3;
-
-                default:
-                    throw new NotImplementedException("Do not have handler");
-            }
+                "String" => Convert.ChangeType(GetValueString(wrapperCell), type),
+                "Double" => Convert.ChangeType(GetValueDouble(wrapperCell), type),
+                "DateTime" => Convert.ChangeType(GetValueDateTime(wrapperCell), type),
+                "Int32" => Convert.ChangeType(GetValueInt32(wrapperCell), type),
+                "Boolean" => Convert.ChangeType(GetValueBoolean(wrapperCell), type),
+                _ => throw new NotImplementedException("Do not have handler"),
+            };
+            return value;
         }
-
         public void GetValue<T>(ICell cell, out T value)
         {
             WrapperCell wrapperCell = new(cell);
@@ -197,18 +211,16 @@ namespace WrapperNetPOI.Excel
                 "Double" => (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T)),
                 "DateTime" => (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T)),
                 "Int32" => (T)Convert.ChangeType(GetValueInt32(wrapperCell), typeof(T)),
-                "Boolean"=>(T)Convert.ChangeType(GetValueBoolean(wrapperCell), typeof(T)),
+                "Boolean" => (T)Convert.ChangeType(GetValueBoolean(wrapperCell), typeof(T)),
                 _ => throw new NotImplementedException("Do not have handler"),
             };
         }
-
         public T GetValue<T>(ICell cell)
         {
             GetValue(cell, out T value);
             return value;
         }
-
-        protected internal DateTime GetValueDateTime(WrapperCell cell) => cell switch
+        private DateTime GetValueDateTime(WrapperCell cell) => cell switch
         {
             {
                 CellType: var cellType,
@@ -244,19 +256,17 @@ namespace WrapperNetPOI.Excel
             => cell.DateCellValue
         };
 
-        protected internal DateTime GetDateTime(string value)
+        private DateTime GetDateTime(string value)
         {
             DateTime.TryParse(value, ThisCultureInfo, ThisDateTimeStyle, out var outValue);
             return outValue;
         }
 
-        public DateTime GetDateTime(double value)
+        private DateTime GetDateTime(double value)
         {
             try
             {
                 return DateTime.FromOADate(value);
-                //return default;
-                //Convert.ToDateTime(value, ThisCultureInfo);
             }
             catch (Exception e)
             {
@@ -266,7 +276,7 @@ namespace WrapperNetPOI.Excel
             }
         }
 
-        protected internal static string GetValueString(WrapperCell cell) => cell switch
+        private static string GetValueString(WrapperCell cell) => cell switch
         {
             {
                 CellType: var cellType,
@@ -302,25 +312,25 @@ namespace WrapperNetPOI.Excel
             => cell.StringCellValue,
         };
 
-        protected internal double GetDouble(string value)
+        private double GetDouble(string value)
         {
             double.TryParse(value, ThisNumberStyle, ThisCultureInfo, out var doubleValue);
             return doubleValue;
         }
 
-        protected internal int GetInt32(string value)
+        private int GetInt32(string value)
         {
             int.TryParse(value, ThisNumberStyle, ThisCultureInfo, out var intValue);
             return intValue;
         }
 
-        protected internal bool GetBoolean(string value)
+        private bool GetBoolean(string value)
         {
             bool.TryParse(value, out var boolValue);
             return boolValue;
         }
 
-        protected internal bool GetBoolean(double value)
+        private bool GetBoolean(double value)
         {
             return value switch
             {
@@ -329,7 +339,7 @@ namespace WrapperNetPOI.Excel
             };
         }
 
-        protected internal double GetValueDouble(WrapperCell cell) => cell switch
+        private double GetValueDouble(WrapperCell cell) => cell switch
         {
             {
                 CellType: var cellType,
@@ -365,7 +375,7 @@ namespace WrapperNetPOI.Excel
             => GetDouble(cell.StringCellValue)
         };
 
-        protected internal int GetValueInt32(WrapperCell cell) => cell switch
+        private int GetValueInt32(WrapperCell cell) => cell switch
         {
             {
                 CellType: var cellType,
@@ -401,7 +411,7 @@ namespace WrapperNetPOI.Excel
             => GetInt32(cell.StringCellValue)
         };
 
-        protected internal bool GetValueBoolean(WrapperCell cell) => cell switch
+        private bool GetValueBoolean(WrapperCell cell) => cell switch
         {
             {
                 CellType: var cellType,

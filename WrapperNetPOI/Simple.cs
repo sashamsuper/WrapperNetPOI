@@ -28,7 +28,7 @@ namespace WrapperNetPOI
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
         /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
         /// <param name="values">The values<see cref="List{string}"/>.</param>
-        public static void TaskAddToExcel(string pathToFile, string sheetName, List<string> values)
+        private static void TaskAddToExcel(string pathToFile, string sheetName, List<string> values)
         {
             Task AddValueToExcel = Task.Run(() =>
             {
@@ -46,7 +46,7 @@ namespace WrapperNetPOI
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
         /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
         /// <param name="values">The values<see cref="List{string[]}"/>.</param>
-        public static void TaskAddToExcel(string pathToFile, string sheetName, List<string[]> values)
+        private static void TaskAddToExcel(string pathToFile, string sheetName, List<string[]> values)
         {
             try
             {
@@ -61,7 +61,7 @@ namespace WrapperNetPOI
 //#endif
             }
         }
-        public static async Task TaskAddToExcelAsync(string pathToFile, string sheetName, List<string[]> values)
+        private static async Task TaskAddToExcelAsync(string pathToFile, string sheetName, List<string[]> values)
         {
             await Task.Run(() => AddToExcel(pathToFile, sheetName, values));
         }
@@ -71,8 +71,9 @@ namespace WrapperNetPOI
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
         /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
         /// <param name="values">The values<see cref="List{string[]}"/>.</param>
-        public static void AddToExcel(string pathToFile, string sheetName, List<string[]> values)
+        private static void AddToExcel(string pathToFile, string sheetName, List<string[]> values)
         {
+            
             Excel.MatrixView listView = new(ExchangeOperation.Insert, sheetName, values, null)
             {
                 ExchangeValue = values
@@ -90,7 +91,7 @@ namespace WrapperNetPOI
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
         /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
         /// <param name="values">The values<see cref="List{string}"/>.</param>
-        public static void AddToExcel(string pathToFile, string sheetName, List<string> values)
+        private static void AddToExcel(string pathToFile, string sheetName, List<string> values)
         {
             Excel.ListView listView = new(ExchangeOperation.Insert, sheetName, values, null)
             {
@@ -101,6 +102,39 @@ namespace WrapperNetPOI
             };
             wrapper.Exchange();
         }
+
+        public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName="Sheet1", Border border=null)
+        {
+            Action action = value switch
+            {
+                List<String> when value is List<string> listStr => new Action(() =>
+                {
+                    ListView listView = new(ExchangeOperation.Insert, sheetName, listStr, null)
+                    {
+                        ExchangeValue= listStr
+                    };
+                    WrapperExcel wrapper = new(pathToFile, listView, null)
+                    {
+                    };
+                    wrapper.Exchange();
+                }
+                ),
+                Dictionary<string, string> when value is Dictionary<string, string[]> dicStr => new Action(() =>
+                {
+                    DictionaryView listView = new(ExchangeOperation.Insert, sheetName, dicStr, null)
+                    { };
+                    WrapperExcel wrapper = new(pathToFile, listView, null)
+                    {
+                    };
+                    wrapper.Exchange();
+                }
+                ),
+                _ => new Action(()=>InsertListArray(value, pathToFile, sheetName, border)),
+            };
+            action.Invoke();
+        }
+
+
         public static void GetFromExcel<TReturn>(out TReturn value, string pathToFile, string sheetName, Excel.Border border = null) where TReturn : new()
         {
             TReturn returnValue = new();
@@ -126,6 +160,23 @@ namespace WrapperNetPOI
                 return; 
             }
         }
+
+        private static void InsertListArray<TValue>(TValue value, string pathToFile, string sheetName, Excel.Border border = null)
+        {
+            Action action = value switch
+            {
+                IList<string[]> when value is IList<string[]> listStr => new Action(() => InsertListArray<string>(listStr, pathToFile, sheetName, border)),
+                IList<int[]> when value is IList<int[]> listInt => new Action(() => InsertListArray<int>(listInt, pathToFile, sheetName, border)),
+                IList<double[]> when value is IList<double[]> listDbl => new Action(() => InsertListArray<Double>(listDbl, pathToFile, sheetName, border)),
+                IList<bool[]> when value is IList<bool[]> listBool => new Action(() => InsertListArray<Boolean>(listBool, pathToFile, sheetName, border)),
+                IList<DateTime[]> when value is IList<DateTime[]> listDateTime => new Action(() => InsertListArray<DateTime>(listDateTime, pathToFile, sheetName, border)),
+                _ => default
+            };
+            action.Invoke();
+        }
+
+
+
         private static ReturnValue GetListArrayChoise<ReturnValue>(dynamic value, string pathToFile, string sheetName, Excel.Border border = null) => value switch
         {
             IList<string[]> =>(ReturnValue)GetListArray<string>(pathToFile, sheetName, border),
@@ -135,12 +186,20 @@ namespace WrapperNetPOI
             IList<DateTime[]> => (ReturnValue)GetListArray<DateTime>(pathToFile, sheetName, border),
             _ => default
         };
+
         private static IList<ReturnType[]> GetListArray<ReturnType>(string pathToFile, string sheetName, Excel.Border border = null) //where ReturnType : new()
         {
             var exchangeClass = new MatrixViewGeneric<ReturnType>(ExchangeOperation.Read, sheetName, null, border, null);
             WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
             wrapper.Exchange();
             return exchangeClass.ExchangeValue;
+        }
+
+        private static void InsertListArray<TInsert>(IList<TInsert[]> value,string pathToFile, string sheetName, Excel.Border border = null) //where ReturnType : new()
+        {
+            var exchangeClass = new MatrixViewGeneric<TInsert>(ExchangeOperation.Insert, sheetName, value, border, null);
+            WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
+            wrapper.Exchange();
         }
         /*
         public static void GetFromExcelListArray<ReturnType>(out IList<ReturnType[]> value, string pathToFile, string sheetName, Excel.Border border = null) //where ReturnType : new()

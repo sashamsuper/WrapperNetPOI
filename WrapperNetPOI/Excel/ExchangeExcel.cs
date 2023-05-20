@@ -131,6 +131,15 @@ namespace WrapperNetPOI.Excel
                 }
             }
         }
+
+        public Border()
+        {}
+
+        public Border(int? firstRow = null, int? firstColumn = null, int? lastRow = null, int? lastColumn = null)
+        {
+            CorrectBorder(firstRow, firstColumn, lastRow, lastColumn);
+        }
+
         public void CorrectBorder(int? firstRow = null, int? firstColumn = null, int? lastRow = null, int? lastColumn = null)
         {
             if (firstRow != null)
@@ -298,6 +307,7 @@ namespace WrapperNetPOI.Excel
                 }
                 if (!getValue && SheetsCount != 0)
                 {
+                    //throw (new ArgumentOutOfRangeException($"No page found with that name-{ActiveSheetName}"));
                     ActiveSheet = Workbook.GetSheetAt(0);
                     // search first if not found
                 }
@@ -329,7 +339,7 @@ namespace WrapperNetPOI.Excel
                         cell = GetFirstCellInMergedRegion(cell);
                     }
                     ConvertType convertType = new();
-                    returnValue = ConvertType.GetValueString(new WrapperCell(cell));
+                    returnValue = convertType.GetValue<string>(cell);
                     /*
                     if (cell?.CellType == CellType.Numeric
                       && cell.NumericCellValue > 36526 &&
@@ -500,7 +510,8 @@ namespace WrapperNetPOI.Excel
         {
             ExchangeValue = exchangeValue;
         }
-        /*
+        
+        
         private void AddValue()
         {
             if (ExchangeValue != null)
@@ -512,20 +523,21 @@ namespace WrapperNetPOI.Excel
                     for (int j = 0; j < ExchangeValue[i].Length; j++)
                     {
                         ICell cell = row.GetCell(j) ?? row.CreateCell(j + WorkbookBorder.FirstColumn);
-                        cell.SetCellValue(ExchangeValue[i][j]);
+                        ConvertType.SetValue(cell, ExchangeValue[i][j]);
+                        //cell.SetCellValue(ExchangeValue[i][j]);
                     }
                     ProgressValue?.Report(ReturnProgress(i, ExchangeValue.Count));
                 }
             }
         }
-        */
-/*
+        
+
         public override void InsertValue()
         {
             AddValue();
         }
-        */
-/*
+        
+
         public override void UpdateValue()
         {
             int fRow = WorkbookBorder.FirstRow;
@@ -542,7 +554,8 @@ namespace WrapperNetPOI.Excel
             }
             AddValue();
         }
-        */
+        
+
         private string[] GetStringFromRow(int i, int firstViewedColumn, int lastViewedColumn)
         {
             var row = ActiveSheet.GetRow(i);

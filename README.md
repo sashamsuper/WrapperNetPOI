@@ -28,6 +28,18 @@ Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));
 Simple.GetFromExcel(out Dictionary<string, string[]> ld, path, "Sheet1");  
 Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Join("",x.Value)}") ));
 
+The simplest use for insert data
+
+const string path = "..//..//..//srcTest//simpleGeneric.xlsx";
+            File.Delete(path);
+            List<string[]> listS = new()
+            {
+                new []{ "34","2r3","34" },
+                new[]{ "1","3we","34" },
+                new[]{ "wer1","3wer","34wr" }
+            };
+Simple.InsertToExcel(listS, path, "SheetNew",null);
+
 https://github.com/sashamsuper/WrapperNetPOI  
   
 
