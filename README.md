@@ -30,8 +30,10 @@ Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Join("
 
 The simplest use for insert data
 
-const string path = "..//..//..//srcTest//simpleGeneric.xlsx";
-            File.Delete(path);
+const string path = "..//..//..//srcTest//simpleGeneric.xlsx";  
+            
+            File.Delete(path);  
+            
             List<string[]> listS = new()
             {
                 new []{ "34","2r3","34" },
