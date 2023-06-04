@@ -26,8 +26,10 @@ Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));
 
 The simplest use for insert data (work with string, int, double, DateTime, bool)
 
-const string path = "..//..//..//srcTest//simpleGeneric.xlsx";
-            File.Delete(path);
+const string path = "..//..//..//srcTest//simpleGeneric.xlsx";  
+            
+            File.Delete(path);  
+            
             List<string[]> listS = new()
             {
                 new []{ "34","2r3","34" },
