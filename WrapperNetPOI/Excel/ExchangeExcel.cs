@@ -163,6 +163,7 @@ namespace WrapperNetPOI.Excel
     internal class GetCellValue
     {
     }
+
     public static class Extension
     {
         public static int RowsCount(this ISheet sheet)
@@ -206,6 +207,34 @@ namespace WrapperNetPOI.Excel
             return dict;
         }
     }
+
+    public static class MatrixConvert<T>
+    {
+        
+        public static IList<T[]> ConvertToMatrix(IList<T> list)
+        {
+            return list?.Select(x => new T[] { x }).ToList();
+        }
+        public static IList<T[]> ConvertToMatrix(IDictionary<T, T[]> dict)
+        {
+            return dict?.SelectMany(x => x.Value.ToList(), (key, value) => new T[] { key.Key, value }).ToList();
+        }
+        public static IList<T> ConvertToList(IList<T[]> list)
+        {
+            return list.Select(x => x.FirstOrDefault()).ToList();
+        }
+        public static IDictionary<string, T[]> ConvertToDictionary(IList<T[]> list)
+        {
+            Dictionary<string, T[]> dict = new();
+            var groupValue = list?.Where(x => x.Length >= 2).Where(x => x[0] != null).GroupBy(y => y[0], (value) => value[1]);
+            foreach (var group in groupValue)
+            {
+                //dict[group.Key] = group.Select(x => x).ToArray();
+            }
+            return dict;
+        }
+    }
+
     public interface IExchangeExcel : IExchange
     {
         string ActiveSheetName { set; get; }
@@ -809,6 +838,7 @@ namespace WrapperNetPOI.Excel
             }
         }
     }
+    
     public class ListView : ExchangeClass<IList<string>>
     {
         private readonly MatrixView matrix;
@@ -839,6 +869,39 @@ namespace WrapperNetPOI.Excel
             matrix.UpdateValue();
         }
     }
+
+    public class ListViewGeneric<T> : ExchangeClass<IList<T>>
+    {
+        private readonly MatrixViewGeneric<T> matrix;
+        public ListViewGeneric(ExchangeOperation exchangeType, string activeSheetName,
+            IList<string> exchangeValue, Border border = null, IProgress<int> progress = null) :
+            base(exchangeType, activeSheetName, border, progress)
+        {
+            //matrix = new MatrixViewGeneric<T>(exchangeType, activeSheetName,
+            //Extension.ConvertToMatrix(exchangeValue), border, progress);
+        }
+        public override void InsertValue()
+        {
+            matrix.ActiveSheet = ActiveSheet;
+            matrix.WorkbookBorder = WorkbookBorder;
+            matrix.InsertValue();
+        }
+        public override void ReadValue()
+        {
+            matrix.ActiveSheet = ActiveSheet;
+            matrix.WorkbookBorder = WorkbookBorder;
+            matrix.ReadValue();
+            //ExchangeValue = Extension.ConvertToList(matrix.ExchangeValue);
+        }
+        public override void UpdateValue()
+        {
+            matrix.ActiveSheet = ActiveSheet;
+            matrix.WorkbookBorder = WorkbookBorder;
+            matrix.UpdateValue();
+        }
+    }
+
+
     public class DictionaryView : ExchangeClass<IDictionary<string, string[]>>
     {
         private readonly MatrixView matrix;

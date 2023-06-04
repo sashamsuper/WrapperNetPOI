@@ -44,6 +44,8 @@
 <PropertyGroup>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <ProduceReferenceAssembly>True</ProduceReferenceAssembly>
+    <PackageTags>excel,word,office</PackageTags>
+    <PackageProjectUrl>https://github.com/sashamsuper/WrapperNetPOI</PackageProjectUrl>
 </PropertyGroup>
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
     <WarningLevel>5</WarningLevel>

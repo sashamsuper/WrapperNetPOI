@@ -16,19 +16,15 @@ Debug.WriteLine(df);
 Simple.GetFromExcel(out List<string> ls, path, "Sheet1");  
 Debug.WriteLine(String.Join("\n",ls));  
 
-//List<string[]> 
-Simple.GetFromExcel(out List<string[]> lsm, path, "Sheet1");  
-Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));
-
-//List<int[]>  
-Simple.GetFromExcel(out List<int[]> lsm, path, "Sheet1");  
-Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));
-
 //Dictionary<string,string>  
 Simple.GetFromExcel(out Dictionary<string, string[]> ld, path, "Sheet1");  
 Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Join("",x.Value)}") ));
 
-The simplest use for insert data
+//List<string[]>  (work with string, int, double, DateTime, bool)
+Simple.GetFromExcel(out List<string[]> lsm, path, "Sheet1");  
+Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));
+
+The simplest use for insert data (work with string, int, double, DateTime, bool)
 
 const string path = "..//..//..//srcTest//simpleGeneric.xlsx";
             File.Delete(path);
