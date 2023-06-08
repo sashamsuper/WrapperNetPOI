@@ -35,6 +35,16 @@ namespace MsTestWrapper
             //CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
         }
 
+        [TestMethod]
+        public void ReadParagraphValueTestInCell()
+        {
+            const string path = "..//..//..//srcTest//listView2.docx";
+            TableView exchangeClass = new(ExchangeOperation.Read, null);
+            WrapperWord wrapper = new(path, exchangeClass, null);
+            wrapper.Exchange();
+            //CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
+        }
+
         public class ListComparerClass : IComparer
         {
             // Call CaseInsensitiveComparer.Compare with the parameters reversed.

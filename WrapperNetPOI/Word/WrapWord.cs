@@ -134,13 +134,13 @@ namespace WrapperNetPOI.Word
                     {
                         if (cell?.BodyElements.Count > 0)
                         {
-                            CellValue cellValue = new(cell.GetText(), i, j, k, level);
+                            CellValue cellValue = new(cell.GetTextRecursively(), i, j, k, level);
                             cells.Add(cellValue);
                             cells.AddRange(XGetCells(cell, ref i, level + 1));
                         }
                         else
                         {
-                            CellValue cellValue = new(cell.GetText(), i, j, k, level);
+                            CellValue cellValue = new(cell.GetTextRecursively(), i, j, k, level);
                             cells.Add(cellValue);
                         }
                         k++;
