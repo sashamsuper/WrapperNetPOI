@@ -19,30 +19,30 @@ namespace MsTestWrapper
             List<TableValue> sample = new();
             var tableValue = new TableValue(listS, 0, 0);
             sample.Add(tableValue);
-            TableView exchangeClass = new(ExchangeOperation.Read, null);
-            WrapperWord wrapper = new(path, exchangeClass, null);
+            TableView ExcelExchange = new(ExchangeOperation.Read, null);
+            WrapperWord wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
+            CollectionAssert.AreEqual(sample.ToList(), ExcelExchange.ExchangeValue.ToList(), new ListComparerClass());
         }
 
         [TestMethod]
         public void ReadParagraphValueTest()
         {
             const string path = "..//..//..//srcTest//listView2.docx";
-            ParagraphView exchangeClass = new(ExchangeOperation.Read, null);
-            WrapperWord wrapper = new(path, exchangeClass, null);
+            ParagraphView ExcelExchange = new(ExchangeOperation.Read, null);
+            WrapperWord wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            //CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
+            //CollectionAssert.AreEqual(sample.ToList(), ExcelExchange.ExchangeValue.ToList(), new ListComparerClass());
         }
 
         [TestMethod]
         public void ReadParagraphValueTestInCell()
         {
             const string path = "..//..//..//srcTest//listView2.docx";
-            TableView exchangeClass = new(ExchangeOperation.Read, null);
-            WrapperWord wrapper = new(path, exchangeClass, null);
+            TableView ExcelExchange = new(ExchangeOperation.Read, null);
+            WrapperWord wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            //CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
+            //CollectionAssert.AreEqual(sample.ToList(), ExcelExchange.ExchangeValue.ToList(), new ListComparerClass());
         }
 
         public class ListComparerClass : IComparer

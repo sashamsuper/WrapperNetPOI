@@ -34,7 +34,7 @@ namespace WrapperNetPOI.Excel
 }
 namespace WrapperNetPOI.Excel
 {
-    public class Border // in developing
+    public class Border: IBorder 
     {
         public ISheet ActiveSheet { get; set; }
         private int? firstColumn;
@@ -259,7 +259,7 @@ namespace WrapperNetPOI.Excel
             }
         }
     }
-    public abstract class ExchangeClass<Tout> : NewBaseType, IExchangeExcel
+    public abstract class ExcelExchange<Tout> : NewBaseType, IExchangeExcel
     {
         public Border WorkbookBorder { set; get; }
         public IWorkbook Workbook { set; get; }
@@ -290,7 +290,7 @@ namespace WrapperNetPOI.Excel
         //public int LastViewedColumn => WorkbookBorder.LastColumn;
         public Tout ExchangeValue { set; get; }
         public Action ExchangeValueFunc { set; get; }
-        protected ExchangeClass(ExchangeOperation exchange, string activeSheetName, Border border = null, IProgress<int> progress = null)
+        protected ExcelExchange(ExchangeOperation exchange, string activeSheetName, Border border = null, IProgress<int> progress = null)
         {
             WorkbookBorder = border;
             ExchangeOperationEnum = exchange;
@@ -341,7 +341,7 @@ namespace WrapperNetPOI.Excel
                     // search first if not found
                 }
             }
-            //exchangeClass.ActiveSheet = ActiveSheet;
+            //ExcelExchange.ActiveSheet = ActiveSheet;
             ExchangeValueFunc();
         }
         /// <summary>
@@ -485,7 +485,7 @@ namespace WrapperNetPOI.Excel
             cell.SetCellValue(value);
         }
     }
-    public class RowsView : ExchangeClass<IList<IRow>>
+    public class RowsView : ExcelExchange<IList<IRow>>
     {
         public string PathSource { get; set; }
         public override bool CloseStream => true;
@@ -531,7 +531,7 @@ namespace WrapperNetPOI.Excel
             }
         }
     }
-    public class MatrixViewGeneric<T> : ExchangeClass<IList<T[]>>
+    public class MatrixViewGeneric<T> : ExcelExchange<IList<T[]>>
     {
         public MatrixViewGeneric(ExchangeOperation exchangeType, string activeSheetName,
             IList<T[]> exchangeValue, Border border = null, IProgress<int> progress = null) :
@@ -702,7 +702,7 @@ namespace WrapperNetPOI.Excel
             }
         }
     }
-    public class MatrixView : ExchangeClass<IList<string[]>>
+    public class MatrixView : ExcelExchange<IList<string[]>>
     {
         public MatrixView(ExchangeOperation exchangeType, string activeSheetName,
             IList<string[]> exchangeValue, Border border = null, IProgress<int> progress = null) :
@@ -839,7 +839,7 @@ namespace WrapperNetPOI.Excel
         }
     }
     
-    public class ListView : ExchangeClass<IList<string>>
+    public class ListView : ExcelExchange<IList<string>>
     {
         private readonly MatrixView matrix;
         public ListView(ExchangeOperation exchangeType, string activeSheetName,
@@ -870,7 +870,7 @@ namespace WrapperNetPOI.Excel
         }
     }
 
-    public class ListViewGeneric<T> : ExchangeClass<IList<T>>
+    public class ListViewGeneric<T> : ExcelExchange<IList<T>>
     {
         private readonly MatrixViewGeneric<T> matrix;
         public ListViewGeneric(ExchangeOperation exchangeType, string activeSheetName,
@@ -902,7 +902,7 @@ namespace WrapperNetPOI.Excel
     }
 
 
-    public class DictionaryView : ExchangeClass<IDictionary<string, string[]>>
+    public class DictionaryView : ExcelExchange<IDictionary<string, string[]>>
     {
         private readonly MatrixView matrix;
         public DictionaryView(ExchangeOperation exchangeType, string activeSheetName,

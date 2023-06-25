@@ -69,7 +69,7 @@ namespace WrapperNetPOI.Word
                 XWPFDocument doc = new(tmpStream);
                 Document = new(doc);
             }
-            //exchangeClass.ActiveSheet = ActiveSheet;
+            //ExcelExchange.ActiveSheet = ActiveSheet;
             ExchangeValueFunc();
         }
         public virtual void InsertValue()

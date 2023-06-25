@@ -151,7 +151,7 @@ namespace WrapperNetPOI.Excel
             }
         }
 
-        public void RenameDobleHeaderColumn()
+        public void RenameDoubleHeaderColumn()
         {
             for (int i = DataColumns.Length - 1; i >= 0; i--)
             {
@@ -185,7 +185,7 @@ namespace WrapperNetPOI.Excel
         }
     }
 
-    public class DataFrameView : ExchangeClass<DataFrame>
+    public class DataFrameView : ExcelExchange<DataFrame>
     {
         public Header DataHeader { set; get; }
 
@@ -265,7 +265,7 @@ namespace WrapperNetPOI.Excel
         protected internal void ReadHeader()
         {
             DataHeader.GetHeaderRow();
-            DataHeader.RenameDobleHeaderColumn();
+            DataHeader.RenameDoubleHeaderColumn();
         }
 
         private void CreateColumns()

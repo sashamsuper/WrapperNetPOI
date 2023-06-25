@@ -247,8 +247,8 @@ namespace WrapperNetPOI.Word
     {
         public WordDoc Document { set; get; }
 
-        public WrapperWord(string pathToFile, IExchangeWord exchangeClass, ILogger logger = null) :
-        base(pathToFile, exchangeClass, logger)
+        public WrapperWord(string pathToFile, IExchangeWord ExcelExchange, ILogger logger = null) :
+        base(pathToFile, ExcelExchange, logger)
         {
         }
 
@@ -266,43 +266,43 @@ namespace WrapperNetPOI.Word
 
         private void CreateAndInsertValue()
         {
-            exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
-            ViewFile(FileMode.CreateNew, FileAccess.ReadWrite, true, exchangeClass.CloseStream);
+            ExcelExchange.ExchangeValueFunc = ExcelExchange.InsertValue;
+            ViewFile(FileMode.CreateNew, FileAccess.ReadWrite, true, ExcelExchange.CloseStream);
             using FileStream fs = new(PathToFile,
                     FileMode.Create,
                     FileAccess.Write,
                     FileShare.ReadWrite);
-            //exchangeClass.Workbook.Write(fs, false);
+            //ExcelExchange.Workbook.Write(fs, false);
             fs.Close();
         }
 
         protected override void ReadValue()
         {
-            exchangeClass.ExchangeValueFunc = exchangeClass.ReadValue;
-            ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream, FileShare.Read);
+            ExcelExchange.ExchangeValueFunc = ExcelExchange.ReadValue;
+            ViewFile(FileMode.Open, FileAccess.Read, false, ExcelExchange.CloseStream, FileShare.Read);
         }
 
         protected override void UpdateValue()
         {
-            exchangeClass.ExchangeValueFunc = exchangeClass.UpdateValue;
-            ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
+            ExcelExchange.ExchangeValueFunc = ExcelExchange.UpdateValue;
+            ViewFile(FileMode.Open, FileAccess.Read, false, ExcelExchange.CloseStream);
             using FileStream fs = new(PathToFile,
                     FileMode.Create,
                     FileAccess.Write,
                     FileShare.ReadWrite);
-            //exchangeClass.Workbook.Write(fs, false);
+            //ExcelExchange.Workbook.Write(fs, false);
             fs.Close();
         }
 
         private void OnlyInsertValue()
         {
-            exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
-            ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
+            ExcelExchange.ExchangeValueFunc = ExcelExchange.InsertValue;
+            ViewFile(FileMode.Open, FileAccess.Read, false, ExcelExchange.CloseStream);
             using FileStream fs = new(PathToFile,
                     FileMode.Create,
                     FileAccess.Write,
                     FileShare.ReadWrite);
-            //exchangeClass.Workbook.Write(fs, false);
+            //ExcelExchange.Workbook.Write(fs, false);
             fs.Close();
         }
     }

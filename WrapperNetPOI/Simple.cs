@@ -81,7 +81,7 @@ namespace WrapperNetPOI
             Excel.WrapperExcel wrapper = new(pathToFile, listView, null)
             {
                 //ActiveSheetName = sheetName,
-                //exchangeClass = listView
+                //ExcelExchange = listView
             };
             wrapper.Exchange();
         }
@@ -140,18 +140,18 @@ namespace WrapperNetPOI
             TReturn returnValue = new();
             if (returnValue is List<string> rL)
             {
-                var exchangeClass = new Excel.ListView(ExchangeOperation.Read, sheetName, rL, border, null);
-                Excel.WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
+                var ExcelExchange = new Excel.ListView(ExchangeOperation.Read, sheetName, rL, border, null);
+                Excel.WrapperExcel wrapper = new(pathToFile, ExcelExchange, null) { };
                 wrapper.Exchange();
-                value = (TReturn)exchangeClass.ExchangeValue;
+                value = (TReturn)ExcelExchange.ExchangeValue;
                 return;
             }
             else if (returnValue is Dictionary<string, string[]> rD)
             {
-                var exchangeClass = new Excel.DictionaryView(ExchangeOperation.Read, sheetName, rD, border, null);
-                Excel.WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
+                var ExcelExchange = new Excel.DictionaryView(ExchangeOperation.Read, sheetName, rD, border, null);
+                Excel.WrapperExcel wrapper = new(pathToFile, ExcelExchange, null) { };
                 wrapper.Exchange();
-                value = (TReturn)exchangeClass.ExchangeValue;
+                value = (TReturn)ExcelExchange.ExchangeValue;
                 return;
             }
             else
@@ -189,49 +189,49 @@ namespace WrapperNetPOI
 
         private static IList<ReturnType[]> GetListArray<ReturnType>(string pathToFile, string sheetName, Excel.Border border = null) //where ReturnType : new()
         {
-            var exchangeClass = new MatrixViewGeneric<ReturnType>(ExchangeOperation.Read, sheetName, null, border, null);
-            WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
+            var ExcelExchange = new MatrixViewGeneric<ReturnType>(ExchangeOperation.Read, sheetName, null, border, null);
+            WrapperExcel wrapper = new(pathToFile, ExcelExchange, null) { };
             wrapper.Exchange();
-            return exchangeClass.ExchangeValue;
+            return ExcelExchange.ExchangeValue;
         }
 
         private static void InsertListArray<TInsert>(IList<TInsert[]> value,string pathToFile, string sheetName, Excel.Border border = null) //where ReturnType : new()
         {
-            var exchangeClass = new MatrixViewGeneric<TInsert>(ExchangeOperation.Insert, sheetName, value, border, null);
-            WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
+            var ExcelExchange = new MatrixViewGeneric<TInsert>(ExchangeOperation.Insert, sheetName, value, border, null);
+            WrapperExcel wrapper = new(pathToFile, ExcelExchange, null) { };
             wrapper.Exchange();
         }
         /*
         public static void GetFromExcelListArray<ReturnType>(out IList<ReturnType[]> value, string pathToFile, string sheetName, Excel.Border border = null) //where ReturnType : new()
         {
-                var exchangeClass = new Excel.MatrixViewGeneric<ReturnType>(ExchangeOperation.Read, sheetName, null, border, null);
-                Excel.WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
+                var ExcelExchange = new Excel.MatrixViewGeneric<ReturnType>(ExchangeOperation.Read, sheetName, null, border, null);
+                Excel.WrapperExcel wrapper = new(pathToFile, ExcelExchange, null) { };
                 wrapper.Exchange();
-                value = exchangeClass.ExchangeValue;
+                value = ExcelExchange.ExchangeValue;
                 return;
         }
         */
         public static void GetFromExcel(out DataFrame value, string pathToFile, string sheetName, Excel.Border border = null, Dictionary<int, Type> header = null, int[] rows = null)
         {
-            var exchangeClass = new Excel.DataFrameView(ExchangeOperation.Read, sheetName, null, border);
+            var ExcelExchange = new Excel.DataFrameView(ExchangeOperation.Read, sheetName, null, border);
             if (rows != null)
             {
-                exchangeClass.DataHeader = new()
+                ExcelExchange.DataHeader = new()
                 {
                     Rows = rows
                 };
             }
             else
             {
-                exchangeClass.DataHeader = new();
+                ExcelExchange.DataHeader = new();
             }
             if (header != null)
             {
-                exchangeClass.DataHeader.CreateHeaderType(header);
+                ExcelExchange.DataHeader.CreateHeaderType(header);
             }
-            Excel.WrapperExcel wrapper = new(pathToFile, exchangeClass, null);
+            Excel.WrapperExcel wrapper = new(pathToFile, ExcelExchange, null);
             wrapper.Exchange();
-            value = exchangeClass.ExchangeValue;
+            value = ExcelExchange.ExchangeValue;
         }
         /// <summary>
         ///GetFromWord
@@ -240,10 +240,10 @@ namespace WrapperNetPOI
         /// <param name="pathToFile"></param>
         public static void GetFromWord(out List<Word.TableValue> value, string pathToFile)
         {
-            var exchangeClass = new Word.TableView(ExchangeOperation.Read);
-            Word.WrapperWord wrapper = new(pathToFile, exchangeClass, null);
+            var ExcelExchange = new Word.TableView(ExchangeOperation.Read);
+            Word.WrapperWord wrapper = new(pathToFile, ExcelExchange, null);
             wrapper.Exchange();
-            value = exchangeClass.ExchangeValue;
+            value = ExcelExchange.ExchangeValue;
         }
         /// <summary>
         /// The GetFromExcel.

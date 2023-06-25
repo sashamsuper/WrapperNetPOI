@@ -14,6 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
 
+using NPOI.SS.UserModel;
 using Serilog;
 using System;
 using System.IO;
@@ -27,6 +28,16 @@ namespace WrapperNetPOI
         Update,
         Delete
     }
+
+    public interface IBorder
+    {
+        int FirstRow { set; get;}
+        int FirstColumn { set; get; }
+        int LastRow { set; get; }
+        int LastColumn { set; get; }
+    }
+
+
     public interface IExchange
     {
         //IWorkbook Workbook {set;get;}
@@ -64,27 +75,27 @@ namespace WrapperNetPOI
         public string Password { set; get; } = null;
 
         /// <summary>
-        /// Defines the exchangeClass.
+        /// Defines the ExcelExchange.
         /// </summary>
-        public readonly IExchange exchangeClass;
+        public readonly IExchange ExcelExchange;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WrapperNpoi"/> class.
         /// </summary>
         /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        protected Wrapper(string pathToFile, IExchange exchangeClass, ILogger logger = null)
+        protected Wrapper(string pathToFile, IExchange ExcelExchange, ILogger logger = null)
         {
             Logger = logger;
             PathToFile = pathToFile;
-            if (exchangeClass != null)
+            if (ExcelExchange != null)
             {
-                this.exchangeClass = exchangeClass;
-                exchangeClass.Logger = Logger;
+                this.ExcelExchange = ExcelExchange;
+                ExcelExchange.Logger = Logger;
             }
             else
             {
-                Logger.Error(pathToFile, nameof(exchangeClass));
-                throw new ArgumentNullException(nameof(exchangeClass));
+                Logger.Error(pathToFile, nameof(ExcelExchange));
+                throw new ArgumentNullException(nameof(ExcelExchange));
             }
         }
 
@@ -115,7 +126,7 @@ namespace WrapperNetPOI
                     fileAccess,
                     fileShare);
                 Stream tmpStream = fs;
-                exchangeClass.GetInternallyObject(fs, addNew);
+                ExcelExchange.GetInternallyObject(fs, addNew);
             }
             else // Apparently it's useless for NPOI
             {
@@ -123,7 +134,7 @@ namespace WrapperNetPOI
                 fileMode,
                 fileAccess,
                 fileShare);
-                exchangeClass.GetInternallyObject(fileStream, addNew);
+                ExcelExchange.GetInternallyObject(fileStream, addNew);
             }
         }
 
@@ -149,7 +160,7 @@ namespace WrapperNetPOI
 
         public void Exchange()
         {
-            switch (exchangeClass.ExchangeOperationEnum)
+            switch (ExcelExchange.ExchangeOperationEnum)
             {
                 case ExchangeOperation.Insert:
                     InsertValue();
@@ -168,8 +179,8 @@ namespace WrapperNetPOI
                     break;
 
                 default:
-                    Logger.Error("exchangeClass.ExchangeTypeEnum");
-                    throw (new ArgumentOutOfRangeException("exchangeClass.ExchangeTypeEnum"));
+                    Logger.Error("ExcelExchange.ExchangeTypeEnum");
+                    throw (new ArgumentOutOfRangeException("ExcelExchange.ExchangeTypeEnum"));
             }
         }
 

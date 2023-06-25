@@ -38,10 +38,10 @@ namespace MsTestWrapper
         public void ConvertTestDouble()
         {
             const string path = "..//..//..//srcTest//dataframe.xlsx";
-            RowsView exchangeClass = new(ExchangeOperation.Read);
-            WrapperExcel wrapper = new(path, exchangeClass);
+            RowsView ExcelExchange = new(ExchangeOperation.Read);
+            WrapperExcel wrapper = new(path, ExcelExchange);
             wrapper.Exchange();
-            var value = exchangeClass.ExchangeValue;
+            var value = ExcelExchange.ExchangeValue;
             var row1 = value.Skip(1).First();
             var row2 = value.Skip(2).First();
             var row3 = value.Skip(3).First();
@@ -61,10 +61,10 @@ namespace MsTestWrapper
         public void ConvertTestInt()
         {
             const string path = "..//..//..//srcTest//dataframe.xlsx";
-            RowsView exchangeClass = new(ExchangeOperation.Read);
-            WrapperExcel wrapper = new(path, exchangeClass);
+            RowsView ExcelExchange = new(ExchangeOperation.Read);
+            WrapperExcel wrapper = new(path, ExcelExchange);
             wrapper.Exchange();
-            var value = exchangeClass.ExchangeValue;
+            var value = ExcelExchange.ExchangeValue;
             var row1 = value.Skip(1).First();
             var row2 = value.Skip(2).First();
             var row3 = value.Skip(3).First();
@@ -84,10 +84,10 @@ namespace MsTestWrapper
         public void ConvertTestString()
         {
             var path = "..//..//..//srcTest//dataframe.xlsx";
-            RowsView exchangeClass = new(ExchangeOperation.Read);
-            WrapperExcel wrapper = new(path, exchangeClass);
+            RowsView ExcelExchange = new(ExchangeOperation.Read);
+            WrapperExcel wrapper = new(path, ExcelExchange);
             wrapper.Exchange();
-            var value = exchangeClass.ExchangeValue[0];
+            var value = ExcelExchange.ExchangeValue[0];
             ICell cell = value.GetCell(0);
             ConvertType convertType = new();
             var str = convertType.GetValue<String>(cell);
@@ -128,17 +128,17 @@ namespace MsTestWrapper
             };
 
             const string path = "..//..//..//srcTest//dataframe.xlsx";
-            DataFrameView exchangeClass = new(ExchangeOperation.Read)
+            DataFrameView ExcelExchange = new(ExchangeOperation.Read)
             {
                 DataHeader = header
             };
-            WrapperExcel wrapper = new(path, exchangeClass);
+            WrapperExcel wrapper = new(path, ExcelExchange);
             wrapper.Exchange();
-            Console.WriteLine(exchangeClass.DataHeader);
-            var value = exchangeClass.ExchangeValue;
+            Console.WriteLine(ExcelExchange.DataHeader);
+            var value = ExcelExchange.ExchangeValue;
             string[] d = {"dron1", "header44", "sdds324", "asdrrg",
                     "asdg4",   "asd", "asd25",   "asd1" ,"asdaswer"};
-            var value2 = exchangeClass.DataHeader.DataColumns.Select(x => x.Name).ToArray();
+            var value2 = ExcelExchange.DataHeader.DataColumns.Select(x => x.Name).ToArray();
             CollectionAssert.AreEqual(d, value2);
         }
 
@@ -146,20 +146,20 @@ namespace MsTestWrapper
         public void DataFrameHeaderTest2rowDiffLenght()
         {
             const string path = "..//..//..//srcTest//dataframe.xlsx";
-            DataFrameView exchangeClass = new(ExchangeOperation.Read, "Sheet2")
+            DataFrameView ExcelExchange = new(ExchangeOperation.Read, "Sheet2")
             {
                 DataHeader = new()
                 {
                     Rows = new int[] { 0, 1 }
                 }
             };
-            WrapperExcel wrapper = new(path, exchangeClass);
+            WrapperExcel wrapper = new(path, ExcelExchange);
             wrapper.Exchange();
-            Console.WriteLine(exchangeClass.DataHeader.DataColumns);
-            var value = exchangeClass.ExchangeValue;
+            Console.WriteLine(ExcelExchange.DataHeader.DataColumns);
+            var value = ExcelExchange.ExchangeValue;
             string[] d = { "dron1", "header44",    "sdds324", "a11", "a244",
                 "a3324",   "a41", "a744",    "asdas324" };
-            var value2 = exchangeClass.DataHeader.DataColumns.Select(x => x.Name).ToArray();
+            var value2 = ExcelExchange.DataHeader.DataColumns.Select(x => x.Name).ToArray();
             CollectionAssert.AreEqual(d, value2);
         }
 
@@ -174,14 +174,14 @@ namespace MsTestWrapper
                 { "2",new[] { "2433", "24dfgd23", "dfg233" } },
                 { "3",new[] { "34", "2dgd3", "2dgf33" } }
             };
-            DictionaryView exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource, null);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            DictionaryView ExcelExchange = new(ExchangeOperation.Insert, "List1", dictSource, null);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            exchangeClass = new(ExchangeOperation.Read, "List1", null, null);
-            wrapper = new(path, exchangeClass, null);
+            ExcelExchange = new(ExchangeOperation.Read, "List1", null, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             var expectedConv = dictSource.Select(x => (x.Key, String.Concat(x.Value))).ToList();
-            var actualConv = exchangeClass.ExchangeValue.Select(x => (x.Key, String.Concat(x.Value))).ToList();
+            var actualConv = ExcelExchange.ExchangeValue.Select(x => (x.Key, String.Concat(x.Value))).ToList();
             CollectionAssert.AreEqual(expectedConv, actualConv);
             DeleteFile(path);
         }
@@ -198,8 +198,8 @@ namespace MsTestWrapper
                 { "2",new[] { "2433", "24dfgd23", "dfg233" } },
                 { "3",new[] { "34", "2dgd3", "2dgf33" } }
             };
-            DictionaryView exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource1, null);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            DictionaryView ExcelExchange = new(ExchangeOperation.Insert, "List1", dictSource1, null);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
 
             Dictionary<string, string[]> dictSource2 = new()
@@ -209,12 +209,12 @@ namespace MsTestWrapper
                 { "7",new[] { "34234", "2342dgd3", "2dgf33��" } }
             };
 
-            exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource2, null);
-            wrapper = new(path, exchangeClass, null);
+            ExcelExchange = new(ExchangeOperation.Insert, "List1", dictSource2, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
 
-            exchangeClass = new(ExchangeOperation.Read, "List1", null, null);
-            wrapper = new(path, exchangeClass, null);
+            ExcelExchange = new(ExchangeOperation.Read, "List1", null, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             foreach (var x in dictSource2)
             {
@@ -230,7 +230,7 @@ namespace MsTestWrapper
                 }
             }
             var expectedConv = dictSource1.Select(x => (x.Key, string.Concat(x.Value))).ToList();
-            var actualConv = exchangeClass.ExchangeValue.Select(x => (x.Key, String.Concat(x.Value))).ToList();
+            var actualConv = ExcelExchange.ExchangeValue.Select(x => (x.Key, String.Concat(x.Value))).ToList();
             CollectionAssert.AreEqual(expectedConv, actualConv);
             DeleteFile(path);
         }
@@ -239,10 +239,10 @@ namespace MsTestWrapper
         public void HandMaplexTestDouble()
         {
             const string path = "..//..//..//srcTest//dataframe.xlsx";
-            RowsView exchangeClass = new(ExchangeOperation.Read);
-            WrapperExcel wrapper = new(path, exchangeClass);
+            RowsView ExcelExchange = new(ExchangeOperation.Read);
+            WrapperExcel wrapper = new(path, ExcelExchange);
             wrapper.Exchange();
-            var value = exchangeClass.ExchangeValue;
+            var value = ExcelExchange.ExchangeValue;
             var row3 = value.Skip(3).First();
             ICell cell3 = row3.GetCell(0);
             ConvertType convertType = new();
@@ -261,14 +261,14 @@ namespace MsTestWrapper
                 "2",
                 "3"
             };
-            ListView exchangeClass = new(ExchangeOperation.Insert, "List1", listS, null);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            ListView ExcelExchange = new(ExchangeOperation.Insert, "List1", listS, null);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             List<string> listGet = new();
-            exchangeClass = new(ExchangeOperation.Read, "List1", listGet, null);
-            wrapper = new(path, exchangeClass, null);
+            ExcelExchange = new(ExchangeOperation.Read, "List1", listGet, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.ToList());
+            CollectionAssert.AreEqual(listS, ExcelExchange.ExchangeValue.ToList());
             DeleteFile(path);
         }
 
@@ -291,9 +291,9 @@ namespace MsTestWrapper
                 FirstColumn = 10
             };
 
-            ListView exchangeClass = new(ExchangeOperation.Insert, "List1", listS, border, null)
+            ListView ExcelExchange = new(ExchangeOperation.Insert, "List1", listS, border, null)
             { };
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             List<string> listGet = new();
 
@@ -303,12 +303,12 @@ namespace MsTestWrapper
                 FirstColumn = 10
             };
 
-            exchangeClass = new(ExchangeOperation.Read, "List1", listGet, border2, null)
+            ExcelExchange = new(ExchangeOperation.Read, "List1", listGet, border2, null)
             { };
-            wrapper = new(path, exchangeClass, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            Assert.AreEqual(listS.Count + 10, exchangeClass.ExchangeValue.ToList().Count);
-            CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.
+            Assert.AreEqual(listS.Count + 10, ExcelExchange.ExchangeValue.ToList().Count);
+            CollectionAssert.AreEqual(listS, ExcelExchange.ExchangeValue.
                 Where(x => !String.IsNullOrEmpty(x)).ToList());
             DeleteFile(path);
         }
@@ -325,17 +325,17 @@ namespace MsTestWrapper
                 "2",
                 "3"
             };
-            ListView exchangeClass = new(ExchangeOperation.Insert, "List1", listS, null);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            ListView ExcelExchange = new(ExchangeOperation.Insert, "List1", listS, null);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            wrapper = new(path, exchangeClass, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             List<string> listGet = new();
-            exchangeClass = new(ExchangeOperation.Read, "List1", listGet, null);
-            wrapper = new(path, exchangeClass, null);
+            ExcelExchange = new(ExchangeOperation.Read, "List1", listGet, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             listS.AddRange(listS);
-            CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.ToList());
+            CollectionAssert.AreEqual(listS, ExcelExchange.ExchangeValue.ToList());
             DeleteFile(path);
         }
 
@@ -354,8 +354,8 @@ namespace MsTestWrapper
                 "2",
                 "3"
             };
-            ListView exchangeClass = new(ExchangeOperation.Update, "List1", listS, null);
-            wrapper = new(path, exchangeClass, null);
+            ListView ExcelExchange = new(ExchangeOperation.Update, "List1", listS, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
 
             listS = new()
@@ -364,13 +364,13 @@ namespace MsTestWrapper
                 "245",
                 "345"
             };
-            exchangeClass = new(ExchangeOperation.Update, "List1", listS, null);
-            wrapper = new(path, exchangeClass, null);
+            ExcelExchange = new(ExchangeOperation.Update, "List1", listS, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            exchangeClass = new(ExchangeOperation.Read, "List1", null, null);
-            wrapper = new(path, exchangeClass, null);
+            ExcelExchange = new(ExchangeOperation.Read, "List1", null, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.ToList());
+            CollectionAssert.AreEqual(listS, ExcelExchange.ExchangeValue.ToList());
             DeleteFile(path);
         }
 
@@ -386,15 +386,15 @@ namespace MsTestWrapper
                 new[]{ "1","3we","34" },
                 new[]{ "wer1","3wer","34wr" }
             };
-            MatrixView exchangeClass = new(ExchangeOperation.Insert, "List1455", listS, null);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            MatrixView ExcelExchange = new(ExchangeOperation.Insert, "List1455", listS, null);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             List<string[]> listGet = new();
-            exchangeClass = new(ExchangeOperation.Read, "List1", listGet, null);
-            wrapper = new(path, exchangeClass, null);
+            ExcelExchange = new(ExchangeOperation.Read, "List1", listGet, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             var expected = listS.ConvertAll(x => String.Concat(x));
-            var actual = exchangeClass.ExchangeValue.Select(x => String.Concat(x)).ToList();
+            var actual = ExcelExchange.ExchangeValue.Select(x => String.Concat(x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
             DeleteFile(path);
         }
@@ -409,11 +409,11 @@ namespace MsTestWrapper
                 new[]{ "1","3we","34" },
                 new[]{ "wer1","3wer","34wr" }
             };
-            MatrixView exchangeClass = new(ExchangeOperation.Read, null, null, null);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            MatrixView ExcelExchange = new(ExchangeOperation.Read, null, null, null);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             var expected = listS.ConvertAll(x => String.Concat(x));
-            var actual = exchangeClass.ExchangeValue.Select(x => String.Concat(x)).ToList();
+            var actual = ExcelExchange.ExchangeValue.Select(x => String.Concat(x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
             DeleteFile(path);
         }
@@ -434,16 +434,16 @@ namespace MsTestWrapper
                 new[]{ "1","3we","34" },
                 new[]{ "wer1","3wer","34wr" }
             };
-            MatrixView exchangeClass = new(ExchangeOperation.Insert, "List1455", listS, null);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            MatrixView ExcelExchange = new(ExchangeOperation.Insert, "List1455", listS, null);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            //exchangeClass.Dispose();
+            //ExcelExchange.Dispose();
 
-            MatrixViewGeneric<string> exchangeClass2 = new(ExchangeOperation.Read, null, null, null);
-            wrapper = new(path, exchangeClass2, null);
+            MatrixViewGeneric<string> ExcelExchange2 = new(ExchangeOperation.Read, null, null, null);
+            wrapper = new(path, ExcelExchange2, null);
             wrapper.Exchange();
             var expected = listS.ConvertAll(x => String.Concat(x));
-            var actual = exchangeClass2.ExchangeValue.Select(x => String.Concat(x)).ToList();
+            var actual = ExcelExchange2.ExchangeValue.Select(x => String.Concat(x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
             DeleteFile(path);
         }
@@ -460,13 +460,13 @@ namespace MsTestWrapper
                 new[]{ "1","3we","34" },
                 new[]{ "wer1","3wer","34wr" }
             };
-            MatrixView exchangeClass = new(ExchangeOperation.Insert, "List1455", listS, null);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            MatrixView ExcelExchange = new(ExchangeOperation.Insert, "List1455", listS, null);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            //exchangeClass.Dispose();
+            //ExcelExchange.Dispose();
 
-            MatrixViewGeneric<int> exchangeClass2 = new(ExchangeOperation.Read, null, null, null);
-            wrapper = new(path, exchangeClass2, null);
+            MatrixViewGeneric<int> ExcelExchange2 = new(ExchangeOperation.Read, null, null, null);
+            wrapper = new(path, ExcelExchange2, null);
             wrapper.Exchange();
 
             List<string> expected = new();
@@ -481,7 +481,7 @@ namespace MsTestWrapper
                 }
                 expected.Add(String.Concat(row.ToArray()));
             }
-            var actual = exchangeClass2.ExchangeValue.Select(x => String.Concat(x)).ToList();
+            var actual = ExcelExchange2.ExchangeValue.Select(x => String.Concat(x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
             DeleteFile(path);
         }
@@ -498,18 +498,18 @@ namespace MsTestWrapper
                 new[]{ "1","3we","34" },
                 new[]{ "wer1","3wer","34wr" }
             };
-            MatrixView exchangeClass = new(ExchangeOperation.Insert, "List1", listS, null);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            MatrixView ExcelExchange = new(ExchangeOperation.Insert, "List1", listS, null);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            wrapper = new(path, exchangeClass, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             List<string[]> listGet = new();
-            exchangeClass = new(ExchangeOperation.Read, "List1", listGet, null);
-            wrapper = new(path, exchangeClass, null);
+            ExcelExchange = new(ExchangeOperation.Read, "List1", listGet, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             listS.AddRange(listS);
             var expected = listS.ConvertAll(x => String.Concat(x));
-            var actual = exchangeClass.ExchangeValue.Select(x => String.Concat(x)).ToList();
+            var actual = ExcelExchange.ExchangeValue.Select(x => String.Concat(x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
             DeleteFile(path);
         }
@@ -529,8 +529,8 @@ namespace MsTestWrapper
                 new[]{ "1","3we","34" },
                 new[]{ "wer1","3wer","34wr" }
             };
-            MatrixView exchangeClass = new(ExchangeOperation.Update, "List1", listS, null);
-            wrapper = new(path, exchangeClass, null);
+            MatrixView ExcelExchange = new(ExchangeOperation.Update, "List1", listS, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
 
             listS = new()
@@ -539,15 +539,15 @@ namespace MsTestWrapper
                 new[]{ "1","3we","34" },
                 new[]{ "1","3r","3r" }
             };
-            exchangeClass = new(ExchangeOperation.Update, "List1", listS, null);
-            wrapper = new(path, exchangeClass, null);
+            ExcelExchange = new(ExchangeOperation.Update, "List1", listS, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             List<string[]> listGet = new();
-            exchangeClass = new(ExchangeOperation.Read, "List1", listGet, null);
-            wrapper = new(path, exchangeClass, null);
+            ExcelExchange = new(ExchangeOperation.Read, "List1", listGet, null);
+            wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
             var expected = listS.ConvertAll(x => string.Concat(x));
-            var actual = exchangeClass.ExchangeValue.Select(x => String.Concat(x)).ToList();
+            var actual = ExcelExchange.ExchangeValue.Select(x => String.Concat(x)).ToList();
             CollectionAssert.AreEqual(expected, actual);
             DeleteFile(path);
         }
@@ -555,9 +555,9 @@ namespace MsTestWrapper
         [TestMethod]
         public void ReturnProgressTest()
         {
-            Assert.AreEqual(10, ExchangeClass<int>.ReturnProgress(10, 100));
-            Assert.AreEqual(50, ExchangeClass<int>.ReturnProgress(50, 100));
-            Assert.AreEqual(25, ExchangeClass<int>.ReturnProgress(25, 100));
+            Assert.AreEqual(10, ExcelExchange<int>.ReturnProgress(10, 100));
+            Assert.AreEqual(50, ExcelExchange<int>.ReturnProgress(50, 100));
+            Assert.AreEqual(25, ExcelExchange<int>.ReturnProgress(25, 100));
         }
 
         [TestMethod]
@@ -572,8 +572,8 @@ namespace MsTestWrapper
                 new[]{ "1","3we","34" },
                 new[]{ "wer1","3wer","34wr" }
             };
-            MatrixView exchangeClass = new(ExchangeOperation.Insert, "List1455", listS, null);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            MatrixView ExcelExchange = new(ExchangeOperation.Insert, "List1455", listS, null);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
 
             RowsView rowsView = new(ExchangeOperation.Insert, "List1455", null, null)
@@ -604,10 +604,10 @@ namespace MsTestWrapper
             IProgress<int> progress = new Progress<int>(s => Debug.WriteLine(s));
 
             const string path = "..//..//..//srcTest//500000_Records_Data.xlsx";
-            MatrixView exchangeClass = new(ExchangeOperation.Read, "List1", null, null, progress);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            MatrixView ExcelExchange = new(ExchangeOperation.Read, "List1", null, null, progress);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            var dd = exchangeClass.ExchangeValue;
+            var dd = ExcelExchange.ExchangeValue;
             Assert.AreEqual(400000, dd.Count);
         }
 
@@ -617,10 +617,10 @@ namespace MsTestWrapper
             IProgress<int> progress = new Progress<int>(s => Debug.WriteLine(s));
 
             const string path = "..//..//..//srcTest//listView3.xls";
-            MatrixView exchangeClass = new(ExchangeOperation.Read, "List1", null, null, progress);
-            WrapperExcel wrapper = new(path, exchangeClass, null);
+            MatrixView ExcelExchange = new(ExchangeOperation.Read, "List1", null, null, progress);
+            WrapperExcel wrapper = new(path, ExcelExchange, null);
             wrapper.Exchange();
-            var dd = exchangeClass.ExchangeValue;
+            var dd = ExcelExchange.ExchangeValue;
             //Assert.AreEqual(5,dd.Count);
         }
 
@@ -715,7 +715,7 @@ namespace MsTestWrapper
         public void DataFrameTestValueSimple()
         {
             const string path = "..//..//..//srcTest//dataframe.xlsx";
-            DataFrameView exchangeClass = new(ExchangeOperation.Read, "Sheet3")
+            DataFrameView ExcelExchange = new(ExchangeOperation.Read, "Sheet3")
             {
                 DataHeader = new()
                 {
@@ -728,11 +728,11 @@ namespace MsTestWrapper
                 { 1, typeof(DateTime) },
                 { 2, typeof(Double) }
             };
-            exchangeClass.DataHeader.CreateHeaderType(header);
-            WrapperExcel wrapper = new(path, exchangeClass);
+            ExcelExchange.DataHeader.CreateHeaderType(header);
+            WrapperExcel wrapper = new(path, ExcelExchange);
             wrapper.Exchange();
-            Debug.WriteLine(exchangeClass.ExchangeValue);
-            var value = exchangeClass.ExchangeValue;
+            Debug.WriteLine(ExcelExchange.ExchangeValue);
+            var value = ExcelExchange.ExchangeValue;
             var col1 = new StringDataFrameColumn("col1", new string[] { "1", "3", "6" });
 
 
@@ -747,7 +747,7 @@ namespace MsTestWrapper
             var col3 = new DoubleDataFrameColumn("col3",
                 new Double[] { 3.1, 5.1, 8.1 });
             var sample = new DataFrame(col1, col2, col3).Rows.Select(x => x.ToString()).ToList();
-            var value2 = exchangeClass.ExchangeValue.Rows.Select(x => x.ToString()).ToList();
+            var value2 = ExcelExchange.ExchangeValue.Rows.Select(x => x.ToString()).ToList();
             CollectionAssert.AreEqual(sample, value2);
         }
 
@@ -760,7 +760,7 @@ namespace MsTestWrapper
         public void DataFrameIntegerSimple()
         {
             const string path = "..//..//..//srcTest//dataframe.xlsx";
-            DataFrameView exchangeClass = new(ExchangeOperation.Read, "Sheet3")
+            DataFrameView ExcelExchange = new(ExchangeOperation.Read, "Sheet3")
             {
                 DataHeader = new()
                 {
@@ -773,11 +773,11 @@ namespace MsTestWrapper
                 { 1, typeof(DateTime) },
                 { 2, typeof(Double) }
             };
-            exchangeClass.DataHeader.CreateHeaderType(header);
-            WrapperExcel wrapper = new(path, exchangeClass);
+            ExcelExchange.DataHeader.CreateHeaderType(header);
+            WrapperExcel wrapper = new(path, ExcelExchange);
             wrapper.Exchange();
-            Debug.WriteLine(exchangeClass.ExchangeValue);
-            var value = exchangeClass.ExchangeValue;
+            Debug.WriteLine(ExcelExchange.ExchangeValue);
+            var value = ExcelExchange.ExchangeValue;
             var col1 = new Int32DataFrameColumn("col1", new int[] { 1, 3, 6 });
 
             DateTime.TryParse("4", CultureInfo.CurrentCulture, DateTimeStyles.AssumeUniversal,
@@ -788,7 +788,7 @@ namespace MsTestWrapper
             var col3 = new DoubleDataFrameColumn("col3",
                 new Double[] { 3.1, 5.1, 8.1 });
             var sample = new DataFrame(col1, col2, col3).Rows.Select(x => x.ToString()).ToList();
-            var value2 = exchangeClass.ExchangeValue.Rows.Select(x => x.ToString()).ToList();
+            var value2 = ExcelExchange.ExchangeValue.Rows.Select(x => x.ToString()).ToList();
             CollectionAssert.AreEqual(sample, value2);
         }
 
