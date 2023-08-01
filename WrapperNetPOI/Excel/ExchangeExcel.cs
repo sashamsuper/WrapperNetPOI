@@ -343,8 +343,20 @@ namespace WrapperNetPOI.Excel
                 }
             }
             //exchangeClass.ActiveSheet = ActiveSheet;
+            SheetsNames = ReturnSheetsNames();
             ExchangeValueFunc();
         }
+
+        public string[] ReturnSheetsNames()
+        {
+            List<string> tmp = new();
+            for (int i = 0; i < Workbook.NumberOfSheets; i++)
+            {
+                tmp.Add(Workbook.GetSheetAt(i).SheetName);
+            }
+            return tmp.ToArray();
+        }
+
         /// <summary>
         /// $Return Date by dd.mm.yyyy$
         /// </summary>
