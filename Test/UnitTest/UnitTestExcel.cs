@@ -827,5 +827,16 @@ namespace MsTestWrapper
             var d= GetArrayFromList(DDD);
             ReflectionView(DDD);
         }
+
+        [TestMethod]
+        public void GetSheetNamesTest()
+        {
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            string[] sheets = Simple.GetSheetsNames(path);
+            foreach (string str in sheets)
+            {
+                Console.WriteLine(str);
+            }
+        }
     }
 }
