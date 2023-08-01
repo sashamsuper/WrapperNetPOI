@@ -269,6 +269,7 @@ namespace WrapperNetPOI.Excel
         public ILogger Logger { set; get; }
         public string ActiveSheetName { set; get; }
         public ExchangeOperation ExchangeOperationEnum { set; get; }
+        public string[] SheetsNames { set; get; }
         private ISheet activeSheet;
 
         public virtual ISheet ActiveSheet
