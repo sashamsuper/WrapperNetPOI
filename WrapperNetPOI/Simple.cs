@@ -143,6 +143,37 @@ namespace WrapperNetPOI
             action.Invoke();
         }
 
+        public static void UpdateToExcel<TUpdate>(TUpdate value, string pathToFile, string sheetName = "Sheet1", Border border = null)
+        {
+            Action action = value switch
+            {
+                List<String> when value is List<string> listStr => new Action(() =>
+                {
+                    ListView listView = new(ExchangeOperation.Update, sheetName, listStr, null)
+                    {
+                        ExchangeValue = listStr
+                    };
+                    WrapperExcel wrapper = new(pathToFile, listView, null)
+                    {
+                    };
+                    wrapper.Exchange();
+                }
+                ),
+                Dictionary<string, string> when value is Dictionary<string, string[]> dicStr => new Action(() =>
+                {
+                    DictionaryView listView = new(ExchangeOperation.Update, sheetName, dicStr, null)
+                    { };
+                    WrapperExcel wrapper = new(pathToFile, listView, null)
+                    {
+                    };
+                    wrapper.Exchange();
+                }
+                ),
+                _ => new Action(() => InsertListArray(value, pathToFile, sheetName, border)),
+            };
+            action.Invoke();
+        }
+
 
         public static void GetFromExcel<TReturn>(out TReturn value, string pathToFile, string sheetName, Excel.Border border = null) where TReturn : new()
         {
@@ -184,6 +215,20 @@ namespace WrapperNetPOI
             action.Invoke();
         }
 
+        private static void UpdateListArray<TValue>(TValue value, string pathToFile, string sheetName, Excel.Border border = null)
+        {
+            Action action = value switch
+            {
+                IList<string[]> when value is IList<string[]> listStr => new Action(() => UpdateListArray<string>(listStr, pathToFile, sheetName, border)),
+                IList<int[]> when value is IList<int[]> listInt => new Action(() => UpdateListArray<int>(listInt, pathToFile, sheetName, border)),
+                IList<double[]> when value is IList<double[]> listDbl => new Action(() => UpdateListArray<Double>(listDbl, pathToFile, sheetName, border)),
+                IList<bool[]> when value is IList<bool[]> listBool => new Action(() => UpdateListArray<Boolean>(listBool, pathToFile, sheetName, border)),
+                IList<DateTime[]> when value is IList<DateTime[]> listDateTime => new Action(() => UpdateListArray<DateTime>(listDateTime, pathToFile, sheetName, border)),
+                _ => default
+            };
+            action.Invoke();
+        }
+
 
 
         private static ReturnValue GetListArrayChoise<ReturnValue>(dynamic value, string pathToFile, string sheetName, Excel.Border border = null) => value switch
@@ -207,6 +252,13 @@ namespace WrapperNetPOI
         private static void InsertListArray<TInsert>(IList<TInsert[]> value,string pathToFile, string sheetName, Excel.Border border = null) //where ReturnType : new()
         {
             var exchangeClass = new MatrixViewGeneric<TInsert>(ExchangeOperation.Insert, sheetName, value, border, null);
+            WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
+            wrapper.Exchange();
+        }
+
+        private static void UpdateListArray<TUpdate>(IList<TUpdate[]> value, string pathToFile, string sheetName, Excel.Border border = null) //where ReturnType : new()
+        {
+            var exchangeClass = new MatrixViewGeneric<TUpdate>(ExchangeOperation.Update, sheetName, value, border, null);
             WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
             wrapper.Exchange();
         }
