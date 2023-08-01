@@ -169,7 +169,7 @@ namespace WrapperNetPOI
                     wrapper.Exchange();
                 }
                 ),
-                _ => new Action(() => InsertListArray(value, pathToFile, sheetName, border)),
+                _ => new Action(() => UpdateListArray(value, pathToFile, sheetName, border)),
             };
             action.Invoke();
         }

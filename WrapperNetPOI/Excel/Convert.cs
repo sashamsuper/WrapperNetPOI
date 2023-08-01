@@ -175,15 +175,16 @@ namespace WrapperNetPOI.Excel
 
         public static void SetValue<T>(ICell cell,T value)
         {
-            Action b=value switch
+            Action b = value switch
             {
-                String when value is string str  => new Action(()=>cell.SetCellValue(str)),
-                Double when value is string dbl => new Action(()=>cell.SetCellValue(dbl)),
+                String when value is string str => new Action(() => cell.SetCellValue(str)),
+                Double when value is string dbl => new Action(() => cell.SetCellValue(dbl)),
                 DateTime when value is DateTime dateTime => new Action(() => cell.SetCellValue(dateTime)),
                 Int32 when value is Int32 int32 => new Action(() => cell.SetCellValue(int32)),
-                Boolean when value is Boolean boolean  => new Action(() => cell.SetCellValue(boolean)),
-                _ => throw new NotImplementedException("Do not have handler"),
-            };
+                Boolean when value is Boolean boolean => new Action(() => cell.SetCellValue(boolean)),
+                null when value is null => new Action(()=> cell.SetCellValue("")), 
+                _ => new Action(()=>throw new NotImplementedException("Do not have handler"))
+            }; ;
             b.Invoke();
         }
 

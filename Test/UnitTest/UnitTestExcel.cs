@@ -684,7 +684,7 @@ namespace MsTestWrapper
             Simple.GetFromExcel<List<string>>(out List<string> ls, path, "Sheet1");
             Debug.WriteLine(String.Join("\n", ls));
             //List<string[]>
-            Simple.GetFromExcel<List<string[]>>(out List<string[]> lsm, path, "Sheet1");
+            Simple.GetFromExcel(out List<string[]> lsm, path, "Sheet1");
             Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Concat(x))));
             //Dictionary<string,string>
             Simple.GetFromExcel<Dictionary<string, string[]>>(out Dictionary<string, string[]> ld, path, "Sheet1");
@@ -838,5 +838,18 @@ namespace MsTestWrapper
                 Console.WriteLine(str);
             }
         }
+
+        [TestMethod]
+        public void SimpleUpdateTest()
+        {
+            const string path = "..//..//..//srcTest";
+            string path1 = Path.Combine(path, "dataframe.xlsx");
+            string path2 = Path.Combine(path, "OUTValue.xlsx");
+            List<string[]> outValue = new();
+            Simple.GetFromExcel(out outValue, path1,null);
+            File.Delete(path2);
+            Simple.InsertToExcel(outValue, path2);
+        }
+
     }
 }
