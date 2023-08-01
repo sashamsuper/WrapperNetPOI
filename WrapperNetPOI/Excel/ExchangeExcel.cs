@@ -16,6 +16,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
 
+using NPOI.OpenXmlFormats.Spreadsheet;
 using NPOI.POIFS.Crypt;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -269,6 +270,7 @@ namespace WrapperNetPOI.Excel
         public ILogger Logger { set; get; }
         public string ActiveSheetName { set; get; }
         public ExchangeOperation ExchangeOperationEnum { set; get; }
+        public string[] SheetsNames { set; get; }
         private ISheet activeSheet;
 
         public virtual ISheet ActiveSheet
@@ -342,8 +344,21 @@ namespace WrapperNetPOI.Excel
                 }
             }
             //ExcelExchange.ActiveSheet = ActiveSheet;
+            SheetsNames = ReturnSheetsNames();
             ExchangeValueFunc();
         }
+
+        public string[] ReturnSheetsNames()
+        {
+            List<string> tmp = new();
+            for (int i = 0; i < Workbook.NumberOfSheets; i++)
+            {
+                tmp.Add(Workbook.GetSheetAt(i).SheetName);
+            }
+            return tmp.ToArray();
+        }
+
+
         /// <summary>
         /// $Return Date by dd.mm.yyyy$
         /// </summary>

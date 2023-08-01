@@ -17,6 +17,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using WrapperNetPOI.Excel;
+using NPOI.XWPF.UserModel;
+
 namespace WrapperNetPOI
 {
     public static class Simple
@@ -40,6 +42,17 @@ namespace WrapperNetPOI
                 wrapper.Exchange();
             });
         }
+
+
+        public static string[] GetSheetsNames(string pathToFile)
+        {
+            ListView listView = new(ExchangeOperation.Read,null,default);
+            WrapperExcel wrapperExcel = new(pathToFile, listView);
+            wrapperExcel.Exchange();
+            return listView.SheetsNames;
+        }
+
+
         /// <summary>
         /// The TaskAddToExcel.
         /// </summary>
