@@ -48,10 +48,10 @@ namespace MsTestWrapper
             ICell cell1 = row1.GetCell(0);
             ICell cell2 = row2.GetCell(0);
             ICell cell3 = row3.GetCell(0);
-            ConvertType convertType = new();
-            var d1 = convertType.GetValue<Double>(cell1);
-            var d2 = convertType.GetValue<Double>(cell2);
-            var d3 = convertType.GetValue<Double>(cell3);
+            //ConvertType convertType = new();
+            var d1 = new WrapperCell(cell1).GetValue<Double>();
+            var d2 = new WrapperCell(cell2).GetValue<Double>();
+            var d3 = new WrapperCell(cell3).GetValue<Double>();
             Assert.AreEqual(1, d1);
             Assert.AreEqual(2, d2);
             Assert.AreEqual(3, d3);
@@ -71,10 +71,10 @@ namespace MsTestWrapper
             ICell cell1 = row1.GetCell(0);
             ICell cell2 = row2.GetCell(0);
             ICell cell3 = row3.GetCell(0);
-            ConvertType convertType = new();
-            var d1 = convertType.GetValue<Int32>(cell1);
-            var d2 = convertType.GetValue<Int32>(cell2);
-            var d3 = convertType.GetValue<Int32>(cell3);
+            //ConvertType convertType = new();
+            var d1 = new WrapperCell(cell1).GetValue<Int32>();
+            var d2 = new WrapperCell(cell2).GetValue<Int32>();
+            var d3 = new WrapperCell(cell3).GetValue<Int32>();
             Assert.AreEqual(1, d1);
             Assert.AreEqual(2, d2);
             Assert.AreEqual(3, d3);
@@ -89,8 +89,8 @@ namespace MsTestWrapper
             wrapper.Exchange();
             var value = exchangeClass.ExchangeValue[0];
             ICell cell = value.GetCell(0);
-            ConvertType convertType = new();
-            var str = convertType.GetValue<String>(cell);
+            //ConvertType convertType = new();
+            var str = new WrapperCell(cell).GetValue<String>();
             Assert.AreEqual("dron", str);
         }
 
@@ -245,8 +245,8 @@ namespace MsTestWrapper
             var value = exchangeClass.ExchangeValue;
             var row3 = value.Skip(3).First();
             ICell cell3 = row3.GetCell(0);
-            ConvertType convertType = new();
-            Assert.AreEqual(3, convertType.GetValue<double>(cell3));
+            //ConvertType convertType = new();
+            Assert.AreEqual(3, new WrapperCell(cell3).GetValue<double>());
         }
 
         [TestMethod]
@@ -271,6 +271,8 @@ namespace MsTestWrapper
             CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.ToList());
             DeleteFile(path);
         }
+
+        
 
         [TestMethod]
         public void ListViewTestCreateInsertFirstROWColumn()
@@ -849,6 +851,7 @@ namespace MsTestWrapper
             Simple.GetFromExcel(out outValue, path1,null);
             File.Delete(path2);
             Simple.InsertToExcel(outValue, path2);
+
         }
 
     }

@@ -69,7 +69,7 @@ namespace WrapperNetPOI.Excel
             {
                 if (firstColumn == null)
                 {
-                    firstColumn = ActiveSheet?.GetRow(ActiveSheet?.FirstRowNum ?? 0).FirstCellNum;
+                    firstColumn = ActiveSheet?.GetRow(ActiveSheet?.FirstRowNum ?? 0)?.FirstCellNum;
                     if (firstColumn == -1)
                     {
                         firstColumn = 0;
@@ -114,7 +114,7 @@ namespace WrapperNetPOI.Excel
             {
                 if (lastColumn == null)
                 {
-                    lastColumn = ActiveSheet?.GetRow(ActiveSheet?.FirstRowNum ?? 0).LastCellNum;
+                    lastColumn = ActiveSheet?.GetRow(ActiveSheet?.FirstRowNum ?? 0)?.LastCellNum;
                     if (lastColumn == -1)
                     {
                         lastColumn = 0;
@@ -380,8 +380,8 @@ namespace WrapperNetPOI.Excel
                     {
                         cell = GetFirstCellInMergedRegion(cell);
                     }
-                    ConvertType convertType = new();
-                    returnValue = convertType.GetValue<string>(cell);
+                    //ConvertType convertType = new();
+                    returnValue = new WrapperCell(cell).GetValue<string>();
                     /*
                     if (cell?.CellType == CellType.Numeric
                       && cell.NumericCellValue > 36526 &&
@@ -489,6 +489,7 @@ namespace WrapperNetPOI.Excel
             IRow dataRow = worksheet.GetRow(rowPosition) ?? worksheet.CreateRow(rowPosition);
             ICell cell = dataRow.GetCell(columnPosition) ?? dataRow.CreateCell(columnPosition);
             cell.SetCellValue(value);
+            
         }
         public static void SetCellValue(ISheet worksheet, int rowPosition,
             int columnPosition, string value, CellType type)
@@ -496,7 +497,11 @@ namespace WrapperNetPOI.Excel
             IRow dataRow = worksheet.GetRow(rowPosition) ?? worksheet.CreateRow(rowPosition);
             ICell cell = dataRow.GetCell(columnPosition) ?? dataRow.CreateCell(columnPosition, type);
             cell.SetCellValue(value);
+            
         }
+
+        
+
     }
     public class RowsView : ExchangeClass<IList<IRow>>
     {
@@ -565,7 +570,7 @@ namespace WrapperNetPOI.Excel
                     for (int j = 0; j < ExchangeValue[i].Length; j++)
                     {
                         ICell cell = row.GetCell(j) ?? row.CreateCell(j + WorkbookBorder.FirstColumn);
-                        ConvertType.SetValue(cell, ExchangeValue[i][j]);
+                        WrapperCell.SetValue(cell, ExchangeValue[i][j]);
                         //cell.SetCellValue(ExchangeValue[i][j]);
                     }
                     ProgressValue?.Report(ReturnProgress(i, ExchangeValue.Count));
@@ -637,8 +642,8 @@ namespace WrapperNetPOI.Excel
                     if (valueColumn <= row.LastCellNum - 1)// -1 это особенность NPOI
                     {
                         //WrapperCell wrapper = new(cell);
-                        ConvertType convert = new();
-                        convert.GetValue<T>(cell,out var value);
+                        //ConvertType convert = new();
+                        new WrapperCell(cell).GetValue<T>(out var value);
                         tmp.Add(value);
                     }
                 }
@@ -682,8 +687,8 @@ namespace WrapperNetPOI.Excel
                         }
                         while (row.RowNum != i);
                     }
-                    ConvertType convert = new();
-                    tmpListString.Add(row.Select(x => convert.GetValue<T>(x)).ToArray());
+                    //ConvertType convert = new();
+                    tmpListString.Add(row.Select(x => new WrapperCell(x).GetValue<T>()).ToArray());
                     i++;
 #if DEBUG
                     if (i % 1000 == 0)
