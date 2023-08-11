@@ -293,7 +293,7 @@ namespace WrapperNetPOI.Excel
             Action b = type.Name switch
             {
                 "String" when value is string str => new Action(() => Cell.SetCellValue(str)),
-                "Double" when value is string dbl => new Action(() => Cell.SetCellValue(dbl)),
+                "Double" when value is double dbl => new Action(() => Cell.SetCellValue(dbl)),
                 "DateTime" when value is DateTime dateTime => new Action(() => Cell.SetCellValue(dateTime)),
                 "Int32" when value is Int32 int32 => new Action(() => Cell.SetCellValue(int32)),
                 "Boolean" when value is Boolean boolean => new Action(() => Cell.SetCellValue(boolean)),

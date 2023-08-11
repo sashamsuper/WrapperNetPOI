@@ -366,17 +366,18 @@ namespace WrapperNetPOI.Excel
                         dt = new StringDataFrameColumn(column.Name);
                         ExchangeValue.Columns.Add(dt);
                         break;
-
+                    case "Int32":
+                        dt = new Int32DataFrameColumn(column.Name);
+                        ExchangeValue.Columns.Add(dt);
+                        break;
                     case "Double":
                         dt = new DoubleDataFrameColumn(column.Name);
                         ExchangeValue.Columns.Add(dt);
                         break;
-
                     case "DateTime":
                         dt = new DateTimeDataFrameColumn(column.Name);
                         ExchangeValue.Columns.Add(dt);
                         break;
-
                     default:
                         dt = new StringDataFrameColumn(column.Name);
                         ExchangeValue.Columns.Add(dt);
