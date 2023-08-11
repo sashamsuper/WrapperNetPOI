@@ -1,4 +1,5 @@
-﻿/* ==================================================================
+﻿using System.ComponentModel;
+/* ==================================================================
 Copyright 2020-2023 sashamsuper
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,18 +15,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
 
+using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using System;
 using System.Configuration;
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
+using NPOI.OpenXmlFormats.Dml;
 
 [assembly: InternalsVisibleTo("UnitTest")]
 
 namespace WrapperNetPOI.Excel
 {
-    public class WrapperCell
+
+
+    public class WrapperCell : IConvertible
     {
+        public CultureInfo ThisCultureInfo { get; } = CultureInfo.CurrentCulture;
+        public NumberStyles ThisNumberStyle { get; } = NumberStyles.Number;
+        public DateTimeStyles ThisDateTimeStyle { get; } = DateTimeStyles.AssumeUniversal;
         private ICell Cell { get; }
         public CellType CellType { set; get; }
 
@@ -164,16 +174,106 @@ namespace WrapperNetPOI.Excel
             }
         }
 
-    }
+        public TypeCode GetTypeCode()
+        {
+            return Type.GetTypeCode(Cell.GetType());
+        }
 
-    public class ConvertType
-    {
-        public CultureInfo ThisCultureInfo { get; } = CultureInfo.CurrentCulture;
-        public NumberStyles ThisNumberStyle { get; } = NumberStyles.Number;
-        public DateTimeStyles ThisDateTimeStyle { get; } = DateTimeStyles.AssumeUniversal;
-        public ConvertType() {}
+        public bool ToBoolean(IFormatProvider provider)
+        {
+            return GetValueBoolean(this);
+        }
 
-        public static void SetValue<T>(ICell cell,T value)
+        public byte ToByte(IFormatProvider provider)
+        {
+            return Convert.ToByte(GetValueInt32(this));
+        }
+
+        public char ToChar(IFormatProvider provider)
+        {
+            var value = GetValueString(this);
+            return value == null
+                ? new char()
+                : value[0];
+        }
+
+        public DateTime ToDateTime(IFormatProvider provider)
+        {
+            return GetValueDateTime(this);
+        }
+
+        public decimal ToDecimal(IFormatProvider provider)
+        {
+            return Convert.ToDecimal(GetValueInt32(this));
+        }
+
+        public double ToDouble(IFormatProvider provider)
+        {
+            return GetValueDouble(this);
+        }
+
+        public short ToInt16(IFormatProvider provider)
+        {
+            return Convert.ToInt16(GetValueInt32(this));
+        }
+
+        public int ToInt32(IFormatProvider provider)
+        {
+            return GetValueInt32(this);
+        }
+
+        public long ToInt64(IFormatProvider provider)
+        {
+            return GetValueInt32(this);
+        }
+
+        public sbyte ToSByte(IFormatProvider provider)
+        {
+            return Convert.ToSByte(GetValueInt32(this));
+        }
+
+        public float ToSingle(IFormatProvider provider)
+        {
+            return Convert.ToSingle(GetValueInt32(this));
+        }
+
+        public string ToString(IFormatProvider provider)
+        {
+            return GetValueString(this);
+        }
+
+        public override string ToString()
+        {
+            return GetValueString(this);
+        }
+
+        public object ToType(Type conversionType, IFormatProvider provider)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ushort ToUInt16(IFormatProvider provider)
+        {
+            return Convert.ToUInt16(GetValueInt32(this));
+        }
+
+        public uint ToUInt32(IFormatProvider provider)
+        {
+            return Convert.ToUInt32(GetValueInt32(this));
+        }
+
+        public ulong ToUInt64(IFormatProvider provider)
+        {
+            return Convert.ToUInt64(GetValueInt32(this));
+        }
+
+
+        //public class ConvertType
+        //{
+
+        //public ConvertType() { }
+
+        public static void SetValue<T>(ICell cell, T value)
         {
             Action b = value switch
             {
@@ -182,46 +282,70 @@ namespace WrapperNetPOI.Excel
                 DateTime when value is DateTime dateTime => new Action(() => cell.SetCellValue(dateTime)),
                 Int32 when value is Int32 int32 => new Action(() => cell.SetCellValue(int32)),
                 Boolean when value is Boolean boolean => new Action(() => cell.SetCellValue(boolean)),
-                null when value is null => new Action(()=> cell.SetCellValue("")), 
-                _ => new Action(()=>throw new NotImplementedException("Do not have handler"))
-            }; ;
+                null when value is null => new Action(() => cell.SetCellValue("")),
+                _ => new Action(() => throw new NotImplementedException("Do not have handler"))
+            };
             b.Invoke();
         }
 
+        public void SetValue(object value, Type type)
+        {
+            Action b = type.Name switch
+            {
+                "String" when value is string str => new Action(() => Cell.SetCellValue(str)),
+                "Double" when value is string dbl => new Action(() => Cell.SetCellValue(dbl)),
+                "DateTime" when value is DateTime dateTime => new Action(() => Cell.SetCellValue(dateTime)),
+                "Int32" when value is Int32 int32 => new Action(() => Cell.SetCellValue(int32)),
+                "Boolean" when value is Boolean boolean => new Action(() => Cell.SetCellValue(boolean)),
+                null when value is null => new Action(() => Cell.SetCellValue("")),
+                _ => new Action(() => throw new NotImplementedException("Do not have handler"))
+            };
+            b.Invoke();
+            var convertedvalue = Convert.ChangeType(value, type);
+        }
+
+
         public dynamic GetValue(ICell cell, Type type)
         {
-            dynamic value;
+            //var value= Convert.ChangeType(Activator.CreateInstance(type),type);
+            //GetValue(cell, out value);
+            //return value;
+            //GetValue(cell, out value);
+
             WrapperCell wrapperCell = new(cell);
-            value = type.Name switch
+            dynamic value = type.Name switch
             {
-                "String" => Convert.ChangeType(GetValueString(wrapperCell), type),
-                "Double" => Convert.ChangeType(GetValueDouble(wrapperCell), type),
-                "DateTime" => Convert.ChangeType(GetValueDateTime(wrapperCell), type),
-                "Int32" => Convert.ChangeType(GetValueInt32(wrapperCell), type),
-                "Boolean" => Convert.ChangeType(GetValueBoolean(wrapperCell), type),
+                "String" => wrapperCell.ToString(),
+                "Double" => wrapperCell.ToDouble(ThisCultureInfo),
+                "DateTime" => wrapperCell.ToDateTime(ThisCultureInfo),
+                "Int32" => wrapperCell.ToInt32(ThisCultureInfo),
+                "Boolean" => wrapperCell.ToBoolean(ThisCultureInfo),
                 _ => throw new NotImplementedException("Do not have handler"),
             };
+
+
             return value;
         }
-        public void GetValue<T>(ICell cell, out T value)
+        public void GetValue<T>(out T value)
         {
-            WrapperCell wrapperCell = new(cell);
+            value = GetValue(Cell, typeof(T));
             value = typeof(T).Name switch
             {
-                "String" => (T)Convert.ChangeType(GetValueString(wrapperCell), typeof(T)),
-                "Double" => (T)Convert.ChangeType(GetValueDouble(wrapperCell), typeof(T)),
-                "DateTime" => (T)Convert.ChangeType(GetValueDateTime(wrapperCell), typeof(T)),
-                "Int32" => (T)Convert.ChangeType(GetValueInt32(wrapperCell), typeof(T)),
-                "Boolean" => (T)Convert.ChangeType(GetValueBoolean(wrapperCell), typeof(T)),
+                "String" => (T)Convert.ChangeType(this.ToString(), typeof(T)),
+                "Double" => (T)Convert.ChangeType(this.ToDouble(ThisCultureInfo), typeof(T)),
+                "DateTime" => (T)Convert.ChangeType(this.ToDateTime(ThisCultureInfo), typeof(T)),
+                "Int32" => (T)Convert.ChangeType(this.ToInt32(ThisCultureInfo), typeof(T)),
+                "Boolean" => (T)Convert.ChangeType(this.ToBoolean(ThisCultureInfo), typeof(T)),
                 _ => throw new NotImplementedException("Do not have handler"),
             };
+
         }
-        public T GetValue<T>(ICell cell)
+        public T GetValue<T>()
         {
-            GetValue(cell, out T value);
+            GetValue(out T value);
             return value;
         }
-        private DateTime GetValueDateTime(WrapperCell cell) => cell switch
+        protected DateTime GetValueDateTime(WrapperCell cell) => cell switch
         {
             {
                 CellType: var cellType,
@@ -277,7 +401,7 @@ namespace WrapperNetPOI.Excel
             }
         }
 
-        private static string GetValueString(WrapperCell cell) => cell switch
+        protected static string GetValueString(WrapperCell cell) => cell switch
         {
             {
                 CellType: var cellType,
@@ -447,5 +571,20 @@ namespace WrapperNetPOI.Excel
             _
             => GetBoolean(cell.StringCellValue)
         };
+
+        public static CellType ReturnCellType(Type type) => type switch
+        {
+            {
+                Name: var nameof,
+            } when nameof == "String" => CellType.String,
+            _
+            => CellType.Numeric
+            /*int=>CellType.Numeric,
+            double=>CellType.Numeric,
+            bool=>CellType.Numeric,
+            DateTime=>CellType.Numeric,
+            null=>CellType.Blank*/
+        };
     }
 }
+//}
