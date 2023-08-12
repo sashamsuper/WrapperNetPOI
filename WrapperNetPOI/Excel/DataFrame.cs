@@ -307,7 +307,7 @@ namespace WrapperNetPOI.Excel
                     ICell cell = dataRow.GetCell(j) ?? dataRow.CreateCell(j, cellType);
                     var value = Convert.ChangeType(ExchangeValue.Rows[i][j], dataType);
                     WrapperCell wrapperCell = new(cell);
-                    wrapperCell.SetValue(value, dataType);
+                    wrapperCell.SetValue(value);
                 }
             }
         }
@@ -342,7 +342,7 @@ namespace WrapperNetPOI.Excel
                 {
                     cell = null;
                 }
-                var value = new WrapperCell(cell).GetValue(cell, column.DataType);
+                var value = new WrapperCell(cell).GetValue(column.DataType);
                 //convert.GetValue(cell, column.DataType);
                 oneRow.Add(new KeyValuePair<string, object>(columnHeader.Name, value));
             }

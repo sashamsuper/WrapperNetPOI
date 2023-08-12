@@ -380,38 +380,7 @@ namespace WrapperNetPOI.Excel
                     {
                         cell = GetFirstCellInMergedRegion(cell);
                     }
-                    //ConvertType convertType = new();
                     returnValue = new WrapperCell(cell).GetValue<string>();
-                    /*
-                    if (cell?.CellType == CellType.Numeric
-                      && cell.NumericCellValue > 36526 &&
-                      cell.NumericCellValue < 47484)
-                    {
-                        returnValue = ReturnStringDate(cell.DateCellValue);
-                    }
-                    else if (cell?.CellType == CellType.Numeric
-                    && cell.ToString()?.Split('.').Length >= 3)
-                    {
-                        returnValue = ReturnStringDate(cell.DateCellValue);
-                    }
-                    else if (cell?.CellType == CellType.Formula)
-                    {
-                        if (cell?.CachedFormulaResultType == CellType.Numeric
-                      && cell.NumericCellValue > 36526 &&
-                      cell.NumericCellValue < 47484)
-                        {
-                            returnValue = ReturnStringDate(cell.DateCellValue);
-                        }
-                        else if (cell?.CachedFormulaResultType == CellType.Numeric)
-                        {
-                            returnValue = cell?.NumericCellValue.ToString();
-                        }
-                    }
-                    else
-                    {
-                        returnValue = cell?.ToString();
-                    }
-                    */
                 }
                 return returnValue;
             }
@@ -570,7 +539,7 @@ namespace WrapperNetPOI.Excel
                     for (int j = 0; j < ExchangeValue[i].Length; j++)
                     {
                         ICell cell = row.GetCell(j) ?? row.CreateCell(j + WorkbookBorder.FirstColumn);
-                        WrapperCell.SetValue(cell, ExchangeValue[i][j]);
+                        new WrapperCell(cell).SetValue(ExchangeValue[i][j]);
                         //cell.SetCellValue(ExchangeValue[i][j]);
                     }
                     ProgressValue?.Report(ReturnProgress(i, ExchangeValue.Count));
@@ -720,6 +689,8 @@ namespace WrapperNetPOI.Excel
             }
         }
     }
+
+    /*
     public class MatrixView : ExchangeClass<IList<string[]>>
     {
         public MatrixView(ExchangeOperation exchangeType, string activeSheetName,
@@ -857,14 +828,16 @@ namespace WrapperNetPOI.Excel
         }
     }
     
+    */
+    /*
     public class ListView : ExchangeClass<IList<string>>
     {
-        private readonly MatrixView matrix;
+        private readonly MatrixViewGeneric<string> matrix;
         public ListView(ExchangeOperation exchangeType, string activeSheetName,
             IList<string> exchangeValue, Border border = null, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, border, progress)
         {
-            matrix = new MatrixView(exchangeType, activeSheetName,
+            matrix = new MatrixViewGeneric<string>(exchangeType, activeSheetName,
             Extension.ConvertToMatrix(exchangeValue), border, progress);
         }
         public override void InsertValue()
@@ -888,15 +861,17 @@ namespace WrapperNetPOI.Excel
         }
     }
 
+    */
+
     public class ListViewGeneric<T> : ExchangeClass<IList<T>>
     {
         private readonly MatrixViewGeneric<T> matrix;
         public ListViewGeneric(ExchangeOperation exchangeType, string activeSheetName,
-            IList<string> exchangeValue, Border border = null, IProgress<int> progress = null) :
+            IList<T> exchangeValue, Border border = null, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, border, progress)
         {
-            //matrix = new MatrixViewGeneric<T>(exchangeType, activeSheetName,
-            //Extension.ConvertToMatrix(exchangeValue), border, progress);
+            matrix = new MatrixViewGeneric<T>(exchangeType, activeSheetName,
+            MatrixConvert<T>.ConvertToMatrix(exchangeValue), border, progress);
         }
         public override void InsertValue()
         {
@@ -909,7 +884,7 @@ namespace WrapperNetPOI.Excel
             matrix.ActiveSheet = ActiveSheet;
             matrix.WorkbookBorder = WorkbookBorder;
             matrix.ReadValue();
-            //ExchangeValue = Extension.ConvertToList(matrix.ExchangeValue);
+            ExchangeValue = MatrixConvert<T>.ConvertToList(matrix.ExchangeValue);
         }
         public override void UpdateValue()
         {
@@ -922,12 +897,12 @@ namespace WrapperNetPOI.Excel
 
     public class DictionaryView : ExchangeClass<IDictionary<string, string[]>>
     {
-        private readonly MatrixView matrix;
+        private readonly MatrixViewGeneric<string> matrix;
         public DictionaryView(ExchangeOperation exchangeType, string activeSheetName,
             IDictionary<string, string[]> exchangeValue, Border border = null, IProgress<int> progress = null) :
             base(exchangeType, activeSheetName, border, progress)
         {
-            matrix = new MatrixView(exchangeType, activeSheetName,
+            matrix = new MatrixViewGeneric<string>(exchangeType, activeSheetName,
             Extension.ConvertToMatrix(exchangeValue), border, progress);
         }
         public override void InsertValue()

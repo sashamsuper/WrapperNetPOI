@@ -21,96 +21,18 @@ namespace WrapperNetPOI
 {
     public static class Simple
     {
-        // статический класс для записи и чтения данных одной строкой
-        /// <summary>
-        /// The TaskAddToExcel.
-        /// </summary>
-        /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
-        /// <param name="values">The values<see cref="List{string}"/>.</param>
-        private static void TaskAddToExcel(string pathToFile, string sheetName, List<string> values)
-        {
-            Task AddValueToExcel = Task.Run(() =>
-            {
-                Excel.ListView listView = new(ExchangeOperation.Insert, sheetName, values, null)
-                {
-                    ExchangeValue = values
-                };
-                Excel.WrapperExcel wrapper = new(pathToFile, listView, null) { };
-                wrapper.Exchange();
-            });
-        }
-
+        
         public static string[] GetSheetsNames(string pathToFile)
         {
-            ListView listView = new(ExchangeOperation.Read, null, default);
+            ListViewGeneric<string> listView = new(ExchangeOperation.Read, null, default);
             WrapperExcel wrapperExcel = new(pathToFile, listView);
             wrapperExcel.Exchange();
             return listView.SheetsNames;
         }
 
-        /// <summary>
-        /// The TaskAddToExcel.
-        /// </summary>
-        /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
-        /// <param name="values">The values<see cref="List{string[]}"/>.</param>
-        private static void TaskAddToExcel(string pathToFile, string sheetName, List<string[]> values)
-        {
-            try
-            {
-                Task AddValueToExcel = Task.Run(() => AddToExcel(pathToFile, sheetName, values));
-            }
-            catch (Exception e)
-            {
-//#if DEBUG
-                Wrapper.Logger?.Error(e.Message);
-                Wrapper.Logger?.Error(e.StackTrace);
-                Debug.WriteLine(e.Message);
-//#endif
-            }
-        }
-        private static async Task TaskAddToExcelAsync(string pathToFile, string sheetName, List<string[]> values)
-        {
-            await Task.Run(() => AddToExcel(pathToFile, sheetName, values));
-        }
-        /// <summary>
-        /// The AddToExcel
-        /// </summary>
-        /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
-        /// <param name="values">The values<see cref="List{string[]}"/>.</param>
-        private static void AddToExcel(string pathToFile, string sheetName, List<string[]> values)
-        {
-            
-            Excel.MatrixView listView = new(ExchangeOperation.Insert, sheetName, values, null)
-            {
-                ExchangeValue = values
-            };
-            Excel.WrapperExcel wrapper = new(pathToFile, listView, null)
-            {
-                //ActiveSheetName = sheetName,
-                //exchangeClass = listView
-            };
-            wrapper.Exchange();
-        }
-        /// <summary>
-        /// The AddToExcel.
-        /// </summary>
-        /// <param name="pathToFile">The pathToFile<see cref="string"/>.</param>
-        /// <param name="sheetName">The sheetName<see cref="string"/>.</param>
-        /// <param name="values">The values<see cref="List{string}"/>.</param>
-        private static void AddToExcel(string pathToFile, string sheetName, List<string> values)
-        {
-            Excel.ListView listView = new(ExchangeOperation.Insert, sheetName, values, null)
-            {
-                ExchangeValue = values
-            };
-            Excel.WrapperExcel wrapper = new(pathToFile, listView, null)
-            {
-            };
-            wrapper.Exchange();
-        }
+        
+        
+        
 
         public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName="Sheet1", Border border=null)
         {
@@ -118,7 +40,7 @@ namespace WrapperNetPOI
             {
                 List<String> when value is List<string> listStr => new Action(() =>
                 {
-                    ListView listView = new(ExchangeOperation.Insert, sheetName, listStr, null)
+                    ListViewGeneric<string> listView = new(ExchangeOperation.Insert, sheetName, listStr, null)
                     {
                         ExchangeValue= listStr
                     };
@@ -138,7 +60,17 @@ namespace WrapperNetPOI
                     wrapper.Exchange();
                 }
                 ),
-                _ => new Action(()=>InsertListArray(value, pathToFile, sheetName, border)),
+                DataFrame when value is DataFrame dataFrame => new Action(() =>
+                {
+                    DataFrameView dataView = new(ExchangeOperation.Insert, sheetName, dataFrame, null)
+                    { };
+                    WrapperExcel wrapper = new(pathToFile, dataView, null)
+                    {
+                    };
+                    wrapper.Exchange();
+
+                }),
+                _ => new Action(()=>InsertListArray(value, pathToFile, sheetName, border))
             };
             action.Invoke();
         }
@@ -149,7 +81,7 @@ namespace WrapperNetPOI
             {
                 List<String> when value is List<string> listStr => new Action(() =>
                 {
-                    ListView listView = new(ExchangeOperation.Update, sheetName, listStr, null)
+                    ListViewGeneric<string> listView = new(ExchangeOperation.Update, sheetName, listStr, null)
                     {
                         ExchangeValue = listStr
                     };
@@ -180,7 +112,7 @@ namespace WrapperNetPOI
             TReturn returnValue = new();
             if (returnValue is List<string> rL)
             {
-                var exchangeClass = new Excel.ListView(ExchangeOperation.Read, sheetName, rL, border, null);
+                var exchangeClass = new Excel.ListViewGeneric<string>(ExchangeOperation.Read, sheetName, rL, border, null);
                 Excel.WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
                 wrapper.Exchange();
                 value = (TReturn)exchangeClass.ExchangeValue;
