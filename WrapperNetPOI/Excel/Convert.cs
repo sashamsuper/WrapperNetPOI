@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Security.Authentication.ExtendedProtection;
+using System.ComponentModel;
 /* ==================================================================
 Copyright 2020-2023 sashamsuper
 
@@ -24,13 +25,14 @@ using System.Runtime.CompilerServices;
 using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
 using NPOI.OpenXmlFormats.Dml;
+using Internal;
 
 [assembly: InternalsVisibleTo("UnitTest")]
 
 namespace WrapperNetPOI.Excel
 {
 
-
+    //[TypeConverter(typeof(WrapperCellConverter))]
     public class WrapperCell : IConvertible
     {
         public CultureInfo ThisCultureInfo { get; } = CultureInfo.CurrentCulture;
@@ -273,23 +275,28 @@ namespace WrapperNetPOI.Excel
 
         //public ConvertType() { }
 
-        public static void SetValue<T>(ICell cell, T value)
+        public void SetValue<T>(T value)
         {
+            var val=value;
             Action b = value switch
             {
-                String when value is string str => new Action(() => cell.SetCellValue(str)),
-                Double when value is string dbl => new Action(() => cell.SetCellValue(dbl)),
-                DateTime when value is DateTime dateTime => new Action(() => cell.SetCellValue(dateTime)),
-                Int32 when value is Int32 int32 => new Action(() => cell.SetCellValue(int32)),
-                Boolean when value is Boolean boolean => new Action(() => cell.SetCellValue(boolean)),
-                null when value is null => new Action(() => cell.SetCellValue("")),
+                String when value is string str => new Action(() => Cell.SetCellValue(str)),
+                Double when value is double dbl => new Action(() => Cell.SetCellValue(dbl)),
+                DateTime when value is DateTime dateTime => new Action(() => Cell.SetCellValue(dateTime)),
+                Int32 when value is Int32 int32 => new Action(() => Cell.SetCellValue(int32)),
+                Boolean when value is Boolean boolean => new Action(() => Cell.SetCellValue(boolean)),
+                null when value is null => new Action(() => Cell.SetCellValue("")),
                 _ => new Action(() => throw new NotImplementedException("Do not have handler"))
+                //_=>new Action(() => Console.WriteLine(value))
             };
             b.Invoke();
         }
 
-        public void SetValue(object value, Type type)
+        /*public void SetValue(object value, Type type)
         {
+            
+            SetValue(T value)
+            
             Action b = type.Name switch
             {
                 "String" when value is string str => new Action(() => Cell.SetCellValue(str)),
@@ -301,44 +308,18 @@ namespace WrapperNetPOI.Excel
                 _ => new Action(() => throw new NotImplementedException("Do not have handler"))
             };
             b.Invoke();
-            var convertedvalue = Convert.ChangeType(value, type);
+            //var convertedvalue = Convert.ChangeType(value, type);
         }
+        */
 
 
-        public dynamic GetValue(ICell cell, Type type)
+        public dynamic GetValue(Type type)
         {
-            //var value= Convert.ChangeType(Activator.CreateInstance(type),type);
-            //GetValue(cell, out value);
-            //return value;
-            //GetValue(cell, out value);
-
-            WrapperCell wrapperCell = new(cell);
-            dynamic value = type.Name switch
-            {
-                "String" => wrapperCell.ToString(),
-                "Double" => wrapperCell.ToDouble(ThisCultureInfo),
-                "DateTime" => wrapperCell.ToDateTime(ThisCultureInfo),
-                "Int32" => wrapperCell.ToInt32(ThisCultureInfo),
-                "Boolean" => wrapperCell.ToBoolean(ThisCultureInfo),
-                _ => throw new NotImplementedException("Do not have handler"),
-            };
-
-
-            return value;
+            return Convert.ChangeType(this, type);
         }
         public void GetValue<T>(out T value)
         {
-            value = GetValue(Cell, typeof(T));
-            value = typeof(T).Name switch
-            {
-                "String" => (T)Convert.ChangeType(this.ToString(), typeof(T)),
-                "Double" => (T)Convert.ChangeType(this.ToDouble(ThisCultureInfo), typeof(T)),
-                "DateTime" => (T)Convert.ChangeType(this.ToDateTime(ThisCultureInfo), typeof(T)),
-                "Int32" => (T)Convert.ChangeType(this.ToInt32(ThisCultureInfo), typeof(T)),
-                "Boolean" => (T)Convert.ChangeType(this.ToBoolean(ThisCultureInfo), typeof(T)),
-                _ => throw new NotImplementedException("Do not have handler"),
-            };
-
+            value = (T)Convert.ChangeType(this, typeof(T));
         }
         public T GetValue<T>()
         {
@@ -585,6 +566,40 @@ namespace WrapperNetPOI.Excel
             DateTime=>CellType.Numeric,
             null=>CellType.Blank*/
         };
+    }
+
+    public class WrapperCellConverter : TypeConverter
+    {
+        public override bool CanConvertFrom(ITypeDescriptorContext context,Type destinationType)
+        {
+            switch (destinationType.Name)
+            {
+                case "String":
+                    return true;
+                case "Int32":
+                    return true;
+                case "Double":
+                    return true;
+                case "DateTime":
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public override object ConvertFrom(ITypeDescriptorContext descriptorContext, CultureInfo cultureInfo, Object value)
+        {
+            
+            if (value is string valueStr)
+            {
+                ((WrapperCell)descriptorContext.Instance).StringCellValue=valueStr;
+                return (WrapperCell)descriptorContext.Instance;
+            } 
+            else
+            {
+                return default;
+            }
+        }
     }
 }
 //}
