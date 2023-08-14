@@ -83,7 +83,7 @@ namespace MsTestWrapper
         [TestMethod]
         public void ConvertTestString()
         {
-            var path = "..//..//..//srcTest//dataframe.xlsx";
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
             RowsView exchangeClass = new(ExchangeOperation.Read);
             WrapperExcel wrapper = new(path, exchangeClass);
             wrapper.Exchange();
@@ -93,7 +93,6 @@ namespace MsTestWrapper
             var str = new WrapperCell(cell).GetValue<String>();
             Assert.AreEqual("dron", str);
         }
-
 
         [TestMethod]
         public void ConvertToDictionaryTest()
@@ -117,7 +116,6 @@ namespace MsTestWrapper
             var actualConv = actual.Select(x => (x.Key, String.Concat(x.Value))).ToList();
             CollectionAssert.AreEqual(expectedConv, actualConv);
         }
-
 
         [TestMethod]
         public void DataFrameHeaderTest()
@@ -174,7 +172,7 @@ namespace MsTestWrapper
                 { "2",new[] { "2433", "24dfgd23", "dfg233" } },
                 { "3",new[] { "34", "2dgd3", "2dgf33" } }
             };
-            DictionaryView exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource, null);
+            DictionaryViewGeneric<string> exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource, null);
             WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             exchangeClass = new(ExchangeOperation.Read, "List1", null, null);
@@ -198,7 +196,7 @@ namespace MsTestWrapper
                 { "2",new[] { "2433", "24dfgd23", "dfg233" } },
                 { "3",new[] { "34", "2dgd3", "2dgf33" } }
             };
-            DictionaryView exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource1, null);
+            DictionaryViewGeneric<string> exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource1, null);
             WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
 
@@ -288,8 +286,6 @@ namespace MsTestWrapper
             wrapper.Exchange();
             CollectionAssert.AreEqual(listS, exchangeClass.ExchangeValue.ToList());
         }
-
-
 
         [TestMethod]
         public void ListViewTestCreateInsertFirstROWColumn()
@@ -684,7 +680,6 @@ namespace MsTestWrapper
             Debug.WriteLine("DictionaryView"+string.Join("\n", ld.Select(x => $"Key:{x.Key}Value:{String.Concat(x.Value)}")));
         }
 
-
         [TestMethod]
         public void SimpleGetFromExcelWithGeneric()
         {
@@ -754,8 +749,6 @@ namespace MsTestWrapper
             var value = exchangeClass.ExchangeValue;
             var col1 = new StringDataFrameColumn("col1", new string[] { "1", "3", "6" });
 
-
-
             DateTime.TryParse("4", CultureInfo.CurrentCulture, DateTimeStyles.AssumeUniversal,
             out var outValue2);
 
@@ -818,7 +811,6 @@ namespace MsTestWrapper
                 File.Delete(path);
             }
         }
-
 
         public static Array GetArrayFromList(dynamic value) => value switch
         {

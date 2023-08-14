@@ -21,7 +21,6 @@ namespace WrapperNetPOI
 {
     public static class Simple
     {
-        
         public static string[] GetSheetsNames(string pathToFile)
         {
             ListViewGeneric<string> listView = new(ExchangeOperation.Read, null, default);
@@ -31,16 +30,14 @@ namespace WrapperNetPOI
         }
 
         
-        
-        
 
-        public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName="Sheet1", Border border=null)
+        public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName="Sheet1", Border border=null,Header header=null)
         {
             Action action = value switch
             {
                 List<String> when value is List<string> listStr => new Action(() =>
                 {
-                    ListViewGeneric<string> listView = new(ExchangeOperation.Insert, sheetName, listStr, null)
+                    ListViewGeneric<string> listView = new(ExchangeOperation.Insert, sheetName, listStr, border)
                     {
                         ExchangeValue= listStr
                     };
@@ -52,7 +49,7 @@ namespace WrapperNetPOI
                 ),
                 Dictionary<string, string> when value is Dictionary<string, string[]> dicStr => new Action(() =>
                 {
-                    DictionaryView listView = new(ExchangeOperation.Insert, sheetName, dicStr, null)
+                    DictionaryViewGeneric<string> listView = new(ExchangeOperation.Insert, sheetName, dicStr, border)
                     { };
                     WrapperExcel wrapper = new(pathToFile, listView, null)
                     {
@@ -62,13 +59,12 @@ namespace WrapperNetPOI
                 ),
                 DataFrame when value is DataFrame dataFrame => new Action(() =>
                 {
-                    DataFrameView dataView = new(ExchangeOperation.Insert, sheetName, dataFrame, null)
+                    DataFrameView dataView = new(ExchangeOperation.Insert, sheetName, dataFrame, border,header)
                     { };
                     WrapperExcel wrapper = new(pathToFile, dataView, null)
                     {
                     };
                     wrapper.Exchange();
-
                 }),
                 _ => new Action(()=>InsertListArray(value, pathToFile, sheetName, border))
             };
@@ -93,7 +89,7 @@ namespace WrapperNetPOI
                 ),
                 Dictionary<string, string> when value is Dictionary<string, string[]> dicStr => new Action(() =>
                 {
-                    DictionaryView listView = new(ExchangeOperation.Update, sheetName, dicStr, null)
+                    DictionaryViewGeneric<string> listView = new(ExchangeOperation.Update, sheetName, dicStr, null)
                     { };
                     WrapperExcel wrapper = new(pathToFile, listView, null)
                     {
@@ -105,7 +101,6 @@ namespace WrapperNetPOI
             };
             action.Invoke();
         }
-
 
         public static void GetFromExcel<TReturn>(out TReturn value, string pathToFile, string sheetName, Excel.Border border = null) where TReturn : new()
         {
@@ -120,7 +115,7 @@ namespace WrapperNetPOI
             }
             else if (returnValue is Dictionary<string, string[]> rD)
             {
-                var exchangeClass = new Excel.DictionaryView(ExchangeOperation.Read, sheetName, rD, border, null);
+                var exchangeClass = new Excel.DictionaryViewGeneric<string>(ExchangeOperation.Read, sheetName, rD, border, null);
                 Excel.WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
                 wrapper.Exchange();
                 value = (TReturn)exchangeClass.ExchangeValue;
@@ -129,7 +124,7 @@ namespace WrapperNetPOI
             else
             {
                 value= GetListArrayChoise<TReturn>(returnValue,pathToFile, sheetName, border);
-                return; 
+                return;
             }
         }
 
@@ -160,8 +155,6 @@ namespace WrapperNetPOI
             };
             action.Invoke();
         }
-
-
 
         private static ReturnValue GetListArrayChoise<ReturnValue>(dynamic value, string pathToFile, string sheetName, Excel.Border border = null) => value switch
         {

@@ -17,6 +17,7 @@ limitations under the License.
 ==========================================================================*/
 
 using NPOI.POIFS.Crypt;
+using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using Serilog;
@@ -159,6 +160,46 @@ namespace WrapperNetPOI.Excel
                 LastRow = lastRow ?? (int)lastRow;
             }
         }
+
+        public int Row(int i)
+        {
+            if (i>=FirstRow && i<=LastRow)
+            {
+                return i;
+            }
+            else if (i<FirstRow)
+            {
+                return FirstRow;
+            }
+            else if (i>LastRow)
+            {
+                return LastRow;
+            }
+            else
+            {
+                return FirstRow;
+            }
+        }
+
+        public int Column(int i)
+        {
+            if ((i>=FirstColumn && i<=LastColumn) && lastColumn==null)
+            {
+                return i;
+            }
+            else if (firstColumn != null && i<FirstColumn)
+            {
+                return FirstColumn;
+            }
+            else if (i>LastColumn)
+            {
+                return LastColumn;
+            }
+            else
+            {
+                return FirstColumn;
+            }
+        }
     }
     internal class GetCellValue
     {
@@ -223,13 +264,13 @@ namespace WrapperNetPOI.Excel
         {
             return list.Select(x => x.FirstOrDefault()).ToList();
         }
-        public static IDictionary<string, T[]> ConvertToDictionary(IList<T[]> list)
+        public static IDictionary<T, T[]> ConvertToDictionary(IList<T[]> list)
         {
-            Dictionary<string, T[]> dict = new();
+            Dictionary<T, T[]> dict = new();
             var groupValue = list?.Where(x => x.Length >= 2).Where(x => x[0] != null).GroupBy(y => y[0], (value) => value[1]);
             foreach (var group in groupValue)
             {
-                //dict[group.Key] = group.Select(x => x).ToArray();
+                dict[group.Key] = group.Select(x => x).ToArray();
             }
             return dict;
         }
@@ -915,6 +956,34 @@ namespace WrapperNetPOI.Excel
             matrix.ActiveSheet = ActiveSheet;
             matrix.ReadValue();
             ExchangeValue = Extension.ConvertToDictionary(matrix.ExchangeValue);
+        }
+        public override void UpdateValue()
+        {
+            matrix.ActiveSheet = ActiveSheet;
+            matrix.UpdateValue();
+        }
+    }
+
+    public class DictionaryViewGeneric<T> : ExchangeClass<IDictionary<T, T[]>>
+    {
+        private readonly MatrixViewGeneric<T> matrix;
+        public DictionaryViewGeneric(ExchangeOperation exchangeType, string activeSheetName,
+            IDictionary<T, T[]> exchangeValue, Border border = null, IProgress<int> progress = null) :
+            base(exchangeType, activeSheetName, border, progress)
+        {
+            matrix = new MatrixViewGeneric<T>(exchangeType, activeSheetName,
+            MatrixConvert<T>.ConvertToMatrix(exchangeValue), border, progress);
+        }
+        public override void InsertValue()
+        {
+            matrix.ActiveSheet = ActiveSheet;
+            matrix.InsertValue();
+        }
+        public override void ReadValue()
+        {
+            matrix.ActiveSheet = ActiveSheet;
+            matrix.ReadValue();
+            ExchangeValue = MatrixConvert<T>.ConvertToDictionary(matrix.ExchangeValue);
         }
         public override void UpdateValue()
         {
