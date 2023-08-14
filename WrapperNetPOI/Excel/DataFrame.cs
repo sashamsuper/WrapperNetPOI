@@ -29,7 +29,6 @@ namespace System.Runtime.CompilerServices
     internal class IsExternalInit { }
 }
 
-
 namespace WrapperNetPOI.Excel
 {
     public static class Extensions
@@ -106,7 +105,6 @@ namespace WrapperNetPOI.Excel
             }
         }
 
-
         public void CreateHeaderType(Dictionary<int, Type> columns)
         {
             List<DataColumn> tmp = new();
@@ -122,7 +120,6 @@ namespace WrapperNetPOI.Excel
 
         protected internal virtual void GetNumberOfColumns(int rowsNumber)
         {
-            
             {
                 int countValue;
                 if (Border.LastColumn != Border.FirstColumn)
@@ -295,34 +292,49 @@ namespace WrapperNetPOI.Excel
 
         public override void InsertValue()
         {
-            CreateHeader();
+            if (DataHeader != null)
+            {
+                if (ExchangeValue != null)
+                {
+                    AddOneHeaderExcelRow(0);
+                }
+                WorkbookBorder.FirstRow = +1;
+            }
             for (int i = 0; i < ExchangeValue.Rows.Count; i++)
             {
-                for (int j = 0; j < ExchangeValue.Columns.Count; j++)
-                {
-
-                    Type dataType = ExchangeValue.Columns[j].DataType;
-                    IRow dataRow = ActiveSheet.GetRow(i) ?? ActiveSheet.CreateRow(i);
-                    CellType cellType = WrapperCell.ReturnCellType(dataType);
-                    ICell cell = dataRow.GetCell(j) ?? dataRow.CreateCell(j, cellType);
-                    var value = Convert.ChangeType(ExchangeValue.Rows[i][j], dataType);
-                    WrapperCell wrapperCell = new(cell);
-                    wrapperCell.SetValue(value);
-                }
+                AddOneExcelRow(i);
             }
         }
 
-        public void CreateHeader()
+        private void AddOneHeaderExcelRow(int row)
         {
-            if (DataHeader != null)
+            int viewExcelRow=WorkbookBorder.Row(row);
+            for (int j = 0; j < ExchangeValue.Columns.Count; j++)
             {
-                if (WorkbookBorder != null)
-                {
-                    for (int i = WorkbookBorder.FirstColumn;
-                        i < WorkbookBorder.LastColumn; i++)
-                    {
-                    }
-                }
+                int viewExcelCol=WorkbookBorder.Column(j);
+                Type dataType = ExchangeValue.Columns[j].DataType;
+                IRow dataRow = ActiveSheet.GetRow(viewExcelRow) ?? ActiveSheet.CreateRow(viewExcelRow);
+                CellType cellType = WrapperCell.ReturnCellType(dataType);
+                ICell cell = dataRow.GetCell(viewExcelCol) ?? dataRow.CreateCell(viewExcelCol, cellType);
+                var value = ExchangeValue.Columns[j].Name;
+                WrapperCell wrapperCell = new(cell);
+                wrapperCell.SetValue(value);
+            }
+        }
+
+        private void AddOneExcelRow(int row)
+        {
+            int viewExcelRow=WorkbookBorder.Row(row);
+            for (int j = 0; j < ExchangeValue.Columns.Count; j++)
+            {
+                int viewExcelCol=WorkbookBorder.Column(j);
+                Type dataType = ExchangeValue.Columns[j].DataType;
+                IRow dataRow = ActiveSheet.GetRow(viewExcelRow) ?? ActiveSheet.CreateRow(viewExcelRow);
+                CellType cellType = WrapperCell.ReturnCellType(dataType);
+                ICell cell = dataRow.GetCell(viewExcelCol) ?? dataRow.CreateCell(viewExcelCol, cellType);
+                var value = Convert.ChangeType(ExchangeValue.Rows[viewExcelRow][viewExcelCol], dataType);
+                WrapperCell wrapperCell = new(cell);
+                wrapperCell.SetValue(value);
             }
         }
 
@@ -376,6 +388,10 @@ namespace WrapperNetPOI.Excel
                         break;
                     case "DateTime":
                         dt = new DateTimeDataFrameColumn(column.Name);
+                        ExchangeValue.Columns.Add(dt);
+                        break;
+                    case "Boolean":
+                        dt = new BooleanDataFrameColumn(column.Name);
                         ExchangeValue.Columns.Add(dt);
                         break;
                     default:
