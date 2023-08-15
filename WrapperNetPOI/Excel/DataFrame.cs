@@ -215,7 +215,7 @@ namespace WrapperNetPOI.Excel
             */
         }
 
-        public void RenameDobleHeaderColumn()
+        public void RenameDoubleHeaderColumn()
         {
             for (int i = DataColumns.Length - 1; i >= 0; i--)
             {
@@ -292,7 +292,7 @@ namespace WrapperNetPOI.Excel
 
         public override void InsertValue()
         {
-            if (DataHeader != null)
+            if (DataHeader.Rows.Length != 0)
             {
                 if (ExchangeValue != null)
                 {
@@ -332,7 +332,7 @@ namespace WrapperNetPOI.Excel
                 IRow dataRow = ActiveSheet.GetRow(viewExcelRow) ?? ActiveSheet.CreateRow(viewExcelRow);
                 CellType cellType = WrapperCell.ReturnCellType(dataType);
                 ICell cell = dataRow.GetCell(viewExcelCol) ?? dataRow.CreateCell(viewExcelCol, cellType);
-                var value = Convert.ChangeType(ExchangeValue.Rows[viewExcelRow][viewExcelCol], dataType);
+                var value = Convert.ChangeType(ExchangeValue.Rows[row][j], dataType);
                 WrapperCell wrapperCell = new(cell);
                 wrapperCell.SetValue(value);
             }
@@ -364,7 +364,7 @@ namespace WrapperNetPOI.Excel
         protected internal void ReadHeader()
         {
             DataHeader.GetHeaderRow();
-            DataHeader.RenameDobleHeaderColumn();
+            DataHeader.RenameDoubleHeaderColumn();
         }
 
         private void CreateColumns()
