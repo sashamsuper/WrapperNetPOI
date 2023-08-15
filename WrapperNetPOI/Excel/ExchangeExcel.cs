@@ -134,7 +134,7 @@ namespace WrapperNetPOI.Excel
         }
 
         public Border()
-        {}
+        { }
 
         public Border(int? firstRow = null, int? firstColumn = null, int? lastRow = null, int? lastColumn = null)
         {
@@ -163,17 +163,24 @@ namespace WrapperNetPOI.Excel
 
         public int Row(int i)
         {
-            if (i>=FirstRow && i<=LastRow)
+            if (firstRow == null && lastRow == null)
             {
                 return i;
             }
-            else if (i<FirstRow)
+            else if (firstRow != null && lastRow == null)
             {
-                return FirstRow;
+                return i + FirstRow;
             }
-            else if (i>LastRow)
+            else if (firstRow != null && lastRow != null)
             {
-                return LastRow;
+                if (i + FirstRow <= LastRow)
+                {
+                    return i + FirstRow;
+                }
+                else
+                {
+                    return LastRow;
+                }
             }
             else
             {
@@ -183,17 +190,24 @@ namespace WrapperNetPOI.Excel
 
         public int Column(int i)
         {
-            if ((i>=FirstColumn && i<=LastColumn) && lastColumn==null)
+            if (firstColumn == null && lastColumn == null)
             {
                 return i;
             }
-            else if (firstColumn != null && i<FirstColumn)
+            else if (firstColumn != null && lastColumn == null)
             {
-                return FirstColumn;
+                return i + FirstColumn;
             }
-            else if (i>LastColumn)
+            else if (firstColumn != null && lastColumn != null)
             {
-                return LastColumn;
+                if (i + FirstColumn <= LastColumn)
+                {
+                    return i + FirstColumn;
+                }
+                else
+                {
+                    return LastColumn;
+                }
             }
             else
             {
@@ -251,7 +265,7 @@ namespace WrapperNetPOI.Excel
 
     public static class MatrixConvert<T>
     {
-        
+
         public static IList<T[]> ConvertToMatrix(IList<T> list)
         {
             return list?.Select(x => new T[] { x }).ToList();
@@ -427,10 +441,10 @@ namespace WrapperNetPOI.Excel
             }
             catch (Exception e)
             {
-//#if DEBUG
+                //#if DEBUG
                 Logger?.Error(e.Message);
                 Logger?.Error(e.StackTrace);
-//#endif
+                //#endif
                 return default;
             }
         }
@@ -499,7 +513,7 @@ namespace WrapperNetPOI.Excel
             IRow dataRow = worksheet.GetRow(rowPosition) ?? worksheet.CreateRow(rowPosition);
             ICell cell = dataRow.GetCell(columnPosition) ?? dataRow.CreateCell(columnPosition);
             cell.SetCellValue(value);
-            
+
         }
         public static void SetCellValue(ISheet worksheet, int rowPosition,
             int columnPosition, string value, CellType type)
@@ -507,10 +521,10 @@ namespace WrapperNetPOI.Excel
             IRow dataRow = worksheet.GetRow(rowPosition) ?? worksheet.CreateRow(rowPosition);
             ICell cell = dataRow.GetCell(columnPosition) ?? dataRow.CreateCell(columnPosition, type);
             cell.SetCellValue(value);
-            
+
         }
 
-        
+
 
     }
     public class RowsView : ExchangeClass<IList<IRow>>
@@ -567,8 +581,8 @@ namespace WrapperNetPOI.Excel
         {
             ExchangeValue = exchangeValue;
         }
-        
-        
+
+
         private void AddValue()
         {
             if (ExchangeValue != null)
@@ -587,13 +601,13 @@ namespace WrapperNetPOI.Excel
                 }
             }
         }
-        
+
 
         public override void InsertValue()
         {
             AddValue();
         }
-        
+
 
         public override void UpdateValue()
         {
@@ -611,7 +625,7 @@ namespace WrapperNetPOI.Excel
             }
             AddValue();
         }
-        
+
 
         private string[] GetStringFromRow(int i, int firstViewedColumn, int lastViewedColumn)
         {
