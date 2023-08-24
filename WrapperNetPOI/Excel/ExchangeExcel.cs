@@ -17,6 +17,7 @@ limitations under the License.
 ==========================================================================*/
 
 using NPOI.POIFS.Crypt;
+using NPOI.SS.Formula;
 using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
@@ -369,6 +370,10 @@ namespace WrapperNetPOI.Excel
             }
             if (addNewWorkbook)
             {
+                if (ActiveSheetName==null)
+                {
+                    throw new ArgumentNullException("The sheet name cannot be null");
+                }
                 Workbook = new XSSFWorkbook();
                 Workbook.CreateSheet(ActiveSheetName);
                 ActiveSheet = Workbook.GetSheet(ActiveSheetName);
