@@ -1,19 +1,15 @@
 /* ==================================================================
 Copyright 2020-2023 sashamsuper
-
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
     http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
-
 using Microsoft.Data.Analysis;
 using NPOI.SS.UserModel;
 using System;
@@ -22,13 +18,11 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-
 namespace System.Runtime.CompilerServices
 {
     [EditorBrowsable(EditorBrowsableState.Never)]
     internal class IsExternalInit { }
 }
-
 namespace WrapperNetPOI.Excel
 {
     public static class Extensions
@@ -42,17 +36,14 @@ namespace WrapperNetPOI.Excel
             dictionary.Add(key, value);
             return true;
         }
-
         public static bool TryAdd<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, KeyValuePair<TKey, TValue> value)
         {
             return TryAddStandart(dictionary, value.Key, value.Value);
         }
     }
-
     public class Header
     {
         private int[] rows = new int[] { 0 };
-
         public int[] Rows
         {
             set
@@ -77,7 +68,6 @@ namespace WrapperNetPOI.Excel
                 }
             }
         }
-
         public DataColumn[] DataColumns { set; get; }
         private DataFrameView dataFrameView;
         public DataFrameView DFView
@@ -92,9 +82,7 @@ namespace WrapperNetPOI.Excel
                 return dataFrameView;
             }
         }
-
         public Border Border { set; get; }
-
         public Header() { }
         public Header(int[] rows, Dictionary<int, Type> columns = null)
         {
@@ -104,11 +92,9 @@ namespace WrapperNetPOI.Excel
                 CreateHeaderType(columns);
             }
         }
-
         public void CreateHeaderType(Dictionary<int, Type> columns)
         {
             List<DataColumn> tmp = new();
-
             foreach (var column in columns)
             {
                 DataColumn columnHeader =
@@ -117,7 +103,6 @@ namespace WrapperNetPOI.Excel
             }
             DataColumns = tmp.ToArray();
         }
-
         protected internal virtual void GetNumberOfColumns(int rowsNumber)
         {
             {
@@ -147,7 +132,6 @@ namespace WrapperNetPOI.Excel
                 }
             }
         }
-
         protected internal virtual void GetColumnsName()
         {
             foreach (var j in Rows)
@@ -162,7 +146,6 @@ namespace WrapperNetPOI.Excel
                 }
             }
         }
-
         protected internal virtual void GetHeaderRow()
         {
             if (Rows.Length == 0)
@@ -214,7 +197,6 @@ namespace WrapperNetPOI.Excel
             }
             */
         }
-
         public void RenameDoubleHeaderColumn()
         {
             for (int i = DataColumns.Length - 1; i >= 0; i--)
@@ -229,18 +211,15 @@ namespace WrapperNetPOI.Excel
             }
         }
     }
-
     public class DataColumn
     {
         public string Name { set; get; }
         public int Number { set; get; }
         public Type Type { set; get; }
-
         public override string ToString()
         {
             return Name;
         }
-
         public DataColumn(string name, int columnNumber, Type columnType)
         {
             Name = name;
@@ -248,19 +227,15 @@ namespace WrapperNetPOI.Excel
             Type = columnType;
         }
     }
-
     public class DataFrameView : ExchangeClass<DataFrame>
     {
         public Header DataHeader { set; get; }
-
         public DataFrameView(ExchangeOperation exchangeType, string activeSheetName = "", DataFrame exchangeValue = null,
             Border border = null, Header header = null, IProgress<int> progress = null) : base(exchangeType, activeSheetName, border, progress)
-
         {
             ExchangeValue = exchangeValue;
             DataHeader = header;
         }
-
         public override ISheet ActiveSheet
         {
             set
@@ -283,13 +258,11 @@ namespace WrapperNetPOI.Excel
                 return base.ActiveSheet;
             }
         }
-
         public override void ReadValue()
         {
             ReadHeader();
             ReadValueHoleSheet();
         }
-
         public override void InsertValue()
         {
             if (DataHeader.Rows.Length != 0)
@@ -305,7 +278,6 @@ namespace WrapperNetPOI.Excel
                 AddOneExcelRow(i);
             }
         }
-
         private void AddOneHeaderExcelRow(int row)
         {
             int viewExcelRow=WorkbookBorder.Row(row);
@@ -321,7 +293,6 @@ namespace WrapperNetPOI.Excel
                 wrapperCell.SetValue(value);
             }
         }
-
         private void AddOneExcelRow(int row)
         {
             int viewExcelRow=WorkbookBorder.Row(row);
@@ -337,7 +308,6 @@ namespace WrapperNetPOI.Excel
                 wrapperCell.SetValue(value);
             }
         }
-
         protected void AppendOneRow(IRow row, DataFrame dataFrame)
         {
             //ConvertType convert = new();
@@ -360,13 +330,11 @@ namespace WrapperNetPOI.Excel
             }
             dataFrame.Append(oneRow, true);
         }
-
         protected internal void ReadHeader()
         {
             DataHeader.GetHeaderRow();
             DataHeader.RenameDoubleHeaderColumn();
         }
-
         private void CreateColumns()
         {
             DataFrameColumn dt;
@@ -401,7 +369,6 @@ namespace WrapperNetPOI.Excel
                 }
             }
         }
-
         private void ReadValueHoleSheet() //Fast
         {
             ExchangeValue = new DataFrame();
