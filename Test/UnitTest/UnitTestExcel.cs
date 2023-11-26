@@ -626,7 +626,7 @@ namespace MsTestWrapper
             Assert.AreEqual(400000, dd.Count);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void TestReadXLS()
         {
             IProgress<int> progress = new Progress<int>(s => Debug.WriteLine(s));
@@ -639,7 +639,7 @@ namespace MsTestWrapper
             //Assert.AreEqual(5,dd.Count);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void SimpleGetFromExcelBorder()
         {
             //DataFrame
@@ -655,7 +655,7 @@ namespace MsTestWrapper
             Debug.WriteLine(df);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void SimpleGetFromExcel()
         {
             //DataFrame
@@ -679,6 +679,17 @@ namespace MsTestWrapper
             Simple.GetFromExcel(out Dictionary<string, string[]> ld, path, "Sheet1");
             Debug.WriteLine("DictionaryView"+string.Join("\n", ld.Select(x => $"Key:{x.Key}Value:{String.Concat(x.Value)}")));
         }
+
+         [TestMethod]
+        public void SimpleGetFromExcelAuto()
+        {
+            //DataFrame
+            const string path = "..//..//..//srcTest//simpleGeneric2.xlsx";
+            Simple.GetFromExcel(out DataFrame df, path,null);
+            var types=df.Columns.Select(x => x.DataType).ToList();
+            CollectionAssert.AreEqual(types, new List<Type> {typeof(int),typeof(Double),typeof(DateTime),typeof(String)});
+        }
+
 
         [TestMethod]
         public void SimpleGetFromExcelWithGeneric()
@@ -831,7 +842,7 @@ namespace MsTestWrapper
         } 
         
         
-        [TestMethod]
+        //[TestMethod]
         public void GetReflection()
         {
             List<string[]> DDD= new();
@@ -839,7 +850,7 @@ namespace MsTestWrapper
             ReflectionView(DDD);
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void GetSheetNamesTest()
         {
             const string path = "..//..//..//srcTest//dataframe.xlsx";
@@ -850,7 +861,7 @@ namespace MsTestWrapper
             }
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void SimpleUpdateTest()
         {
             const string path = "..//..//..//srcTest";

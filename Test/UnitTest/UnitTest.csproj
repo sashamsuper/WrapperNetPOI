@@ -11,9 +11,7 @@
   <ItemGroup>
     <None Remove="srcTest\500000_Records_Data.xlsx" />
     <None Remove="srcTest\listView.xlsx" />
-    <None Remove="srcTest\listView2.xls" />
     <None Remove="srcTest\listViewXLSX.xlsx" />
-    <None Remove="srcTest\listViewXLSX2.xlsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,10 +26,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\WrapperNetPOI\WrapperNetPOI.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="srcTest\" />
   </ItemGroup>
 
 </Project>

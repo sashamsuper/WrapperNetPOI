@@ -1,4 +1,5 @@
-﻿using System.Security.Authentication.ExtendedProtection;
+﻿using System.Dynamic;
+using System.Security.Authentication.ExtendedProtection;
 using System.ComponentModel;
 /* ==================================================================
 Copyright 2020-2023 sashamsuper
@@ -26,22 +27,109 @@ using System.Reflection;
 using System.Diagnostics.CodeAnalysis;
 using NPOI.OpenXmlFormats.Dml;
 using Internal;
+using NPOI.XSSF.Streaming.Values;
+using static NPOI.HSSF.Util.HSSFColor;
+using NPOI.XWPF.UserModel;
 
 [assembly: InternalsVisibleTo("UnitTest")]
 
 namespace WrapperNetPOI.Excel
 {
-
     //[TypeConverter(typeof(WrapperCellConverter))]
     public class WrapperCell : IConvertible
     {
-        public CultureInfo ThisCultureInfo { get; } = CultureInfo.CurrentCulture;
+        public CultureInfo ThisCultureInfo
+        {
+            get { return thisCultureInfo; }
+            set { thisCultureInfo = value; }
+        }
         public NumberStyles ThisNumberStyle { get; } = NumberStyles.Number;
+        private CultureInfo thisCultureInfo = CultureInfo.CurrentCulture;
         public DateTimeStyles ThisDateTimeStyle { get; } = DateTimeStyles.AssumeUniversal;
-        private ICell Cell { get; }
+        private NPOI.SS.UserModel.ICell Cell { get; }
         public CellType CellType { set; get; }
+        /// <summary>
+        /// return type for Auto Find Type in DataFrame
+        /// </summary>
+        public Type AutoType
+        {
+            get
+            {
+                return GetCellType(Cell);
+            }
+        }
 
-        public WrapperCell(ICell cell)
+        private Type GetCellType(NPOI.SS.UserModel.ICell cell) =>
+
+            cell switch
+            {
+                { CellType: var cellType} when cellType == CellType.Blank => null,
+                { CellType: var cellType } when cellType == CellType.Unknown => null,
+                {
+                    CellType: var cellType,
+                }
+                    when cellType == CellType.String
+                    => FindTypeInString(Cell),
+                { CellType: var cellType}
+                    when cellType == CellType.Numeric
+                    => FindTypeInNumeric(Cell),
+                {
+                    CellType: var cellType,
+                    CachedFormulaResultType: var cachedFormulaResultType,
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.String
+                    => FindTypeInString(Cell),
+                {
+                    CellType: var cellType,
+                    CachedFormulaResultType: var cachedFormulaResultType
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.Numeric
+                    => FindTypeInNumeric(Cell),
+                _ => null
+
+            };
+
+        private Type GetCellType2(NPOI.SS.UserModel.ICell cell)
+        {
+            foreach (var x in new Type[] { typeof(DateTime), typeof(int), typeof(double), typeof(string) })
+            {
+                if (x == typeof(DateTime) && (DateTime)this.ToType(x, thisCultureInfo) != DateTime.FromOADate(default))
+                {
+                    return x;
+                }
+                else if (this.ToType(x, thisCultureInfo) != default)
+                {
+                    return x;
+                }
+            }
+            return typeof(String);
+        }
+
+
+        public Type FindTypeInString(NPOI.SS.UserModel.ICell Cell)
+        {
+            var style = Cell.CellStyle;
+            if (style.DataFormat != 0)
+                return typeof(DateTime);
+            else if (Cell.StringCellValue == "")
+                return null;
+            else
+                return typeof(String);
+        }
+
+
+        public Type FindTypeInNumeric(NPOI.SS.UserModel.ICell Cell)
+        {
+            var style = Cell.CellStyle;
+            if (style.DataFormat != 0)
+                return typeof(DateTime);
+            else if (Cell.NumericCellValue % 1 == 0)
+                return typeof(int);
+            else
+                return typeof(double);
+        }
+
+
+
+        public WrapperCell(NPOI.SS.UserModel.ICell cell)
         {
             Cell = cell;
             if (cell == null)
@@ -104,10 +192,7 @@ namespace WrapperNetPOI.Excel
 
                 return value;
             }
-            set
-            {
-                Cell.SetCellValue(value);
-            }
+            set { Cell.SetCellValue(value); }
         }
 
         public string StringCellValue
@@ -136,10 +221,7 @@ namespace WrapperNetPOI.Excel
                 }
                 return value;
             }
-            set
-            {
-                Cell.SetCellValue(value);
-            }
+            set { Cell.SetCellValue(value); }
         }
 
         public DateTime DateCellValue
@@ -170,10 +252,7 @@ namespace WrapperNetPOI.Excel
 
                 return value;
             }
-            set
-            {
-                Cell.SetCellValue(value);
-            }
+            set { Cell.SetCellValue(value); }
         }
 
         public TypeCode GetTypeCode()
@@ -194,9 +273,7 @@ namespace WrapperNetPOI.Excel
         public char ToChar(IFormatProvider provider)
         {
             var value = GetValueString(this);
-            return value == null
-                ? new char()
-                : value[0];
+            return value == null ? new char() : value[0];
         }
 
         public DateTime ToDateTime(IFormatProvider provider)
@@ -251,7 +328,51 @@ namespace WrapperNetPOI.Excel
 
         public object ToType(Type conversionType, IFormatProvider provider)
         {
-            throw new NotImplementedException();
+            switch (Type.GetTypeCode(conversionType))
+            {
+                case TypeCode.Boolean:
+                    return this.ToBoolean(provider);
+                case TypeCode.Byte:
+                    return this.ToByte(provider);
+                case TypeCode.Char:
+                    return this.ToChar(provider);
+                case TypeCode.DateTime:
+                    return this.ToDateTime(provider);
+                case TypeCode.Decimal:
+                    return this.ToDecimal(provider);
+                case TypeCode.Double:
+                    return this.ToDouble(provider);
+                case TypeCode.Int16:
+                    return this.ToInt16(provider);
+                case TypeCode.Int32:
+                    return this.ToInt32(provider);
+                case TypeCode.Int64:
+                    return this.ToInt64(provider);
+                case TypeCode.SByte:
+                    return this.ToSByte(provider);
+                case TypeCode.Single:
+                    return this.ToSingle(provider);
+                case TypeCode.String:
+                    return this.ToString(provider);
+                case TypeCode.UInt16:
+                    return this.ToUInt16(provider);
+                case TypeCode.UInt32:
+                    return this.ToUInt32(provider);
+                case TypeCode.UInt64:
+                    return this.ToUInt64(provider);
+                case TypeCode.DBNull:
+                    break;
+                case TypeCode.Empty:
+                    break;
+                case TypeCode.Object:
+                    break;
+                default:
+                    throw new InvalidCastException(
+                        String.Format("Conversion to {0} is not supported.", conversionType.Name)
+                    );
+            }
+
+            return null;
         }
 
         public ushort ToUInt16(IFormatProvider provider)
@@ -269,7 +390,6 @@ namespace WrapperNetPOI.Excel
             return Convert.ToUInt64(GetValueInt32(this));
         }
 
-
         //public class ConvertType
         //{
 
@@ -277,14 +397,16 @@ namespace WrapperNetPOI.Excel
 
         public void SetValue<T>(T value)
         {
-            var val=value;
+            var val = value;
             Action b = value switch
             {
                 String when value is string str => new Action(() => Cell.SetCellValue(str)),
                 Double when value is double dbl => new Action(() => Cell.SetCellValue(dbl)),
-                DateTime when value is DateTime dateTime => new Action(() => Cell.SetCellValue(dateTime)),
+                DateTime when value is DateTime dateTime
+                    => new Action(() => Cell.SetCellValue(dateTime)),
                 Int32 when value is Int32 int32 => new Action(() => Cell.SetCellValue(int32)),
-                Boolean when value is Boolean boolean => new Action(() => Cell.SetCellValue(boolean)),
+                Boolean when value is Boolean boolean
+                    => new Action(() => Cell.SetCellValue(boolean)),
                 null when value is null => new Action(() => Cell.SetCellValue("")),
                 _ => new Action(() => throw new NotImplementedException("Do not have handler"))
                 //_=>new Action(() => Console.WriteLine(value))
@@ -317,50 +439,42 @@ namespace WrapperNetPOI.Excel
         {
             return Convert.ChangeType(this, type);
         }
+
         public void GetValue<T>(out T value)
         {
             value = (T)Convert.ChangeType(this, typeof(T));
         }
+
         public T GetValue<T>()
         {
             GetValue(out T value);
             return value;
         }
-        protected DateTime GetValueDateTime(WrapperCell cell) => cell switch
-        {
+
+        protected DateTime GetValueDateTime(WrapperCell cell) =>
+            cell switch
             {
-                CellType: var cellType,
-            }
-            when cellType == CellType.Blank => default,
-            {
-                CellType: var cellType,
-                StringCellValue: var stringCellValue,
-            }
-            when cellType == CellType.String => GetDateTime(stringCellValue),
-            {
-                CellType: var cellType,
-                NumericCellValue: var numericCellValue,
-            }
-            when cellType == CellType.Numeric => GetDateTime(numericCellValue),
-            {
-                CellType: var cellType,
-                StringCellValue: var stringCellValue,
-                CachedFormulaResultType: var cachedFormulaResultType
-            }
-            when cellType == CellType.Formula &&
-            cachedFormulaResultType == CellType.String
-            => GetDateTime(stringCellValue),
-            {
-                CellType: var cellType,
-                NumericCellValue: var numericCellValue,
-                CachedFormulaResultType: var cachedFormulaResultType
-            }
-            when cellType == CellType.Formula &&
-            cachedFormulaResultType == CellType.Numeric
-            => GetDateTime(numericCellValue),
-            _
-            => cell.DateCellValue
-        };
+                { CellType: var cellType, } when cellType == CellType.Blank => default,
+                { CellType: var cellType, StringCellValue: var stringCellValue, }
+                    when cellType == CellType.String
+                    => GetDateTime(stringCellValue),
+                { CellType: var cellType, NumericCellValue: var numericCellValue, }
+                    when cellType == CellType.Numeric
+                    => GetDateTime(numericCellValue),
+                {
+                    CellType: var cellType,
+                    StringCellValue: var stringCellValue,
+                    CachedFormulaResultType: var cachedFormulaResultType
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.String
+                    => GetDateTime(stringCellValue),
+                {
+                    CellType: var cellType,
+                    NumericCellValue: var numericCellValue,
+                    CachedFormulaResultType: var cachedFormulaResultType
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.Numeric
+                    => GetDateTime(numericCellValue),
+                _ => cell.DateCellValue
+            };
 
         private DateTime GetDateTime(string value)
         {
@@ -382,41 +496,30 @@ namespace WrapperNetPOI.Excel
             }
         }
 
-        protected static string GetValueString(WrapperCell cell) => cell switch
-        {
+        protected static string GetValueString(WrapperCell cell) =>
+            cell switch
             {
-                CellType: var cellType,
-            }
-            when cellType == CellType.Blank => null,
-            {
-                CellType: var cellType,
-                StringCellValue: var stringCellValue,
-            }
-            when cellType == CellType.String => stringCellValue,
-            {
-                CellType: var cellType,
-                NumericCellValue: var numericCellValue,
-            }
-            when cellType == CellType.Numeric => numericCellValue.ToString(),
-            {
-                CellType: var cellType,
-                StringCellValue: var stringCellValue,
-                CachedFormulaResultType: var cachedFormulaResultType
-            }
-            when cellType == CellType.Formula &&
-            cachedFormulaResultType == CellType.String
-            => stringCellValue,
-            {
-                CellType: var cellType,
-                NumericCellValue: var numericCellValue,
-                CachedFormulaResultType: var cachedFormulaResultType
-            }
-            when cellType == CellType.Formula &&
-            cachedFormulaResultType == CellType.Numeric
-            => numericCellValue.ToString(),
-            _
-            => cell.StringCellValue,
-        };
+                { CellType: var cellType, } when cellType == CellType.Blank => null,
+                { CellType: var cellType, StringCellValue: var stringCellValue, }
+                    when cellType == CellType.String
+                    => stringCellValue,
+                { CellType: var cellType, NumericCellValue: var numericCellValue, }
+                    when cellType == CellType.Numeric
+                    => numericCellValue.ToString(),
+                {
+                    CellType: var cellType,
+                    StringCellValue: var stringCellValue,
+                    CachedFormulaResultType: var cachedFormulaResultType
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.String
+                    => stringCellValue,
+                {
+                    CellType: var cellType,
+                    NumericCellValue: var numericCellValue,
+                    CachedFormulaResultType: var cachedFormulaResultType
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.Numeric
+                    => numericCellValue.ToString(),
+                _ => cell.StringCellValue,
+            };
 
         private double GetDouble(string value)
         {
@@ -445,132 +548,97 @@ namespace WrapperNetPOI.Excel
             };
         }
 
-        private double GetValueDouble(WrapperCell cell) => cell switch
-        {
+        private double GetValueDouble(WrapperCell cell) =>
+            cell switch
             {
-                CellType: var cellType,
-            }
-            when cellType == CellType.Blank => 0.0,
-            {
-                CellType: var cellType,
-                NumericCellValue: var numericCellValue,
-            }
-            when cellType == CellType.Numeric => numericCellValue,
-            {
-                CellType: var cellType,
-                StringCellValue: var stringCellValue,
-            }
-            when cellType == CellType.String => GetDouble(stringCellValue),
-            {
-                CellType: var cellType,
-                StringCellValue: var stringCellValue,
-                CachedFormulaResultType: var cachedFormulaResultType
-            }
-            when cellType == CellType.Formula &&
-            cachedFormulaResultType == CellType.String
-            => GetDouble(stringCellValue),
-            {
-                CellType: var cellType,
-                NumericCellValue: var numericCellValue,
-                CachedFormulaResultType: var cachedFormulaResultType
-            }
-            when cellType == CellType.Formula &&
-            cachedFormulaResultType == CellType.Numeric
-            => numericCellValue,
-            _
-            => GetDouble(cell.StringCellValue)
-        };
+                { CellType: var cellType, } when cellType == CellType.Blank => 0.0,
+                { CellType: var cellType, NumericCellValue: var numericCellValue, }
+                    when cellType == CellType.Numeric
+                    => numericCellValue,
+                { CellType: var cellType, StringCellValue: var stringCellValue, }
+                    when cellType == CellType.String
+                    => GetDouble(stringCellValue),
+                {
+                    CellType: var cellType,
+                    StringCellValue: var stringCellValue,
+                    CachedFormulaResultType: var cachedFormulaResultType
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.String
+                    => GetDouble(stringCellValue),
+                {
+                    CellType: var cellType,
+                    NumericCellValue: var numericCellValue,
+                    CachedFormulaResultType: var cachedFormulaResultType
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.Numeric
+                    => numericCellValue,
+                _ => GetDouble(cell.StringCellValue)
+            };
 
-        private int GetValueInt32(WrapperCell cell) => cell switch
-        {
+        private int GetValueInt32(WrapperCell cell) =>
+            cell switch
             {
-                CellType: var cellType,
-            }
-            when cellType == CellType.Blank => 0,
-            {
-                CellType: var cellType,
-                NumericCellValue: var numericCellValue,
-            }
-            when cellType == CellType.Numeric => (int)numericCellValue,
-            {
-                CellType: var cellType,
-                StringCellValue: var stringCellValue,
-            }
-            when cellType == CellType.String => GetInt32(stringCellValue),
-            {
-                CellType: var cellType,
-                StringCellValue: var stringCellValue,
-                CachedFormulaResultType: var cachedFormulaResultType
-            }
-            when cellType == CellType.Formula &&
-            cachedFormulaResultType == CellType.String
-            => GetInt32(stringCellValue),
-            {
-                CellType: var cellType,
-                NumericCellValue: var numericCellValue,
-                CachedFormulaResultType: var cachedFormulaResultType
-            }
-            when cellType == CellType.Formula &&
-            cachedFormulaResultType == CellType.Numeric
-            => (int)numericCellValue,
-            _
-            => GetInt32(cell.StringCellValue)
-        };
+                { CellType: var cellType, } when cellType == CellType.Blank => 0,
+                { CellType: var cellType, NumericCellValue: var numericCellValue, }
+                    when cellType == CellType.Numeric
+                    => (int)numericCellValue,
+                { CellType: var cellType, StringCellValue: var stringCellValue, }
+                    when cellType == CellType.String
+                    => GetInt32(stringCellValue),
+                {
+                    CellType: var cellType,
+                    StringCellValue: var stringCellValue,
+                    CachedFormulaResultType: var cachedFormulaResultType
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.String
+                    => GetInt32(stringCellValue),
+                {
+                    CellType: var cellType,
+                    NumericCellValue: var numericCellValue,
+                    CachedFormulaResultType: var cachedFormulaResultType
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.Numeric
+                    => (int)numericCellValue,
+                _ => GetInt32(cell.StringCellValue)
+            };
 
-        private bool GetValueBoolean(WrapperCell cell) => cell switch
-        {
+        private bool GetValueBoolean(WrapperCell cell) =>
+            cell switch
             {
-                CellType: var cellType,
-            }
-            when cellType == CellType.Blank => false,
-            {
-                CellType: var cellType,
-                NumericCellValue: var numericCellValue,
-            }
-            when cellType == CellType.Numeric => GetBoolean(numericCellValue),
-            {
-                CellType: var cellType,
-                StringCellValue: var stringCellValue,
-            }
-            when cellType == CellType.String => GetBoolean(stringCellValue),
-            {
-                CellType: var cellType,
-                StringCellValue: var stringCellValue,
-                CachedFormulaResultType: var cachedFormulaResultType
-            }
-            when cellType == CellType.Formula &&
-            cachedFormulaResultType == CellType.String
-            => GetBoolean(stringCellValue),
-            {
-                CellType: var cellType,
-                NumericCellValue: var numericCellValue,
-                CachedFormulaResultType: var cachedFormulaResultType
-            }
-            when cellType == CellType.Formula &&
-            cachedFormulaResultType == CellType.Numeric
-            => GetBoolean(numericCellValue),
-            _
-            => GetBoolean(cell.StringCellValue)
-        };
+                { CellType: var cellType, } when cellType == CellType.Blank => false,
+                { CellType: var cellType, NumericCellValue: var numericCellValue, }
+                    when cellType == CellType.Numeric
+                    => GetBoolean(numericCellValue),
+                { CellType: var cellType, StringCellValue: var stringCellValue, }
+                    when cellType == CellType.String
+                    => GetBoolean(stringCellValue),
+                {
+                    CellType: var cellType,
+                    StringCellValue: var stringCellValue,
+                    CachedFormulaResultType: var cachedFormulaResultType
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.String
+                    => GetBoolean(stringCellValue),
+                {
+                    CellType: var cellType,
+                    NumericCellValue: var numericCellValue,
+                    CachedFormulaResultType: var cachedFormulaResultType
+                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.Numeric
+                    => GetBoolean(numericCellValue),
+                _ => GetBoolean(cell.StringCellValue)
+            };
 
-        public static CellType ReturnCellType(Type type) => type switch
-        {
+        public static CellType ReturnCellType(Type type) =>
+            type switch
             {
-                Name: var nameof,
-            } when nameof == "String" => CellType.String,
-            _
-            => CellType.Numeric
-            /*int=>CellType.Numeric,
-            double=>CellType.Numeric,
-            bool=>CellType.Numeric,
-            DateTime=>CellType.Numeric,
-            null=>CellType.Blank*/
-        };
+                { Name: var nameof, } when nameof == "String" => CellType.String,
+                _ => CellType.Numeric
+                /*int=>CellType.Numeric,
+                double=>CellType.Numeric,
+                bool=>CellType.Numeric,
+                DateTime=>CellType.Numeric,
+                null=>CellType.Blank*/
+            };
     }
 
     public class WrapperCellConverter : TypeConverter
     {
-        public override bool CanConvertFrom(ITypeDescriptorContext context,Type destinationType)
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type destinationType)
         {
             switch (destinationType.Name)
             {
@@ -587,14 +655,17 @@ namespace WrapperNetPOI.Excel
             }
         }
 
-        public override object ConvertFrom(ITypeDescriptorContext descriptorContext, CultureInfo cultureInfo, Object value)
+        public override object ConvertFrom(
+            ITypeDescriptorContext descriptorContext,
+            CultureInfo cultureInfo,
+            Object value
+        )
         {
-            
             if (value is string valueStr)
             {
-                ((WrapperCell)descriptorContext.Instance).StringCellValue=valueStr;
+                ((WrapperCell)descriptorContext.Instance).StringCellValue = valueStr;
                 return (WrapperCell)descriptorContext.Instance;
-            } 
+            }
             else
             {
                 return default;
