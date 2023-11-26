@@ -681,6 +681,17 @@ namespace MsTestWrapper
         }
 
         [TestMethod]
+        public void SimpleGetFromExcelAuto()
+        {
+            //DataFrame
+            const string path = "..//..//..//srcTest//simpleGeneric2.xlsx";
+            Simple.GetFromExcel(out DataFrame df, path,null);
+            Debug.WriteLine(df);
+            
+        }
+
+
+        [TestMethod]
         public void SimpleGetFromExcelWithGeneric()
         {
             //DataFrame
