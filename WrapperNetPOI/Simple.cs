@@ -111,7 +111,7 @@ namespace WrapperNetPOI
                 Excel.WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
                 wrapper.Exchange();
                 value = (TReturn)exchangeClass.ExchangeValue;
-                return;
+                return;  
             }
             else if (returnValue is Dictionary<string, string[]> rD)
             {

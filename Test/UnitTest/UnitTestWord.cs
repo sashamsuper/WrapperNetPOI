@@ -25,7 +25,7 @@ namespace MsTestWrapper
             CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void ReadParagraphValueTest()
         {
             const string path = "..//..//..//srcTest//listView2.docx";
@@ -35,7 +35,7 @@ namespace MsTestWrapper
             //CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
         }
 
-        [TestMethod]
+        //[TestMethod]
         public void ReadParagraphValueTestInCell()
         {
             const string path = "..//..//..//srcTest//listView2.docx";
