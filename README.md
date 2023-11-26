@@ -14,11 +14,11 @@ The simplest use for receiving data
     Simple.GetFromExcel(out DataFrame df, path, "Sheet1");  
     Console.WriteLine(df);  
 
-    //List<string>  
+    //List<string> (work with string, int, double, DateTime, bool) 
     Simple.GetFromExcel(out List<string> ls, path, "Sheet1");  
     Debug.WriteLine(String.Join("\n",ls));  
 
-    //Dictionary<string,string>  
+    //Dictionary<string,string> (work with string, int, double, DateTime, bool) 
     Simple.GetFromExcel(out Dictionary<string, string[]> ld, path, "Sheet1");  
     Debug.WriteLine(string.Join("\n", ld.Select(x=>$"Key:{x.Key}Value:{String.Join("",x.Value)}") ));
 
@@ -26,7 +26,7 @@ The simplest use for receiving data
     Simple.GetFromExcel(out List<string[]> lsm, path, "Sheet1");  
     Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Join("", x))));
 
-The simplest use for insert data (work with string, int, double, DateTime, bool)
+The simplest use for insert data (work with string, int, double, DateTime, bool, DataFrame)
 
     using WrapperNetPOI;
     
