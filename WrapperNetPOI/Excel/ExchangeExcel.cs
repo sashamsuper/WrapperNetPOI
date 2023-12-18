@@ -635,7 +635,7 @@ namespace WrapperNetPOI.Excel
         private string[] GetStringFromRow(int i, int firstViewedColumn, int lastViewedColumn)
         {
             var row = ActiveSheet.GetRow(i);
-            List<string> tmp = new();
+            List<string> tmp = new ();
             if (row != null)
             {
                 var lastCol = row.LastCellNum;

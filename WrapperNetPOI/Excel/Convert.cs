@@ -30,6 +30,7 @@ using Internal;
 using NPOI.XSSF.Streaming.Values;
 using static NPOI.HSSF.Util.HSSFColor;
 using NPOI.XWPF.UserModel;
+using System.Linq;
 
 [assembly: InternalsVisibleTo("UnitTest")]
 
@@ -119,7 +120,8 @@ namespace WrapperNetPOI.Excel
         public Type FindTypeInNumeric(NPOI.SS.UserModel.ICell Cell)
         {
             var style = Cell.CellStyle;
-            if (style.DataFormat != 0)
+            var b = style.GetDataFormatString().All(x => new Char[] { 'H','D','s','Y', 'M', 'm' }.Contains(x) == true);
+            if (b & style.GetDataFormatString()!="General")
                 return typeof(DateTime);
             else if (Cell.NumericCellValue % 1 == 0)
                 return typeof(int);
@@ -390,11 +392,6 @@ namespace WrapperNetPOI.Excel
             return Convert.ToUInt64(GetValueInt32(this));
         }
 
-        //public class ConvertType
-        //{
-
-        //public ConvertType() { }
-
         public void SetValue<T>(T value)
         {
             var val = value;
@@ -414,26 +411,12 @@ namespace WrapperNetPOI.Excel
             b.Invoke();
         }
 
-        /*public void SetValue(object value, Type type)
-        {
-            
-            SetValue(T value)
-            
-            Action b = type.Name switch
-            {
-                "String" when value is string str => new Action(() => Cell.SetCellValue(str)),
-                "Double" when value is double dbl => new Action(() => Cell.SetCellValue(dbl)),
-                "DateTime" when value is DateTime dateTime => new Action(() => Cell.SetCellValue(dateTime)),
-                "Int32" when value is Int32 int32 => new Action(() => Cell.SetCellValue(int32)),
-                "Boolean" when value is Boolean boolean => new Action(() => Cell.SetCellValue(boolean)),
-                null when value is null => new Action(() => Cell.SetCellValue("")),
-                _ => new Action(() => throw new NotImplementedException("Do not have handler"))
-            };
-            b.Invoke();
-            //var convertedvalue = Convert.ChangeType(value, type);
-        }
-        */
 
+        private void SetCellValue<T>(T value)
+        { 
+
+
+        }
 
         public dynamic GetValue(Type type)
         {

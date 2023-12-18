@@ -12,6 +12,7 @@ limitations under the License.
 ==========================================================================*/
 using Microsoft.Data.Analysis;
 using NPOI.SS.UserModel;
+using Org.BouncyCastle.Bcpg;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -54,7 +55,7 @@ namespace WrapperNetPOI.Excel
 
     public class Header
     {
-        private int[] rows = new int[] { 0 };
+        private int[] rows = {0};
         public int[] Rows
         {
             set { rows = value; }
@@ -115,7 +116,7 @@ namespace WrapperNetPOI.Excel
 
         protected internal Type GetTypeOfCell(ISheet activeSheet, int columnNumber)
         {
-            Dictionary<Type,int> conversionBall=new()
+            Dictionary<Type, int> conversionBall = new()
             {
                 {typeof(String),0},
                 {typeof(int),0},
@@ -125,23 +126,23 @@ namespace WrapperNetPOI.Excel
             //for (int i = 0; i < DataColumns.Length; i++)
             {
                 //DataColumns[i] = new DataColumn("", i, typeof(String));
-                for (int j=Border.FirstRow;j<Border.FirstRow+10;j++)
+                for (int j = Border.FirstRow; j < Border.FirstRow + 10; j++)
                 {
-                    
-                    ICell cell=activeSheet.GetRow(j)?.GetCell(Border.FirstColumn+columnNumber);
-                    WrapperCell wrapperCell=new (cell);
+
+                    ICell cell = activeSheet.GetRow(j)?.GetCell(Border.FirstColumn + columnNumber);
+                    WrapperCell wrapperCell = new(cell);
                     foreach (var x in conversionBall)
                     {
-                        var value=wrapperCell.ToType(x.Key,wrapperCell.ThisCultureInfo);
-                        if (wrapperCell.AutoType==x.Key)
+                        var value = wrapperCell.ToType(x.Key, wrapperCell.ThisCultureInfo);
+                        if (wrapperCell.AutoType == x.Key)
                         {
-                                conversionBall[x.Key]++;
+                            conversionBall[x.Key]++;
                         }
                     }
 
                 }
             }
-            var valueType=conversionBall.OrderByDescending(x=>x.Value).First().Key;
+            var valueType = conversionBall.OrderByDescending(x => x.Value).First().Key;
             return valueType;
         }
 
@@ -149,13 +150,22 @@ namespace WrapperNetPOI.Excel
         {
             {
                 int countValue;
-                if (Border.LastColumn != Border.FirstColumn)
+                /*if (Border.LastColumn != Border.FirstColumn)
                 {
                     countValue = Border.LastColumn - Border.FirstColumn;
                 }
                 else
+                */
                 {
-                    var lastColumn = DFView.ActiveSheet.GetRow(Rows[rowsNumber]).LastCellNum;
+                    var lastColumn = 0;
+                    if (Border.FirstRow != 0)
+                    {
+                        lastColumn = DFView.ActiveSheet.GetRow(Border.FirstRow).LastCellNum;
+                    }
+                    else
+                    {
+                        lastColumn = DFView.ActiveSheet.GetRow(Rows[rowsNumber]).LastCellNum;
+                    }
                     countValue = lastColumn - Border.FirstColumn;
                     DFView.WorkbookBorder.CorrectBorder(lastColumn: lastColumn);
                 }
@@ -164,9 +174,9 @@ namespace WrapperNetPOI.Excel
                     DataColumns = new DataColumn[countValue];
                     for (int i = 0; i < DataColumns.Length; i++)
                     {
-                        Type type=GetTypeOfCell(DFView.ActiveSheet,i);
+                        Type type = GetTypeOfCell(DFView.ActiveSheet, i);
                         //DataColumns[i] = new DataColumn("", i, typeof(String));
-                        if (type!=null)
+                        if (type != null)
                         {
                             DataColumns[i] = new DataColumn("", i, type);
                         }
@@ -211,45 +221,6 @@ namespace WrapperNetPOI.Excel
                 GetNumberOfColumns(Rows[0]);
             }
             GetColumnsName();
-            /*foreach (var j in Rows)
-            {
-                if (j == Rows[0])
-                {
-                    int countValue;
-                    if (Border.LastColumn != Border.FirstColumn)
-                    {
-                        countValue = Border.LastColumn - Border.FirstColumn;
-                    }
-                    else
-                    {
-                        var lastColumn = DFView.ActiveSheet.GetRow(Rows[j]).LastCellNum;
-                        countValue = lastColumn - Border.FirstColumn;
-                        DFView.WorkbookBorder.
-                               CorrectBorder(lastColumn: lastColumn);
-                    }
-                    if (DataColumns == null)
-                    {
-                        DataColumns = new DataColumn[countValue];
-                        for (int i = 0; i < DataColumns.Length; i++)
-                        {
-                            DataColumns[i] = new DataColumn("", i, typeof(String));
-                        }
-                    }
-                    for (int k = 0; k < DataColumns.Length; k++)
-                    {
-                        DataColumns[k].Number = k + Border.FirstColumn;
-                    }
-                }
-                for (int i = 0; i < DataColumns.Length; i++)
-                {
-                    ICell cell = DFView.ActiveSheet.GetRow(j)?.GetCell(i + DFView.WorkbookBorder.FirstColumn);
-                    string columnName = cell?.ToString();
-                    //convertType.GetValue<string>(cell);
-                    columnName ??= "";
-                    DataColumns[i].Name = $"{DataColumns[i].Name ?? ""}{columnName}";
-                }
-            }
-            */
         }
 
         public void RenameDoubleHeaderColumn()
@@ -381,7 +352,6 @@ namespace WrapperNetPOI.Excel
 
         protected void AppendOneRow(IRow row, DataFrame dataFrame)
         {
-            //ConvertType convert = new();
             List<KeyValuePair<string, object>> oneRow = new();
             foreach (var column in dataFrame.Columns)
             {
@@ -396,7 +366,6 @@ namespace WrapperNetPOI.Excel
                     cell = null;
                 }
                 var value = new WrapperCell(cell).GetValue(column.DataType);
-                //convert.GetValue(cell, column.DataType);
                 oneRow.Add(new KeyValuePair<string, object>(columnHeader.Name, value));
             }
             dataFrame.Append(oneRow, true);
