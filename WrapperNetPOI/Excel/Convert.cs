@@ -1,6 +1,15 @@
-﻿using System.Dynamic;
+﻿
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+До:
+using System.Dynamic;
 using System.Security.Authentication.ExtendedProtection;
 using System.ComponentModel;
+/* ==================================================================
+После:
+using Internal;
+using NPOI.OpenXmlFormats.Dml;
+/* ==================================================================
+*/
 /* ==================================================================
 Copyright 2020-2023 sashamsuper
 
@@ -17,25 +26,74 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
 
-using NPOI.SS.Formula.Functions;
+
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+До:
 using NPOI.SS.UserModel;
-using System;
+using NPOI.XSSF.Streaming.Values;
+
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+После:
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+*/
+using NPOI.SS.UserModel;
+
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+До:
 using System.Configuration;
+После:
+using System.XWPF.UserModel;
+*/
+using
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+До:
+using System;
+После:
+using NPOI.SS.UserModel;
+using NPOI.XSSF.Streaming.Values;
+using System;
+*/
+System;
+using System.ComponentModel;
 using System.Globalization;
+
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+До:
 using System.Runtime.CompilerServices;
 using System.Reflection;
-using System.Diagnostics.CodeAnalysis;
+После:
+using System.ComponentModel;
+using System.Configuration;
+*/
+using System.Linq;
+using System.Runtime.CompilerServices;
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+До:
 using NPOI.OpenXmlFormats.Dml;
 using Internal;
 using NPOI.XSSF.Streaming.Values;
 using static NPOI.HSSF.Util.HSSFColor;
 using NPOI.XWPF.UserModel;
 using System.Linq;
+После:
+using System.Dynamic;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Security.Authentication.ExtendedProtection;
+using static NPOI.HSSF.Util.HSSFColor;
+*/
+
 
 [assembly: InternalsVisibleTo("UnitTest")]
 
 namespace WrapperNetPOI.Excel
 {
+
+    
+
+
     //[TypeConverter(typeof(WrapperCellConverter))]
     public class WrapperCell : IConvertible
     {
@@ -64,14 +122,14 @@ namespace WrapperNetPOI.Excel
 
             cell switch
             {
-                { CellType: var cellType} when cellType == CellType.Blank => null,
+                { CellType: var cellType } when cellType == CellType.Blank => null,
                 { CellType: var cellType } when cellType == CellType.Unknown => null,
                 {
                     CellType: var cellType,
                 }
                     when cellType == CellType.String
                     => FindTypeInString(Cell),
-                { CellType: var cellType}
+                { CellType: var cellType }
                     when cellType == CellType.Numeric
                     => FindTypeInNumeric(Cell),
                 {
@@ -120,8 +178,8 @@ namespace WrapperNetPOI.Excel
         public Type FindTypeInNumeric(NPOI.SS.UserModel.ICell Cell)
         {
             var style = Cell.CellStyle;
-            var b = style.GetDataFormatString().All(x => new Char[] { 'H','D','s','Y', 'M', 'm' }.Contains(x) == true);
-            if (b & style.GetDataFormatString()!="General")
+            var b = style.GetDataFormatString().All(x => new Char[] { 'H', 'D', 's', 'Y', 'M', 'm' }.Contains(x) == true);
+            if (b & style.GetDataFormatString() != "General")
                 return typeof(DateTime);
             else if (Cell.NumericCellValue % 1 == 0)
                 return typeof(int);
@@ -413,7 +471,7 @@ namespace WrapperNetPOI.Excel
 
 
         private void SetCellValue<T>(T value)
-        { 
+        {
 
 
         }

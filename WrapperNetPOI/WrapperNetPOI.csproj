@@ -69,4 +69,9 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="Mapster">
+      <Version>7.4.1-pre01</Version>
+    </PackageReference>
+  </ItemGroup>
 </Project>

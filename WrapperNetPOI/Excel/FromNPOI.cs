@@ -180,11 +180,11 @@ namespace WrapperNetPOI.Excel
                             }
                             catch (Exception e)
                             {
-//#if DEBUG
+                                //#if DEBUG
                                 Wrapper.Logger?.Error(e.Message);
                                 Wrapper.Logger?.Error(e.StackTrace);
                                 Console.WriteLine(e.Message);
-//#endif
+                                //#endif
                             }
                         }
                     }

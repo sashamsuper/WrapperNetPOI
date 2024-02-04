@@ -17,8 +17,6 @@ limitations under the License.
 ==========================================================================*/
 
 using NPOI.POIFS.Crypt;
-using NPOI.SS.Formula;
-using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
 using Serilog;
@@ -370,7 +368,7 @@ namespace WrapperNetPOI.Excel
             }
             if (addNewWorkbook)
             {
-                if (ActiveSheetName==null)
+                if (ActiveSheetName == null)
                 {
                     throw new ArgumentNullException("The sheet name cannot be null");
                 }
@@ -635,7 +633,7 @@ namespace WrapperNetPOI.Excel
         private string[] GetStringFromRow(int i, int firstViewedColumn, int lastViewedColumn)
         {
             var row = ActiveSheet.GetRow(i);
-            List<string> tmp = new ();
+            List<string> tmp = new();
             if (row != null)
             {
                 var lastCol = row.LastCellNum;

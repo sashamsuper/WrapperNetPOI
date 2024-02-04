@@ -1,5 +1,4 @@
-﻿using System.Security.Cryptography;
-/* ==================================================================
+﻿/* ==================================================================
 Copyright 2020-2023 sashamsuper
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,9 +13,15 @@ limitations under the License.
 using Microsoft.Data.Analysis;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using
+/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+До:
 using System.Threading.Tasks;
-using WrapperNetPOI.Excel;
+После:
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+*/
+WrapperNetPOI.Excel;
 namespace WrapperNetPOI
 {
     public static class Simple
@@ -27,11 +32,26 @@ namespace WrapperNetPOI
             WrapperExcel wrapperExcel = new(pathToFile, listView);
             wrapperExcel.Exchange();
             return listView.SheetsNames;
+
+            /* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
+            До:
+                    }
+
+
+
+                    public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName="Sheet1", Border border=null,Header header=null)
+            После:
+                    }
+
+
+
+                    public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName="Sheet1", Border border=null,Header header=null)
+            */
         }
 
-        
 
-        public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName="Sheet1", Border border=null,Header header=null)
+
+        public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName = "Sheet1", Border border = null, Header header = null)
         {
             Action action = value switch
             {
@@ -39,7 +59,7 @@ namespace WrapperNetPOI
                 {
                     ListViewGeneric<string> listView = new(ExchangeOperation.Insert, sheetName, listStr, border)
                     {
-                        ExchangeValue= listStr
+                        ExchangeValue = listStr
                     };
                     WrapperExcel wrapper = new(pathToFile, listView, null)
                     {
@@ -59,14 +79,14 @@ namespace WrapperNetPOI
                 ),
                 DataFrame when value is DataFrame dataFrame => new Action(() =>
                 {
-                    DataFrameView dataView = new(ExchangeOperation.Insert, sheetName, dataFrame, border,header)
+                    DataFrameView dataView = new(ExchangeOperation.Insert, sheetName, dataFrame, border, header)
                     { };
                     WrapperExcel wrapper = new(pathToFile, dataView, null)
                     {
                     };
                     wrapper.Exchange();
                 }),
-                _ => new Action(()=>InsertListArray(value, pathToFile, sheetName, border))
+                _ => new Action(() => InsertListArray(value, pathToFile, sheetName, border))
             };
             action.Invoke();
         }
@@ -111,7 +131,7 @@ namespace WrapperNetPOI
                 Excel.WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
                 wrapper.Exchange();
                 value = (TReturn)exchangeClass.ExchangeValue;
-                return;  
+                return;
             }
             else if (returnValue is Dictionary<string, string[]> rD)
             {
@@ -123,7 +143,7 @@ namespace WrapperNetPOI
             }
             else
             {
-                value= GetListArrayChoise<TReturn>(returnValue,pathToFile, sheetName, border);
+                value = GetListArrayChoise<TReturn>(returnValue, pathToFile, sheetName, border);
                 return;
             }
         }
@@ -158,7 +178,7 @@ namespace WrapperNetPOI
 
         private static ReturnValue GetListArrayChoise<ReturnValue>(dynamic value, string pathToFile, string sheetName, Excel.Border border = null) => value switch
         {
-            IList<string[]> =>(ReturnValue)GetListArray<string>(pathToFile, sheetName, border),
+            IList<string[]> => (ReturnValue)GetListArray<string>(pathToFile, sheetName, border),
             IList<int[]> => (ReturnValue)GetListArray<int>(pathToFile, sheetName, border),
             IList<double[]> => (ReturnValue)GetListArray<double>(pathToFile, sheetName, border),
             IList<bool[]> => (ReturnValue)GetListArray<bool>(pathToFile, sheetName, border),
@@ -174,7 +194,7 @@ namespace WrapperNetPOI
             return exchangeClass.ExchangeValue;
         }
 
-        private static void InsertListArray<TInsert>(IList<TInsert[]> value,string pathToFile, string sheetName, Excel.Border border = null) //where ReturnType : new()
+        private static void InsertListArray<TInsert>(IList<TInsert[]> value, string pathToFile, string sheetName, Excel.Border border = null) //where ReturnType : new()
         {
             var exchangeClass = new MatrixViewGeneric<TInsert>(ExchangeOperation.Insert, sheetName, value, border, null);
             WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };

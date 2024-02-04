@@ -12,12 +12,9 @@ limitations under the License.
 ==========================================================================*/
 using Microsoft.Data.Analysis;
 using NPOI.SS.UserModel;
-using Org.BouncyCastle.Bcpg;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 
 namespace System.Runtime.CompilerServices
@@ -55,7 +52,7 @@ namespace WrapperNetPOI.Excel
 
     public class Header
     {
-        private int[] rows = {0};
+        private int[] rows = { 0 };
         public int[] Rows
         {
             set { rows = value; }
