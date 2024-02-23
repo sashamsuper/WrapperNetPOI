@@ -36,20 +36,12 @@ namespace WrapperNetPOI
             /* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
             До:
                     }
-
-
-
                     public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName="Sheet1", Border border=null,Header header=null)
             После:
                     }
-
-
-
                     public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName="Sheet1", Border border=null,Header header=null)
             */
         }
-
-
 
         public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName = "Sheet1", Border border = null, Header header = null)
         {

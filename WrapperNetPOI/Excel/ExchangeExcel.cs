@@ -1,12 +1,10 @@
 #define DEBUG
-
 /* ==================================================================
 Copyright 2020-2023 sashamsuper
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
-
     http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
@@ -131,15 +129,12 @@ namespace WrapperNetPOI.Excel
                 }
             }
         }
-
         public Border()
         { }
-
         public Border(int? firstRow = null, int? firstColumn = null, int? lastRow = null, int? lastColumn = null)
         {
             CorrectBorder(firstRow, firstColumn, lastRow, lastColumn);
         }
-
         public void CorrectBorder(int? firstRow = null, int? firstColumn = null, int? lastRow = null, int? lastColumn = null)
         {
             if (firstRow != null)
@@ -159,7 +154,6 @@ namespace WrapperNetPOI.Excel
                 LastRow = lastRow ?? (int)lastRow;
             }
         }
-
         public int Row(int i)
         {
             if (firstRow == null && lastRow == null)
@@ -186,7 +180,6 @@ namespace WrapperNetPOI.Excel
                 return FirstRow;
             }
         }
-
         public int Column(int i)
         {
             if (firstColumn == null && lastColumn == null)
@@ -217,7 +210,6 @@ namespace WrapperNetPOI.Excel
     internal class GetCellValue
     {
     }
-
     public static class Extension
     {
         public static int RowsCount(this ISheet sheet)
@@ -261,10 +253,8 @@ namespace WrapperNetPOI.Excel
             return dict;
         }
     }
-
     public static class MatrixConvert<T>
     {
-
         public static IList<T[]> ConvertToMatrix(IList<T> list)
         {
             return list?.Select(x => new T[] { x }).ToList();
@@ -288,7 +278,6 @@ namespace WrapperNetPOI.Excel
             return dict;
         }
     }
-
     public interface IExchangeExcel : IExchange
     {
         string ActiveSheetName { set; get; }
@@ -325,7 +314,6 @@ namespace WrapperNetPOI.Excel
         public ExchangeOperation ExchangeOperationEnum { set; get; }
         public string[] SheetsNames { set; get; }
         private ISheet activeSheet;
-
         public virtual ISheet ActiveSheet
         {
             set
@@ -404,7 +392,6 @@ namespace WrapperNetPOI.Excel
             SheetsNames = ReturnSheetsNames();
             ExchangeValueFunc();
         }
-
         public string[] ReturnSheetsNames()
         {
             List<string> tmp = new();
@@ -414,7 +401,6 @@ namespace WrapperNetPOI.Excel
             }
             return tmp.ToArray();
         }
-
         /// <summary>
         /// $Return Date by dd.mm.yyyy$
         /// </summary>
@@ -516,7 +502,6 @@ namespace WrapperNetPOI.Excel
             IRow dataRow = worksheet.GetRow(rowPosition) ?? worksheet.CreateRow(rowPosition);
             ICell cell = dataRow.GetCell(columnPosition) ?? dataRow.CreateCell(columnPosition);
             cell.SetCellValue(value);
-
         }
         public static void SetCellValue(ISheet worksheet, int rowPosition,
             int columnPosition, string value, CellType type)
@@ -524,11 +509,7 @@ namespace WrapperNetPOI.Excel
             IRow dataRow = worksheet.GetRow(rowPosition) ?? worksheet.CreateRow(rowPosition);
             ICell cell = dataRow.GetCell(columnPosition) ?? dataRow.CreateCell(columnPosition, type);
             cell.SetCellValue(value);
-
         }
-
-
-
     }
     public class RowsView : ExchangeClass<IList<IRow>>
     {
@@ -584,8 +565,6 @@ namespace WrapperNetPOI.Excel
         {
             ExchangeValue = exchangeValue;
         }
-
-
         private void AddValue()
         {
             if (ExchangeValue != null)
@@ -604,14 +583,10 @@ namespace WrapperNetPOI.Excel
                 }
             }
         }
-
-
         public override void InsertValue()
         {
             AddValue();
         }
-
-
         public override void UpdateValue()
         {
             int fRow = WorkbookBorder.FirstRow;
@@ -628,8 +603,6 @@ namespace WrapperNetPOI.Excel
             }
             AddValue();
         }
-
-
         private string[] GetStringFromRow(int i, int firstViewedColumn, int lastViewedColumn)
         {
             var row = ActiveSheet.GetRow(i);
@@ -747,7 +720,6 @@ namespace WrapperNetPOI.Excel
             }
         }
     }
-
     /*
     public class MatrixView : ExchangeClass<IList<string[]>>
     {
@@ -918,9 +890,7 @@ namespace WrapperNetPOI.Excel
             matrix.UpdateValue();
         }
     }
-
     */
-
     public class ListViewGeneric<T> : ExchangeClass<IList<T>>
     {
         private readonly MatrixViewGeneric<T> matrix;
@@ -951,8 +921,6 @@ namespace WrapperNetPOI.Excel
             matrix.UpdateValue();
         }
     }
-
-
     public class DictionaryView : ExchangeClass<IDictionary<string, string[]>>
     {
         private readonly MatrixViewGeneric<string> matrix;
@@ -980,7 +948,6 @@ namespace WrapperNetPOI.Excel
             matrix.UpdateValue();
         }
     }
-
     public class DictionaryViewGeneric<T> : ExchangeClass<IDictionary<T, T[]>>
     {
         private readonly MatrixViewGeneric<T> matrix;
