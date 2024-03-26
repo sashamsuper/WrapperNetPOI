@@ -125,7 +125,6 @@ namespace WrapperNetPOI.Excel
                 //DataColumns[i] = new DataColumn("", i, typeof(String));
                 for (int j = Border.FirstRow; j < Border.FirstRow + 10; j++)
                 {
-
                     ICell cell = activeSheet.GetRow(j)?.GetCell(Border.FirstColumn + columnNumber);
                     WrapperCell wrapperCell = new(cell);
                     foreach (var x in conversionBall)
@@ -136,7 +135,6 @@ namespace WrapperNetPOI.Excel
                             conversionBall[x.Key]++;
                         }
                     }
-
                 }
             }
             var valueType = conversionBall.OrderByDescending(x => x.Value).First().Key;
@@ -192,6 +190,8 @@ namespace WrapperNetPOI.Excel
 
         protected internal virtual void GetColumnsName()
         {
+            string[] tmpColName;
+            tmpColName = new string[DataColumns.Count()];
             foreach (var j in Rows)
             {
                 for (int i = 0; i < DataColumns.Length; i++)
@@ -199,11 +199,26 @@ namespace WrapperNetPOI.Excel
                     ICell cell = DFView.ActiveSheet
                         .GetRow(j)
                         ?.GetCell(i + DFView.WorkbookBorder.FirstColumn);
-                    string columnName = cell?.ToString();
+                    string columnName;
+                    if (cell.IsMergedCell)
+                    {
+                        columnName = NewBaseType.GetFirstCellInMergedRegion(cell)?.ToString();
+                    }
+                    else
+                    {
+                        columnName = cell?.ToString();
+                    }
                     //convertType.GetValue<string>(cell);
                     columnName ??= "";
-                    DataColumns[i].Name = $"{DataColumns[i].Name ?? ""}{columnName}";
+                    if (tmpColName[i] != columnName)
+                    {
+                        tmpColName[i] = $"{tmpColName[i] ?? ""}{columnName}";
+                    }
                 }
+            }
+            for (int i = 0; i < DataColumns.Length; i++)
+            {
+                DataColumns[i].Name = tmpColName[i];
             }
         }
 

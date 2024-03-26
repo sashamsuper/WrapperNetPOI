@@ -84,13 +84,8 @@ namespace WrapperNetPOI.Excel
     //[TypeConverter(typeof(WrapperCellConverter))]
     public class WrapperCell : IConvertible
     {
-        public CultureInfo ThisCultureInfo
-        {
-            get { return thisCultureInfo; }
-            set { thisCultureInfo = value; }
-        }
+        public CultureInfo ThisCultureInfo { get; set; } = CultureInfo.CurrentCulture;
         public NumberStyles ThisNumberStyle { get; } = NumberStyles.Number;
-        private CultureInfo thisCultureInfo = CultureInfo.CurrentCulture;
         public DateTimeStyles ThisDateTimeStyle { get; } = DateTimeStyles.AssumeUniversal;
         private NPOI.SS.UserModel.ICell Cell { get; }
         public CellType CellType { set; get; }
@@ -133,11 +128,11 @@ namespace WrapperNetPOI.Excel
         {
             foreach (var x in new Type[] { typeof(DateTime), typeof(int), typeof(double), typeof(string) })
             {
-                if (x == typeof(DateTime) && (DateTime)this.ToType(x, thisCultureInfo) != DateTime.FromOADate(default))
+                if (x == typeof(DateTime) && (DateTime)this.ToType(x, ThisCultureInfo) != DateTime.FromOADate(default))
                 {
                     return x;
                 }
-                else if (this.ToType(x, thisCultureInfo) != default)
+                else if (this.ToType(x, ThisCultureInfo) != default)
                 {
                     return x;
                 }
@@ -149,7 +144,7 @@ namespace WrapperNetPOI.Excel
             var style = Cell.CellStyle;
             if (style.DataFormat != 0)
                 return typeof(DateTime);
-            else if (Cell.StringCellValue == "")
+            else if (Cell.StringCellValue?.Length == 0)
                 return null;
             else
                 return typeof(String);
@@ -609,19 +604,14 @@ namespace WrapperNetPOI.Excel
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type destinationType)
         {
-            switch (destinationType.Name)
+            return destinationType.Name switch
             {
-                case "String":
-                    return true;
-                case "Int32":
-                    return true;
-                case "Double":
-                    return true;
-                case "DateTime":
-                    return true;
-                default:
-                    return false;
-            }
+                "String" => true,
+                "Int32" => true,
+                "Double" => true,
+                "DateTime" => true,
+                _ => false,
+            };
         }
         public override object ConvertFrom(
             ITypeDescriptorContext descriptorContext,

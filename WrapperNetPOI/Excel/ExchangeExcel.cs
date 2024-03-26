@@ -207,9 +207,8 @@ namespace WrapperNetPOI.Excel
             }
         }
     }
-    internal class GetCellValue
-    {
-    }
+
+    
     public static class Extension
     {
         public static int RowsCount(this ISheet sheet)
@@ -300,6 +299,26 @@ namespace WrapperNetPOI.Excel
             {
                 return 0;
             }
+        }
+
+        public static ICell GetFirstCellInMergedRegion(ICell cell)
+        {
+            if (cell?.IsMergedCell == true)
+            {
+                ISheet sheet = cell.Sheet;
+                foreach (var region in sheet.MergedRegions)
+                {
+                    if (region.ContainsRow(cell.RowIndex) &&
+                        region.ContainsColumn(cell.ColumnIndex))
+                    {
+                        IRow row = sheet.GetRow(region.FirstRow);
+                        ICell firstCell = row?.GetCell(region.FirstColumn);
+                        return firstCell;
+                    }
+                }
+                return null;
+            }
+            return cell;
         }
     }
     public abstract class ExchangeClass<Tout> : NewBaseType, IExchangeExcel
@@ -441,25 +460,7 @@ namespace WrapperNetPOI.Excel
         {
             throw new NotImplementedException("ReadValue()");
         }
-        public static ICell GetFirstCellInMergedRegion(ICell cell)
-        {
-            if (cell?.IsMergedCell == true)
-            {
-                ISheet sheet = cell.Sheet;
-                foreach (var region in sheet.MergedRegions)
-                {
-                    if (region.ContainsRow(cell.RowIndex) &&
-                        region.ContainsColumn(cell.ColumnIndex))
-                    {
-                        IRow row = sheet.GetRow(region.FirstRow);
-                        ICell firstCell = row?.GetCell(region.FirstColumn);
-                        return firstCell;
-                    }
-                }
-                return null;
-            }
-            return cell;
-        }
+        
         public virtual void InsertValue()
         {
             throw new NotImplementedException("InsertValue()");
