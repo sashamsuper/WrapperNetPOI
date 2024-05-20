@@ -39,6 +39,22 @@ namespace WrapperNetPOI.Excel
         private int? firstRow;
         private int? lastRow;
         private int? lastColumn;
+        public bool IsCorrected
+        {
+            get
+            {
+                if (firstColumn==default && firstRow==default && lastColumn==default && lastRow==default)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+        }
+
+
         public int FirstRow
         {
             set
@@ -653,10 +669,7 @@ namespace WrapperNetPOI.Excel
         }
         public override void ReadValue()
         {
-            if (WorkbookBorder.FirstRow == 0 &&
-                WorkbookBorder.LastRow == 0 &&
-                WorkbookBorder.LastColumn == 0 &&
-                WorkbookBorder.FirstColumn == 0)
+            if (WorkbookBorder.IsCorrected==false)
             {
                 ReadValueHoleSheet();
             }

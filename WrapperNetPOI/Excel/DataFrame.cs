@@ -10,7 +10,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
+using MathNet.Numerics.Optimization;
 using Microsoft.Data.Analysis;
+using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using System;
 using System.Collections.Generic;
@@ -200,13 +202,13 @@ namespace WrapperNetPOI.Excel
                         .GetRow(j)
                         ?.GetCell(i + DFView.WorkbookBorder.FirstColumn);
                     string columnName;
-                    if (cell.IsMergedCell)
+                    if (cell?.IsMergedCell==true)
                     {
-                        columnName = NewBaseType.GetFirstCellInMergedRegion(cell)?.ToString();
+                        columnName = NewBaseType.GetFirstCellInMergedRegion(cell)?.ToString().Trim();
                     }
                     else
                     {
-                        columnName = cell?.ToString();
+                        columnName = cell?.ToString().Trim();
                     }
                     //convertType.GetValue<string>(cell);
                     columnName ??= "";
@@ -218,7 +220,18 @@ namespace WrapperNetPOI.Excel
             }
             for (int i = 0; i < DataColumns.Length; i++)
             {
-                DataColumns[i].Name = tmpColName[i];
+                for (int j = 1; j < 15; j++)
+                {
+                    if (DataColumns.Select(x => x.Name).Contains(tmpColName[i]) == false)
+                    {
+                        DataColumns[i].Name = tmpColName[i].Trim();
+                        break;
+                    }
+                    else
+                    {
+                        tmpColName[i] = tmpColName[i].Trim() + j;
+                    }
+                }
             }
         }
 
