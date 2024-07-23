@@ -152,7 +152,7 @@ namespace WrapperNetPOI.Excel
         public Type FindTypeInNumeric(NPOI.SS.UserModel.ICell Cell)
         {
             var style = Cell.CellStyle;
-            var b = style.GetDataFormatString().All(x => new Char[] { 'H', 'D', 's', 'Y', 'M', 'm' }.Contains(x) == true);
+            var b = style.GetDataFormatString().Any(x => new Char[] { 'H', 'D', 's', 'Y', 'M', 'm' }.Contains(x) == true);
             if (b & style.GetDataFormatString() != "General")
                 return typeof(DateTime);
             else if (Cell.NumericCellValue % 1 == 0)
@@ -407,7 +407,6 @@ namespace WrapperNetPOI.Excel
                     => new Action(() => Cell.SetCellValue(boolean)),
                 null when value is null => new Action(() => Cell.SetCellValue("")),
                 _ => new Action(() => throw new NotImplementedException("Do not have handler"))
-                //_=>new Action(() => Console.WriteLine(value))
             };
             b.Invoke();
         }

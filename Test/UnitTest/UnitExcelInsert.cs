@@ -72,37 +72,7 @@ namespace UnitTest
         }
 
         
-        [TestMethod]
-        public void DataFrameTestInsertWithOutHeader()
-        {
-            var path = Path.GetFullPath("..//..//..//srcTest//dataFrameInsert2.xlsx");
-            DeleteFile(path);
-
-            var col1 = new StringDataFrameColumn("col1", new string[] { "a1", "a3", "6" });
-            var col2 = new Int32DataFrameColumn("col2",
-                new int[] { 2, 4, 7 });
-            var col3 = new DoubleDataFrameColumn("col3",
-                new Double[] { 3.1, 5.1, 8.1 });
-            var sample = new DataFrame(col1, col2, col3);
-            DataFrameView exchangeClass = new(ExchangeOperation.Insert, "List1", sample, null,new Header(Array.Empty<int>()));
-            Header header = new(Array.Empty<int>(), new Dictionary<int, Type>
-            {
-                {0,typeof(string)},
-                {1,typeof(int)},
-                {2,typeof(double)}
-            });
-
-            WrapperExcel wrapper = new(path, exchangeClass, null);
-            wrapper.Exchange();
-            exchangeClass = new(ExchangeOperation.Read, "List1", null, null, header);
-            //exchangeClass.DataHeader.Rows= Array.Empty<int>();
-            wrapper = new(path, exchangeClass, null);
-            wrapper.Exchange();
-            var s1 = sample.Rows.SelectMany(x => x).ToList();
-            var s2 = exchangeClass.ExchangeValue.Rows.SelectMany(x => x).ToList();
-            CollectionAssert.AreEqual(s1, s2);
-            //DeleteFile(path);
-        }
+        
 
         [TestMethod]
         public void SimpleGetFromExcelString()

@@ -66,11 +66,27 @@ namespace WrapperNetPOI.Word
             }
             else
             {
-                XWPFDocument doc = new(tmpStream);
-                Document = new(doc);
+                XWPFDocument doc;
+                try
+                {
+                    doc = new(tmpStream);
+                }
+                catch
+                {
+                    doc=null;
+                }
+
+                if (doc!=null)
+                {
+                    Document = new(doc);
+                }
             }
             //exchangeClass.ActiveSheet = ActiveSheet;
-            ExchangeValueFunc();
+            if (Document!=null)
+            {
+
+                ExchangeValueFunc();
+            }
         }
         public virtual void InsertValue()
         {

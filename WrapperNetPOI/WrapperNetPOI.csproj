@@ -35,7 +35,7 @@
     <PackageReference Include="Serilog" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="system.text.json" Version="7.0.3" />
+    <PackageReference Include="system.text.json" Version="8.0.4" />
     <PackageReference Include="ScratchPad.NPOI.HWPF" Version="2.5.7" />
     <!-- <PackageReference Include="NPOI.HWPFCore" Version="2.3.0.1"/>-->
   </ItemGroup>

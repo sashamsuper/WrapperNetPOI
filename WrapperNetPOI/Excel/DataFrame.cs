@@ -161,7 +161,14 @@ namespace WrapperNetPOI.Excel
                     }
                     else
                     {
-                        lastColumn = DFView.ActiveSheet.GetRow(Rows[rowsNumber]).LastCellNum;
+                        if (Rows.Count() != 0)
+                        {
+                            lastColumn = DFView.ActiveSheet.GetRow(Rows[rowsNumber]).LastCellNum;
+                        }
+                        else
+                        {
+                            lastColumn = DFView.ActiveSheet.GetRow(Border.FirstRow).LastCellNum;
+                        }
                     }
                     countValue = lastColumn - Border.FirstColumn;
                     DFView.WorkbookBorder.CorrectBorder(lastColumn: lastColumn);
@@ -338,26 +345,26 @@ namespace WrapperNetPOI.Excel
                 AddOneExcelRow(i);
             }
         }
-
         private void AddOneHeaderExcelRow(int row)
         {
             int viewExcelRow = WorkbookBorder.Row(row);
-            for (int j = 0; j < ExchangeValue.Columns.Count; j++)
+            int columnsCount = ExchangeValue.Columns.Count;
+            for (int j = 0; j < columnsCount; j++)
             {
                 int viewExcelCol = WorkbookBorder.Column(j);
                 Type dataType = ExchangeValue.Columns[j].DataType;
-                IRow dataRow =
-                    ActiveSheet.GetRow(viewExcelRow) ?? ActiveSheet.CreateRow(viewExcelRow);
+                IRow dataRow = ActiveSheet.GetRow(viewExcelRow) ?? ActiveSheet.CreateRow(viewExcelRow);
                 CellType cellType = WrapperCell.ReturnCellType(dataType);
-                ICell cell =
-                    dataRow.GetCell(viewExcelCol) ?? dataRow.CreateCell(viewExcelCol, cellType);
+                ICell cell = dataRow.GetCell(viewExcelCol) ?? dataRow.CreateCell(viewExcelCol, cellType);
                 var value = ExchangeValue.Columns[j].Name;
                 WrapperCell wrapperCell = new(cell);
                 wrapperCell.SetValue(value);
             }
         }
 
-        private void AddOneExcelRow(int row)
+    
+
+    private void AddOneExcelRow(int row)
         {
             int viewExcelRow = WorkbookBorder.Row(row);
             for (int j = 0; j < ExchangeValue.Columns.Count; j++)

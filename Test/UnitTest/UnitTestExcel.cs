@@ -700,20 +700,11 @@ namespace MsTestWrapper
                     new Border
                     {
                         FirstColumn = 5,
-                        FirstRow = 5,
-                        LastColumn = 10,
-                        LastRow = 10
+                        FirstRow = 15,
+                        LastColumn = 8,
+                        LastRow = 18
                     });
             Debug.WriteLine(df);
-            //List<string>
-            Simple.GetFromExcel<List<string>>(out List<string> ls, path, "Sheet1");
-            Debug.WriteLine(String.Join("\n", ls));
-            //List<string[]>
-            Simple.GetFromExcel(out List<string[]> lsm, path, "Sheet1");
-            Debug.WriteLine(string.Join("\n", lsm.Select(x => string.Concat(x))));
-            //Dictionary<string,string>
-            Simple.GetFromExcel<Dictionary<string, string[]>>(out Dictionary<string, string[]> ld, path, "Sheet1");
-            Debug.WriteLine(string.Join("\n", ld.Select(x => $"Key:{x.Key}Value:{String.Concat(x.Value)}")));
         }
 
         [TestMethod]
