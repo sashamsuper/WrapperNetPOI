@@ -32,6 +32,7 @@ namespace WrapperNetPOI.Excel
 }
 namespace WrapperNetPOI.Excel
 {
+    
     public class Border // in developing
     {
         public ISheet ActiveSheet { get; set; }
