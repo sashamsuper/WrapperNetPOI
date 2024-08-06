@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using WrapperNetPOI;
 using WrapperNetPOI.Excel;
 using NPOI.SS.UserModel;
+using System.IO;
 
 namespace UnitTest
 {
@@ -35,6 +36,37 @@ namespace UnitTest
             if (File.Exists(path))
             {
                 File.Delete(path);
+            }
+        }
+
+        [TestMethod]
+        public void InsertTwoList()
+        {
+            const string path = "..//..//..//srcTest//twoList.xlsx";
+            List<string[]> list1 = new()
+            {
+                new []{ "34","2r3","34" },
+                new[]{ "1","3we","34" },
+                new[]{ "wer1","3wer","34wr" }
+            };
+            List<string[]> list2 = new()
+            {
+                new []{ "34"},
+                new[]{ "1" },
+                new[]{ "34wr" }
+            };
+            File.Delete(path);
+            Simple.InsertToExcel(list1, path, "Sheet1", null);
+            Simple.InsertToExcel(list2, path, "Sheet2", null);
+            using FileStream fileStream = new(path, FileMode.Open, FileAccess.Read);
+            var workbook = WorkbookFactory.Create(fileStream);
+            if (workbook.NumberOfSheets == 2)
+            {
+                Assert.IsTrue(true);
+            }
+            else
+            {
+                Assert.Fail();
             }
         }
 

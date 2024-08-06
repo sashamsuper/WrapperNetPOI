@@ -22,9 +22,13 @@
     <AssemblyName>WrapperNetPOI</AssemblyName>
     <Copyright>©sashamsuper, 2020-2023</Copyright>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>0.1.13-alpha</Version>
+    <Version>0.1.14-alpha</Version>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <WarningLevel>5</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|x64'">
     <WarningLevel>5</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
@@ -51,10 +55,19 @@
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
     <WarningLevel>5</WarningLevel>
   </PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|x64'">
+  <WarningLevel>5</WarningLevel>
+</PropertyGroup>
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|AnyCPU'">
   <WarningLevel>5</WarningLevel>
 </PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netstandard2.0|x64'">
+  <WarningLevel>5</WarningLevel>
+</PropertyGroup>
 <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
+  <WarningLevel>5</WarningLevel>
+</PropertyGroup>
+<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|x64'">
   <WarningLevel>5</WarningLevel>
 </PropertyGroup>
   <ItemGroup>

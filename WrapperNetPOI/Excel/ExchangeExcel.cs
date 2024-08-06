@@ -17,6 +17,7 @@ limitations under the License.
 using NPOI.POIFS.Crypt;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
+using Org.BouncyCastle.Bcpg;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ namespace WrapperNetPOI.Excel
 }
 namespace WrapperNetPOI.Excel
 {
-    
+
     public class Border // in developing
     {
         public ISheet ActiveSheet { get; set; }
@@ -44,7 +45,7 @@ namespace WrapperNetPOI.Excel
         {
             get
             {
-                if (firstColumn==default && firstRow==default && lastColumn==default && lastRow==default)
+                if (firstColumn == default && firstRow == default && lastColumn == default && lastRow == default)
                 {
                     return false;
                 }
@@ -225,7 +226,7 @@ namespace WrapperNetPOI.Excel
         }
     }
 
-    
+
     public static class Extension
     {
         public static int RowsCount(this ISheet sheet)
@@ -417,11 +418,24 @@ namespace WrapperNetPOI.Excel
                         break;
                     }
                 }
-                if (!getValue && SheetsCount != 0)
+
+                /*if (!getValue && SheetsCount != 0)
                 {
                     //throw (new ArgumentOutOfRangeException($"No page found with that name-{ActiveSheetName}"));
                     ActiveSheet = Workbook.GetSheetAt(0);
                     // search first if not found
+                }
+                */
+
+                if (!getValue && SheetsCount != 0 && (ActiveSheetName == null || ActiveSheetName == ""))
+                {
+                    ActiveSheet = Workbook.GetSheetAt(0);
+                }
+                else if (!getValue && SheetsCount != 0 && ActiveSheetName != null && ActiveSheetName != "")
+                {
+                    ActiveSheet=Workbook.CreateSheet(ActiveSheetName);
+                    ActiveSheetName = ActiveSheet.SheetName;
+                    getValue = true;
                 }
             }
             //exchangeClass.ActiveSheet = ActiveSheet;
@@ -477,7 +491,7 @@ namespace WrapperNetPOI.Excel
         {
             throw new NotImplementedException("ReadValue()");
         }
-        
+
         public virtual void InsertValue()
         {
             throw new NotImplementedException("InsertValue()");
@@ -670,7 +684,7 @@ namespace WrapperNetPOI.Excel
         }
         public override void ReadValue()
         {
-            if (WorkbookBorder.IsCorrected==false)
+            if (WorkbookBorder.IsCorrected == false)
             {
                 ReadValueHoleSheet();
             }

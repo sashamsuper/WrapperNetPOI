@@ -190,6 +190,7 @@ namespace WrapperNetPOI.Word
             else if (Document is HWPFDocument h)
             {
                 int tables = 0;
+
                 var cells = HGetCells(h.GetRange(), ref tables);
                 return cells;
             }

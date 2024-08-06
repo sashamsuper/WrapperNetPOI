@@ -203,8 +203,8 @@ namespace MsTestWrapper
             Dictionary<string, string[]> dictSource2 = new()
             {
                 { "3",new[]{"2342","23","23334" } },
-                { "6",new[] { "2234433", "23244dfgd23", "��dfg233" } },
-                { "7",new[] { "34234", "2342dgd3", "2dgf33��" } }
+                { "6",new[] { "2234433", "23244dfgd23", "dfg233" } },
+                { "7",new[] { "34234", "2342dgd3", "2dgf33" } }
             };
 
             exchangeClass = new(ExchangeOperation.Insert, "List1", dictSource2, null);
@@ -401,7 +401,7 @@ namespace MsTestWrapper
                 new[]{ "1","3we","34" },
                 new[]{ "wer1","3wer","34wr" }
             };
-            MatrixViewGeneric<string> exchangeClass = new(ExchangeOperation.Insert, "List1455", listS, null);
+            MatrixViewGeneric<string> exchangeClass = new(ExchangeOperation.Insert, "List1", listS, null);
             WrapperExcel wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             List<string[]> listGet = new();
