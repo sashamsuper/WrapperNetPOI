@@ -13,7 +13,7 @@ limitations under the License.
 using Microsoft.Data.Analysis;
 using System;
 using System.Collections.Generic;
-using
+using System.Linq;
 /* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
 До:
 using System.Threading.Tasks;
@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 */
-WrapperNetPOI.Excel;
+using WrapperNetPOI.Excel;
 namespace WrapperNetPOI
 {
     public static class Simple
@@ -140,19 +140,66 @@ namespace WrapperNetPOI
             }
         }
 
+
+
         private static void InsertListArray<TValue>(TValue value, string pathToFile, string sheetName, Excel.Border border = null)
         {
-            Action action = value switch
+            if (value is IList<string[]> listStr)
             {
-                IList<string[]> when value is IList<string[]> listStr => new Action(() => InsertListArray<string>(listStr, pathToFile, sheetName, border)),
-                IList<int[]> when value is IList<int[]> listInt => new Action(() => InsertListArray<int>(listInt, pathToFile, sheetName, border)),
-                IList<double[]> when value is IList<double[]> listDbl => new Action(() => InsertListArray<Double>(listDbl, pathToFile, sheetName, border)),
-                IList<bool[]> when value is IList<bool[]> listBool => new Action(() => InsertListArray<Boolean>(listBool, pathToFile, sheetName, border)),
-                IList<DateTime[]> when value is IList<DateTime[]> listDateTime => new Action(() => InsertListArray<DateTime>(listDateTime, pathToFile, sheetName, border)),
-                _ => default
-            };
+                InsertListArray<string>(listStr, pathToFile, sheetName, border);
+            }
+            else if (value is IList<int[]> listInt)
+            {
+                InsertListArray<int>(listInt, pathToFile, sheetName, border);
+            }
+            else if (value is IList<double[]> listDbl)
+            {
+                InsertListArray<double>(listDbl, pathToFile, sheetName, border);
+            }
+            else if (value is IList<bool[]> listBool)
+            {
+                InsertListArray<bool>(listBool, pathToFile, sheetName, border);
+            }
+            else if (value is IList<DateTime[]> listDateTime)
+            {
+                InsertListArray<DateTime>(listDateTime, pathToFile, sheetName, border);
+            }
+            else
+            {
+                List<string> valueString = new();
+                valueString.Add(value.GetType().ToString());
+                InsertToExcel(valueString, pathToFile, sheetName, border);
+            }
+        }
+        /*
+        private static void InsertListArray<TValue>(TValue value, string pathToFile, string sheetName, Excel.Border border = null)
+        {
+            Action action=default;
+            List<Type> listType = new() { typeof(IList<string[]>), typeof(IList<int[]>), typeof(IList<double[]>), typeof(IList<bool[]>), typeof(IList<DateTime[]>) };//typeof(IList<string[]>)
+            List<string> valueString=new();
+            if (!listType.Any(x => value.GetType() == x))
+            {
+                foreach (var x in listType)
+                {
+                    valueString.Add(x.ToString());
+                }
+                action =new Action(() => InsertToExcel(valueString, pathToFile, sheetName, border));
+            }
+            else
+            {
+                action = value switch
+                {
+                    IList<string[]> when value is IList<string[]> listStr => new Action(() => InsertListArray<string>(listStr, pathToFile, sheetName, border)),
+                    IList<int[]> when value is IList<int[]> listInt => new Action(() => InsertListArray<int>(listInt, pathToFile, sheetName, border)),
+                    IList<double[]> when value is IList<double[]> listDbl => new Action(() => InsertListArray<Double>(listDbl, pathToFile, sheetName, border)),
+                    IList<bool[]> when value is IList<bool[]> listBool => new Action(() => InsertListArray<Boolean>(listBool, pathToFile, sheetName, border)),
+                    IList<DateTime[]> when value is IList<DateTime[]> listDateTime => new Action(() => InsertListArray<DateTime>(listDateTime, pathToFile, sheetName, border)),
+                    _ => default
+                };
+            }
             action.Invoke();
         }
+        */
 
         private static void UpdateListArray<TValue>(TValue value, string pathToFile, string sheetName, Excel.Border border = null)
         {

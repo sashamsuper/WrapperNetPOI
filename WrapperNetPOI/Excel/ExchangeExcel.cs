@@ -130,7 +130,7 @@ namespace WrapperNetPOI.Excel
             {
                 if (lastColumn == null)
                 {
-                    lastColumn = ActiveSheet?.GetRow(ActiveSheet?.FirstRowNum ?? 0)?.LastCellNum;
+                    lastColumn = ActiveSheet?.GetRow(ActiveSheet?.FirstRowNum ?? 0)?.LastCellNum-1;
                     if (lastColumn == -1)
                     {
                         lastColumn = 0;
@@ -664,7 +664,7 @@ namespace WrapperNetPOI.Excel
             if (row != null)
             {
                 var lastCol = row.LastCellNum;
-                if (lastCol < lastViewedColumn)
+                if (lastCol != lastViewedColumn)
                 {
                     lastCol = (short)lastViewedColumn;
                 }
@@ -677,6 +677,10 @@ namespace WrapperNetPOI.Excel
                         //ConvertType convert = new();
                         new WrapperCell(cell).GetValue<T>(out var value);
                         tmp.Add(value);
+                    }
+                    else
+                    {
+                        tmp.Add(default);
                     }
                 }
             }

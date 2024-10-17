@@ -22,7 +22,7 @@
     <AssemblyName>WrapperNetPOI</AssemblyName>
     <Copyright>©sashamsuper, 2020-2023</Copyright>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>0.1.14-alpha</Version>
+    <Version>0.1.15-alpha</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
@@ -33,13 +33,13 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Data.Analysis" Version="0.21.0" />
+    <PackageReference Include="Microsoft.Data.Analysis" Version="0.21.1" />
     <!--<PackageReference Include="Microsoft.Data.Analysis" Version="0.20.1" />-->
     <PackageReference Include="npoi" Version="2.6.0" />
     <PackageReference Include="Serilog" Version="3.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="system.text.json" Version="8.0.4" />
+    <PackageReference Include="system.text.json" Version="8.0.5" />
     <PackageReference Include="ScratchPad.NPOI.HWPF" Version="2.5.7" />
     <!-- <PackageReference Include="NPOI.HWPFCore" Version="2.3.0.1"/>-->
   </ItemGroup>

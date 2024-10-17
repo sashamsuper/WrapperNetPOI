@@ -107,7 +107,7 @@ namespace UnitTest
         
 
         [TestMethod]
-        public void SimpleGetFromExcelString()
+        public void SimplInsertToExcelString()
         {
             //DataFrame
             const string path = "..//..//..//srcTest//simpleGeneric.xlsx";
