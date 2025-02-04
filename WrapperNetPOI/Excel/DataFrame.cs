@@ -25,6 +25,7 @@ namespace System.Runtime.CompilerServices
     internal class IsExternalInit { }
 }
 
+
 namespace WrapperNetPOI.Excel
 {
     public static class Extensions
@@ -50,6 +51,19 @@ namespace WrapperNetPOI.Excel
         {
             return TryAddStandart(dictionary, value.Key, value.Value);
         }
+
+         public static string ColumnNameFind(this DataFrame df,IEnumerable<string> findingColumnNames)
+         {
+            var findColumn = (
+                from headerColumns in df.Columns
+                join findingColums in findingColumnNames on headerColumns.Name equals findingColums
+                select new { HeaderColumns = headerColumns, FindingColums = findingColums }
+            )
+                .FirstOrDefault()
+                ?.FindingColums;
+            return findColumn;
+        }
+        
     }
 
     public class Header
@@ -161,7 +175,7 @@ namespace WrapperNetPOI.Excel
                     }
                     else
                     {
-                        if (Rows.Count() != 0)
+                        if (Rows.Length != 0)
                         {
                             lastColumn = DFView.ActiveSheet.GetRow(Rows[rowsNumber]).LastCellNum;
                         }
@@ -200,7 +214,7 @@ namespace WrapperNetPOI.Excel
         protected internal virtual void GetColumnsName()
         {
             string[] tmpColName;
-            tmpColName = new string[DataColumns.Count()];
+            tmpColName = new string[DataColumns.Length];
             foreach (var j in Rows)
             {
                 for (int i = 0; i < DataColumns.Length; i++)
@@ -229,7 +243,7 @@ namespace WrapperNetPOI.Excel
             {
                 for (int j = 1; j < 15; j++)
                 {
-                    if (DataColumns.Select(x => x.Name).Contains(tmpColName[i]) == false)
+                    if (!DataColumns.Select(x => x.Name).Contains(tmpColName[i]))
                     {
                         DataColumns[i].Name = tmpColName[i].Trim();
                         break;
@@ -338,9 +352,9 @@ namespace WrapperNetPOI.Excel
                 {
                     AddOneHeaderExcelRow(0);
                 }
-                WorkbookBorder.FirstRow = +1;
+                WorkbookBorder.FirstRow = WorkbookBorder.FirstRow + 1;
             }
-            for (int i = 0; i < ExchangeValue.Rows.Count; i++)
+            for (int i =0; i < ExchangeValue.Rows.Count; i++)
             {
                 AddOneExcelRow(i);
             }
@@ -376,7 +390,22 @@ namespace WrapperNetPOI.Excel
                 CellType cellType = WrapperCell.ReturnCellType(dataType);
                 ICell cell =
                     dataRow.GetCell(viewExcelCol) ?? dataRow.CreateCell(viewExcelCol, cellType);
-                var value = Convert.ChangeType(ExchangeValue.Rows[row][j], dataType);
+                object value;
+                if (ExchangeValue.Rows[row][j]==null)
+                {
+                    if (dataType==typeof(String))
+                    {
+                        value="";
+                    }
+                    else
+                    {
+                        value=Activator.CreateInstance(dataType);
+                    }
+                }
+                else
+                {
+                    value = Convert.ChangeType(ExchangeValue.Rows[row][j], dataType);
+                }
                 WrapperCell wrapperCell = new(cell);
                 wrapperCell.SetValue(value);
             }

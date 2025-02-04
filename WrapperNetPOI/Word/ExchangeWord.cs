@@ -17,11 +17,11 @@ using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+
 namespace WrapperNetPOI.Word
 {
-    public interface IExchangeWord : IExchange
-    {
-    }
+    public interface IExchangeWord : IExchange { }
+
     public abstract class WordExchange<Tout> : IExchangeWord
     {
         protected WordExchange(ExchangeOperation exchange, IProgress<int> progress = null)
@@ -29,6 +29,7 @@ namespace WrapperNetPOI.Word
             ExchangeOperationEnum = exchange;
             ProgressValue = progress;
         }
+
         //public List<List<string[]>> Tables { set; get; } = new List<List<string[]>>();
         public IProgress<int> ProgressValue { get; set; }
         public ILogger Logger { get; set; }
@@ -38,17 +39,18 @@ namespace WrapperNetPOI.Word
         public bool CloseStream { get; set; }
         public WordDoc Document { set; get; }
         public string Password { set; get; }
+
         public void DeleteValue()
         {
             throw new NotImplementedException();
         }
+
         public void GetInternallyObject(Stream tmpStream, bool addNew)
         {
             FileStream fs = default;
             if (Password != null)
             {
-                NPOI.POIFS.FileSystem.POIFSFileSystem nfs =
-                new(fs);
+                NPOI.POIFS.FileSystem.POIFSFileSystem nfs = new(fs);
                 EncryptionInfo info = new(nfs);
                 Decryptor dc = Decryptor.GetInstance(info);
                 //bool b = dc.VerifyPassword(Password);
@@ -73,49 +75,53 @@ namespace WrapperNetPOI.Word
                 }
                 catch
                 {
-                    doc=null;
+                    doc = null;
                 }
 
-                if (doc!=null)
+                if (doc != null)
                 {
                     Document = new(doc);
                 }
             }
             //exchangeClass.ActiveSheet = ActiveSheet;
-            if (Document!=null)
+            if (Document != null)
             {
-
                 ExchangeValueFunc();
             }
         }
+
         public virtual void InsertValue()
         {
             throw new NotImplementedException();
         }
+
         public virtual void ReadValue()
         {
             throw new NotImplementedException();
         }
+
         public virtual void UpdateValue()
         {
             throw new NotImplementedException();
         }
     }
+
     public class TableView : WordExchange<TableValue>
     {
-        public TableView(ExchangeOperation exchange, IProgress<int> progress = null) :
-            base(exchange, progress)
-        { }
+        public TableView(ExchangeOperation exchange, IProgress<int> progress = null)
+            : base(exchange, progress) { }
+
         public override void ReadValue()
         {
             ExchangeValue = Document.Tables;
         }
     }
+
     public class ParagraphView : WordExchange<string>
     {
-        public ParagraphView(ExchangeOperation exchange, IProgress<int> progress = null) :
-            base(exchange, progress)
-        { }
+        public ParagraphView(ExchangeOperation exchange, IProgress<int> progress = null)
+            : base(exchange, progress) { }
+
         public override void ReadValue()
         {
             ExchangeValue = Document.Paragraphs;

@@ -1,6 +1,20 @@
 {
     "version": "0.2.0",
     "configurations": [
+        {
+            "name": "VsCodeTest",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}\\VsCodeTest\\bin\\Debug\\net6.0\\VsCodeTest.dll",
+            "args": [],
+            "preLaunchTask": "buildVsCodeTest",
+            //"cwd": "${workspaceFolder}\\Test\\UnitTest",
+            // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "justMyCode": false
+        },
+        
         
         {
             // Use IntelliSense to find out which attributes exist for C# debugging

@@ -152,8 +152,8 @@ namespace WrapperNetPOI.Excel
         public Type FindTypeInNumeric(NPOI.SS.UserModel.ICell Cell)
         {
             var style = Cell.CellStyle;
-            var b = style.GetDataFormatString().Any(x => new Char[] { 'H', 'D', 's', 'Y', 'M', 'm' }.Contains(x) == true);
-            if (b & style.GetDataFormatString() != "General")
+            var b = style.GetDataFormatString().Any(x => new Char[] { 'H', 'D', 's', 'Y', 'M', 'm' }.Contains(x));
+            if (b && style.GetDataFormatString() != "General")
                 return typeof(DateTime);
             else if (Cell.NumericCellValue % 1 == 0)
                 return typeof(int);

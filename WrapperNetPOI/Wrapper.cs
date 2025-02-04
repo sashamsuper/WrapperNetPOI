@@ -27,6 +27,7 @@ namespace WrapperNetPOI
         Update,
         Delete
     }
+
     public interface IExchange
     {
         //IWorkbook Workbook {set;get;}
@@ -47,6 +48,7 @@ namespace WrapperNetPOI
 
         void DeleteValue();
     }
+
     public abstract class Wrapper : IDisposable //Main class
     {
         // To detect redundant calls
@@ -101,28 +103,27 @@ namespace WrapperNetPOI
             {
                 path = Path.Combine(dir, $"{predict}{DateTime.Now:yyMMddHHmmss}{i}.{extension}");
                 i++;
-            }
-            while (File.Exists(path));
+            } while (File.Exists(path));
             return path;
         }
 
-        protected void ViewFile(FileMode fileMode, FileAccess fileAccess, bool addNew, bool closeStream = true, FileShare fileShare = FileShare.ReadWrite)
+        protected void ViewFile(
+            FileMode fileMode,
+            FileAccess fileAccess,
+            bool addNew,
+            bool closeStream = true,
+            FileShare fileShare = FileShare.ReadWrite
+        )
         {
             if (closeStream)
             {
-                using FileStream fs = new(PathToFile,
-                    fileMode,
-                    fileAccess,
-                    fileShare);
+                using FileStream fs = new(PathToFile, fileMode, fileAccess, fileShare);
                 Stream tmpStream = fs;
                 exchangeClass.GetInternallyObject(fs, addNew);
             }
             else // Apparently it's useless for NPOI
             {
-                fileStream = new(PathToFile,
-                fileMode,
-                fileAccess,
-                fileShare);
+                fileStream = new(PathToFile, fileMode, fileAccess, fileShare);
                 exchangeClass.GetInternallyObject(fileStream, addNew);
             }
         }

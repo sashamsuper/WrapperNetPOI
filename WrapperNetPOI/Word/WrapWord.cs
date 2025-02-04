@@ -70,18 +70,12 @@ namespace WrapperNetPOI.Word
     {
         public List<CellValue> Cells
         {
-            get
-            {
-                return GetCells();
-            }
+            get { return GetCells(); }
         }
 
         public List<TableValue> Tables
         {
-            get
-            {
-                return GetTables();
-            }
+            get { return GetTables(); }
         }
 
         public List<string> Paragraphs { set; get; }
@@ -102,10 +96,7 @@ namespace WrapperNetPOI.Word
                     xDocument = x;
                 }
             }
-            get
-            {
-                return hDocument ?? (object)xDocument;
-            }
+            get { return hDocument ?? (object)xDocument; }
         }
 
         public WordDoc(dynamic doc)
@@ -124,7 +115,9 @@ namespace WrapperNetPOI.Word
         private List<CellValue> XGetCells(IBody body, ref int tableN, int level = 0)
         {
             List<CellValue> cells = new();
-            int i = tableN; int j = 0; int k = 0;
+            int i = tableN;
+            int j = 0;
+            int k = 0;
             foreach (XWPFTable table in body.Tables)
             {
                 foreach (XWPFTableRow row in table.Rows)
@@ -151,7 +144,11 @@ namespace WrapperNetPOI.Word
             return cells;
         }
 
-        private List<CellValue> HGetCells(NPOI.HWPF.UserModel.Range range, ref int tableN, int level = 0)
+        private List<CellValue> HGetCells(
+            NPOI.HWPF.UserModel.Range range,
+            ref int tableN,
+            int level = 0
+        )
         {
             List<CellValue> cells = new();
             int paragraphs = range.NumParagraphs;
@@ -200,15 +197,25 @@ namespace WrapperNetPOI.Word
         private List<TableValue> GetTables()
         {
             var cells = GetCells();
-            var tables = cells.GroupBy(t => t.tableNumber).
-            Select(table => table.GroupBy(r => r.rowNumber).OrderBy(rowN => rowN.Key).Select(row =>
-            new
-            {
-                tableNumber = table.Key,
-                rowNumber = row.Key,
-                value = row.OrderBy(cell => cell.cellNumber).
-            Select(str => str.text).ToArray()
-            }));
+            var tables = cells
+                .GroupBy(t => t.tableNumber)
+                .Select(
+                    table =>
+                        table
+                            .GroupBy(r => r.rowNumber)
+                            .OrderBy(rowN => rowN.Key)
+                            .Select(
+                                row =>
+                                    new
+                                    {
+                                        tableNumber = table.Key,
+                                        rowNumber = row.Key,
+                                        value = row.OrderBy(cell => cell.cellNumber)
+                                            .Select(str => str.text)
+                                            .ToArray()
+                                    }
+                            )
+                );
 
             List<TableValue> tableList = new();
             foreach (var table in tables)
@@ -247,10 +254,8 @@ namespace WrapperNetPOI.Word
     {
         public WordDoc Document { set; get; }
 
-        public WrapperWord(string pathToFile, IExchangeWord exchangeClass, ILogger logger = null) :
-        base(pathToFile, exchangeClass, logger)
-        {
-        }
+        public WrapperWord(string pathToFile, IExchangeWord exchangeClass, ILogger logger = null)
+            : base(pathToFile, exchangeClass, logger) { }
 
         protected override void InsertValue()
         {
@@ -268,10 +273,8 @@ namespace WrapperNetPOI.Word
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
             ViewFile(FileMode.CreateNew, FileAccess.ReadWrite, true, exchangeClass.CloseStream);
-            using FileStream fs = new(PathToFile,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.ReadWrite);
+            using FileStream fs =
+                new(PathToFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
             //exchangeClass.Workbook.Write(fs, false);
             fs.Close();
         }
@@ -279,17 +282,21 @@ namespace WrapperNetPOI.Word
         protected override void ReadValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.ReadValue;
-            ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream, FileShare.Read);
+            ViewFile(
+                FileMode.Open,
+                FileAccess.Read,
+                false,
+                exchangeClass.CloseStream,
+                FileShare.Read
+            );
         }
 
         protected override void UpdateValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.UpdateValue;
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
-            using FileStream fs = new(PathToFile,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.ReadWrite);
+            using FileStream fs =
+                new(PathToFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
             //exchangeClass.Workbook.Write(fs, false);
             fs.Close();
         }
@@ -298,10 +305,8 @@ namespace WrapperNetPOI.Word
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
-            using FileStream fs = new(PathToFile,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.ReadWrite);
+            using FileStream fs =
+                new(PathToFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
             //exchangeClass.Workbook.Write(fs, false);
             fs.Close();
         }
