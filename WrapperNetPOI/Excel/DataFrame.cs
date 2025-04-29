@@ -25,7 +25,6 @@ namespace System.Runtime.CompilerServices
     internal class IsExternalInit { }
 }
 
-
 namespace WrapperNetPOI.Excel
 {
     public static class Extensions
@@ -52,8 +51,11 @@ namespace WrapperNetPOI.Excel
             return TryAddStandart(dictionary, value.Key, value.Value);
         }
 
-         public static string ColumnNameFind(this DataFrame df,IEnumerable<string> findingColumnNames)
-         {
+        public static string ColumnNameFind(
+            this DataFrame df,
+            IEnumerable<string> findingColumnNames
+        )
+        {
             var findColumn = (
                 from headerColumns in df.Columns
                 join findingColums in findingColumnNames on headerColumns.Name equals findingColums
@@ -63,7 +65,6 @@ namespace WrapperNetPOI.Excel
                 ?.FindingColums;
             return findColumn;
         }
-        
     }
 
     public class Header
@@ -129,13 +130,14 @@ namespace WrapperNetPOI.Excel
 
         protected internal Type GetTypeOfCell(ISheet activeSheet, int columnNumber)
         {
-            Dictionary<Type, int> conversionBall = new()
-            {
-                {typeof(String),0},
-                {typeof(int),0},
-                {typeof(Double),0},
-                {typeof(DateTime),0}
-            };
+            Dictionary<Type, int> conversionBall =
+                new()
+                {
+                    { typeof(String), 0 },
+                    { typeof(int), 0 },
+                    { typeof(Double), 0 },
+                    { typeof(DateTime), 0 }
+                };
             //for (int i = 0; i < DataColumns.Length; i++)
             {
                 //DataColumns[i] = new DataColumn("", i, typeof(String));
@@ -223,9 +225,12 @@ namespace WrapperNetPOI.Excel
                         .GetRow(j)
                         ?.GetCell(i + DFView.WorkbookBorder.FirstColumn);
                     string columnName;
-                    if (cell?.IsMergedCell==true)
+                    if (cell?.IsMergedCell == true)
                     {
-                        columnName = NewBaseType.GetFirstCellInMergedRegion(cell)?.ToString().Trim();
+                        columnName = NewBaseType
+                            .GetFirstCellInMergedRegion(cell)
+                            ?.ToString()
+                            .Trim();
                     }
                     else
                     {
@@ -354,11 +359,12 @@ namespace WrapperNetPOI.Excel
                 }
                 WorkbookBorder.FirstRow = WorkbookBorder.FirstRow + 1;
             }
-            for (int i =0; i < ExchangeValue.Rows.Count; i++)
+            for (int i = 0; i < ExchangeValue.Rows.Count; i++)
             {
                 AddOneExcelRow(i);
             }
         }
+
         private void AddOneHeaderExcelRow(int row)
         {
             int viewExcelRow = WorkbookBorder.Row(row);
@@ -367,18 +373,18 @@ namespace WrapperNetPOI.Excel
             {
                 int viewExcelCol = WorkbookBorder.Column(j);
                 Type dataType = ExchangeValue.Columns[j].DataType;
-                IRow dataRow = ActiveSheet.GetRow(viewExcelRow) ?? ActiveSheet.CreateRow(viewExcelRow);
+                IRow dataRow =
+                    ActiveSheet.GetRow(viewExcelRow) ?? ActiveSheet.CreateRow(viewExcelRow);
                 CellType cellType = WrapperCell.ReturnCellType(dataType);
-                ICell cell = dataRow.GetCell(viewExcelCol) ?? dataRow.CreateCell(viewExcelCol, cellType);
+                ICell cell =
+                    dataRow.GetCell(viewExcelCol) ?? dataRow.CreateCell(viewExcelCol, cellType);
                 var value = ExchangeValue.Columns[j].Name;
                 WrapperCell wrapperCell = new(cell);
                 wrapperCell.SetValue(value);
             }
         }
 
-    
-
-    private void AddOneExcelRow(int row)
+        private void AddOneExcelRow(int row)
         {
             int viewExcelRow = WorkbookBorder.Row(row);
             for (int j = 0; j < ExchangeValue.Columns.Count; j++)
@@ -391,15 +397,15 @@ namespace WrapperNetPOI.Excel
                 ICell cell =
                     dataRow.GetCell(viewExcelCol) ?? dataRow.CreateCell(viewExcelCol, cellType);
                 object value;
-                if (ExchangeValue.Rows[row][j]==null)
+                if (ExchangeValue.Rows[row][j] == null)
                 {
-                    if (dataType==typeof(String))
+                    if (dataType == typeof(String))
                     {
-                        value="";
+                        value = "";
                     }
                     else
                     {
-                        value=Activator.CreateInstance(dataType);
+                        value = Activator.CreateInstance(dataType);
                     }
                 }
                 else

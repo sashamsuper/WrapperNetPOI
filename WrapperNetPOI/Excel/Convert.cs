@@ -60,6 +60,7 @@ using System.Configuration;
 */
 using System.Linq;
 using System.Runtime.CompilerServices;
+
 /* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
 До:
 using NPOI.OpenXmlFormats.Dmlkih/g,
@@ -89,46 +90,49 @@ namespace WrapperNetPOI.Excel
         public DateTimeStyles ThisDateTimeStyle { get; } = DateTimeStyles.AssumeUniversal;
         private NPOI.SS.UserModel.ICell Cell { get; }
         public CellType CellType { set; get; }
+
         /// <summary>
         /// return type for Auto Find Type in DataFrame
         /// </summary>
         public Type AutoType
         {
-            get
-            {
-                return GetCellType(Cell);
-            }
+            get { return GetCellType(Cell); }
         }
+
         private Type GetCellType(NPOI.SS.UserModel.ICell cell) =>
             cell switch
             {
                 { CellType: var cellType } when cellType == CellType.Blank => null,
                 { CellType: var cellType } when cellType == CellType.Unknown => null,
-                {
-                    CellType: var cellType,
-                }
-                    when cellType == CellType.String
+                { CellType: var cellType, } when cellType == CellType.String
                     => FindTypeInString(Cell),
-                { CellType: var cellType }
-                    when cellType == CellType.Numeric
+                { CellType: var cellType } when cellType == CellType.Numeric
                     => FindTypeInNumeric(Cell),
-                {
-                    CellType: var cellType,
-                    CachedFormulaResultType: var cachedFormulaResultType,
-                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.String
+                { CellType: var cellType, CachedFormulaResultType: var cachedFormulaResultType, }
+                    when cellType == CellType.Formula && cachedFormulaResultType == CellType.String
                     => FindTypeInString(Cell),
-                {
-                    CellType: var cellType,
-                    CachedFormulaResultType: var cachedFormulaResultType
-                } when cellType == CellType.Formula && cachedFormulaResultType == CellType.Numeric
+                { CellType: var cellType, CachedFormulaResultType: var cachedFormulaResultType }
+                    when cellType == CellType.Formula && cachedFormulaResultType == CellType.Numeric
                     => FindTypeInNumeric(Cell),
                 _ => null
             };
+
         private Type GetCellType2(NPOI.SS.UserModel.ICell cell)
         {
-            foreach (var x in new Type[] { typeof(DateTime), typeof(int), typeof(double), typeof(string) })
+            foreach (
+                var x in new Type[]
+                {
+                    typeof(DateTime),
+                    typeof(int),
+                    typeof(double),
+                    typeof(string)
+                }
+            )
             {
-                if (x == typeof(DateTime) && (DateTime)this.ToType(x, ThisCultureInfo) != DateTime.FromOADate(default))
+                if (
+                    x == typeof(DateTime)
+                    && (DateTime)this.ToType(x, ThisCultureInfo) != DateTime.FromOADate(default)
+                )
                 {
                     return x;
                 }
@@ -139,6 +143,7 @@ namespace WrapperNetPOI.Excel
             }
             return typeof(String);
         }
+
         public Type FindTypeInString(NPOI.SS.UserModel.ICell Cell)
         {
             var style = Cell.CellStyle;
@@ -149,10 +154,13 @@ namespace WrapperNetPOI.Excel
             else
                 return typeof(String);
         }
+
         public Type FindTypeInNumeric(NPOI.SS.UserModel.ICell Cell)
         {
             var style = Cell.CellStyle;
-            var b = style.GetDataFormatString().Any(x => new Char[] { 'H', 'D', 's', 'Y', 'M', 'm' }.Contains(x));
+            var b = style
+                .GetDataFormatString()
+                .Any(x => new Char[] { 'H', 'D', 's', 'Y', 'M', 'm' }.Contains(x));
             if (b && style.GetDataFormatString() != "General")
                 return typeof(DateTime);
             else if (Cell.NumericCellValue % 1 == 0)
@@ -160,6 +168,7 @@ namespace WrapperNetPOI.Excel
             else
                 return typeof(double);
         }
+
         public WrapperCell(NPOI.SS.UserModel.ICell cell)
         {
             Cell = cell;
@@ -172,6 +181,7 @@ namespace WrapperNetPOI.Excel
                 CellType = cell.CellType;
             }
         }
+
         public CellType CachedFormulaResultType
         {
             get
@@ -277,63 +287,78 @@ namespace WrapperNetPOI.Excel
             }
             set { Cell.SetCellValue(value); }
         }
+
         public TypeCode GetTypeCode()
         {
             return Type.GetTypeCode(Cell.GetType());
         }
+
         public bool ToBoolean(IFormatProvider provider)
         {
             return GetValueBoolean(this);
         }
+
         public byte ToByte(IFormatProvider provider)
         {
             return Convert.ToByte(GetValueInt32(this));
         }
+
         public char ToChar(IFormatProvider provider)
         {
             var value = GetValueString(this);
             return value == null ? new char() : value[0];
         }
+
         public DateTime ToDateTime(IFormatProvider provider)
         {
             return GetValueDateTime(this);
         }
+
         public decimal ToDecimal(IFormatProvider provider)
         {
             return Convert.ToDecimal(GetValueInt32(this));
         }
+
         public double ToDouble(IFormatProvider provider)
         {
             return GetValueDouble(this);
         }
+
         public short ToInt16(IFormatProvider provider)
         {
             return Convert.ToInt16(GetValueInt32(this));
         }
+
         public int ToInt32(IFormatProvider provider)
         {
             return GetValueInt32(this);
         }
+
         public long ToInt64(IFormatProvider provider)
         {
             return GetValueInt32(this);
         }
+
         public sbyte ToSByte(IFormatProvider provider)
         {
             return Convert.ToSByte(GetValueInt32(this));
         }
+
         public float ToSingle(IFormatProvider provider)
         {
             return Convert.ToSingle(GetValueInt32(this));
         }
+
         public string ToString(IFormatProvider provider)
         {
             return GetValueString(this);
         }
+
         public override string ToString()
         {
             return GetValueString(this);
         }
+
         public object ToType(Type conversionType, IFormatProvider provider)
         {
             switch (Type.GetTypeCode(conversionType))
@@ -381,18 +406,22 @@ namespace WrapperNetPOI.Excel
             }
             return null;
         }
+
         public ushort ToUInt16(IFormatProvider provider)
         {
             return Convert.ToUInt16(GetValueInt32(this));
         }
+
         public uint ToUInt32(IFormatProvider provider)
         {
             return Convert.ToUInt32(GetValueInt32(this));
         }
+
         public ulong ToUInt64(IFormatProvider provider)
         {
             return Convert.ToUInt64(GetValueInt32(this));
         }
+
         public void SetValue<T>(T value)
         {
             var val = value;
@@ -410,22 +439,25 @@ namespace WrapperNetPOI.Excel
             };
             b.Invoke();
         }
-        private void SetCellValue<T>(T value)
-        {
-        }
+
+        private void SetCellValue<T>(T value) { }
+
         public dynamic GetValue(Type type)
         {
             return Convert.ChangeType(this, type);
         }
+
         public void GetValue<T>(out T value)
         {
             value = (T)Convert.ChangeType(this, typeof(T));
         }
+
         public T GetValue<T>()
         {
             GetValue(out T value);
             return value;
         }
+
         protected DateTime GetValueDateTime(WrapperCell cell) =>
             cell switch
             {
@@ -450,11 +482,13 @@ namespace WrapperNetPOI.Excel
                     => GetDateTime(numericCellValue),
                 _ => cell.DateCellValue
             };
+
         private DateTime GetDateTime(string value)
         {
             DateTime.TryParse(value, ThisCultureInfo, ThisDateTimeStyle, out var outValue);
             return outValue;
         }
+
         private DateTime GetDateTime(double value)
         {
             try
@@ -468,6 +502,7 @@ namespace WrapperNetPOI.Excel
                 return default;
             }
         }
+
         protected static string GetValueString(WrapperCell cell) =>
             cell switch
             {
@@ -492,21 +527,25 @@ namespace WrapperNetPOI.Excel
                     => numericCellValue.ToString(),
                 _ => cell.StringCellValue,
             };
+
         private double GetDouble(string value)
         {
             double.TryParse(value, ThisNumberStyle, ThisCultureInfo, out var doubleValue);
             return doubleValue;
         }
+
         private int GetInt32(string value)
         {
             int.TryParse(value, ThisNumberStyle, ThisCultureInfo, out var intValue);
             return intValue;
         }
+
         private bool GetBoolean(string value)
         {
             bool.TryParse(value, out var boolValue);
             return boolValue;
         }
+
         private bool GetBoolean(double value)
         {
             return value switch
@@ -515,6 +554,7 @@ namespace WrapperNetPOI.Excel
                 _ => true,
             };
         }
+
         private double GetValueDouble(WrapperCell cell) =>
             cell switch
             {
@@ -539,6 +579,7 @@ namespace WrapperNetPOI.Excel
                     => numericCellValue,
                 _ => GetDouble(cell.StringCellValue)
             };
+
         private int GetValueInt32(WrapperCell cell) =>
             cell switch
             {
@@ -563,6 +604,7 @@ namespace WrapperNetPOI.Excel
                     => (int)numericCellValue,
                 _ => GetInt32(cell.StringCellValue)
             };
+
         private bool GetValueBoolean(WrapperCell cell) =>
             cell switch
             {
@@ -587,6 +629,7 @@ namespace WrapperNetPOI.Excel
                     => GetBoolean(numericCellValue),
                 _ => GetBoolean(cell.StringCellValue)
             };
+
         public static CellType ReturnCellType(Type type) =>
             type switch
             {
@@ -599,6 +642,7 @@ namespace WrapperNetPOI.Excel
                 null=>CellType.Blank*/
             };
     }
+
     public class WrapperCellConverter : TypeConverter
     {
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type destinationType)
@@ -612,6 +656,7 @@ namespace WrapperNetPOI.Excel
                 _ => false,
             };
         }
+
         public override object ConvertFrom(
             ITypeDescriptorContext descriptorContext,
             CultureInfo cultureInfo,

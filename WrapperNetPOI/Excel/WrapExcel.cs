@@ -16,13 +16,14 @@ limitations under the License.
 
 using Serilog;
 using System.IO;
+
 namespace WrapperNetPOI.Excel
 {
     public class WrapperExcel : Wrapper
     {
-        public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null) :
-        base(pathToFile, exchangeClass, logger)
-        { }
+        public WrapperExcel(string pathToFile, IExchangeExcel exchangeClass, ILogger logger = null)
+            : base(pathToFile, exchangeClass, logger) { }
+
         protected override void InsertValue()
         {
             if (File.Exists(PathToFile))
@@ -34,52 +35,55 @@ namespace WrapperNetPOI.Excel
                 CreateAndInsertValue();
             }
         }
+
         private void CreateAndInsertValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
             ViewFile(FileMode.CreateNew, FileAccess.ReadWrite, true, exchangeClass.CloseStream);
-            using FileStream fs = new(PathToFile,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.ReadWrite);
+            using FileStream fs =
+                new(PathToFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
+
         protected override void ReadValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.ReadValue;
-            ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream, FileShare.Read);
+            ViewFile(
+                FileMode.Open,
+                FileAccess.Read,
+                false,
+                exchangeClass.CloseStream,
+                FileShare.Read
+            );
         }
+
         protected override void UpdateValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.UpdateValue;
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
-            using FileStream fs = new(PathToFile,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.ReadWrite);
+            using FileStream fs =
+                new(PathToFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
+
         protected override void DeleteValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.DeleteValue;
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
-            using FileStream fs = new(PathToFile,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.ReadWrite);
+            using FileStream fs =
+                new(PathToFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }
+
         private void OnlyInsertValue()
         {
             exchangeClass.ExchangeValueFunc = exchangeClass.InsertValue;
             ViewFile(FileMode.Open, FileAccess.Read, false, exchangeClass.CloseStream);
-            using FileStream fs = new(PathToFile,
-                    FileMode.Create,
-                    FileAccess.Write,
-                    FileShare.ReadWrite);
+            using FileStream fs =
+                new(PathToFile, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
             ((IExchangeExcel)exchangeClass).Workbook.Write(fs, false);
             fs.Close();
         }

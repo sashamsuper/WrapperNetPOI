@@ -452,11 +452,7 @@ namespace WrapperNetPOI.Excel
                 }
                 */
 
-                if (
-                    !getValue
-                    && SheetsCount != 0
-                    && (string.IsNullOrEmpty(ActiveSheetName))
-                )
+                if (!getValue && SheetsCount != 0 && (string.IsNullOrEmpty(ActiveSheetName)))
                 {
                     ActiveSheet = Workbook.GetSheetAt(0);
                 }

@@ -75,7 +75,12 @@ namespace WrapperNetPOI.Excel
         /// <param name="targetRowIndex"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static IRow ChangedCopyRow(ISheet sourceSheet, int sourceRowIndex, ISheet targetSheet, int targetRowIndex)
+        public static IRow ChangedCopyRow(
+            ISheet sourceSheet,
+            int sourceRowIndex,
+            ISheet targetSheet,
+            int targetRowIndex
+        )
         {
             // Get the source / new row
             IRow newRow = targetSheet.GetRow(targetRowIndex);
@@ -89,7 +94,8 @@ namespace WrapperNetPOI.Excel
             newRow = targetSheet.CreateRow(targetRowIndex);
             if (sourceRow == null)
             {
-                ArgumentNullException argumentNullException = new(nameof(ChangedCopyRow), " ChangedCopyRow source row doesn't exist");
+                ArgumentNullException argumentNullException =
+                    new(nameof(ChangedCopyRow), " ChangedCopyRow source row doesn't exist");
                 throw argumentNullException;
             }
             // Loop through source columns to add to new row
@@ -146,12 +152,13 @@ namespace WrapperNetPOI.Excel
 
                 if (cellRangeAddress != null && cellRangeAddress.FirstRow == sourceRow.RowNum)
                 {
-                    CellRangeAddress newCellRangeAddress = new(newRow.RowNum,
-                            newRow.RowNum +
-                                    (cellRangeAddress.LastRow - cellRangeAddress.FirstRow
-                                            ),
+                    CellRangeAddress newCellRangeAddress =
+                        new(
+                            newRow.RowNum,
+                            newRow.RowNum + (cellRangeAddress.LastRow - cellRangeAddress.FirstRow),
                             cellRangeAddress.FirstColumn,
-                            cellRangeAddress.LastColumn);
+                            cellRangeAddress.LastColumn
+                        );
                     targetSheet.AddMergedRegion(newCellRangeAddress);
                 }
             }

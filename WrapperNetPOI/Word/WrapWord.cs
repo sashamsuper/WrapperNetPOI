@@ -16,8 +16,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
 
-using NPOI.HWPF;
-using NPOI.HWPF.UserModel;
+using NPOI.HPSF;
+using NPOI.POIFS.FileSystem;
 using NPOI.XWPF.UserModel;
 using Serilog;
 using System.Collections.Generic;
@@ -80,14 +80,14 @@ namespace WrapperNetPOI.Word
 
         public List<string> Paragraphs { set; get; }
 
-        private HWPFDocument hDocument;
+        private NPOI.HWPF.HWPFDocument hDocument;
         private XWPFDocument xDocument;
 
         public dynamic Document
         {
             set
             {
-                if (value is HWPFDocument h)
+                if (value is NPOI.HWPF.HWPFDocument h)
                 {
                     hDocument = h;
                 }
@@ -102,7 +102,7 @@ namespace WrapperNetPOI.Word
         public WordDoc(dynamic doc)
         {
             this.Document = doc;
-            if (doc is HWPFDocument _doc)
+            if (doc is NPOI.HWPF.HWPFDocument _doc)
             {
                 GetParagraphs(_doc);
             }
@@ -155,15 +155,15 @@ namespace WrapperNetPOI.Word
             for (int par = 0; par < paragraphs; par++)
             {
                 tableN++;
-                Table table = range.GetTable(range.GetParagraph(par));
+                var table = range.GetTable(range.GetParagraph(par));
                 int rowsNums = table.NumRows;
                 for (int rowN = 0; rowN < rowsNums; rowN++)
                 {
-                    TableRow row = table.GetRow(rowN);
+                    var row = table.GetRow(rowN);
                     int cellNums = row.NumCells();
                     for (int cellN = 0; cellN < cellNums; cellN++)
                     {
-                        TableCell cell = row.GetCell(cellN);
+                        var cell = row.GetCell(cellN);
                         CellValue cellValue = new(cell.Text, par, rowN, cellN, level);
                         if (cell.NumParagraphs > 0)
                         {
@@ -184,7 +184,7 @@ namespace WrapperNetPOI.Word
                 var cells = XGetCells(x, ref i);
                 return cells;
             }
-            else if (Document is HWPFDocument h)
+            else if (Document is NPOI.HWPF.HWPFDocument h)
             {
                 int tables = 0;
 
@@ -233,7 +233,7 @@ namespace WrapperNetPOI.Word
             return tableList;
         }
 
-        private void GetParagraphs(HWPFDocument doc)
+        private void GetParagraphs(NPOI.HWPF.HWPFDocument doc)
         {
             Paragraphs = new();
             var range = doc.GetRange();
