@@ -82,7 +82,12 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <ProjectReference Include="..\..\NPOI_WORD\scratchpad\HWPF\HWPF.csproj" />
+  </ItemGroup>-->
+  <ItemGroup>
+    <Reference Include="NPOI.ScratchPad.HWPF">
+      <HintPath>NPOI.ScratchPad.HWPF.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>
