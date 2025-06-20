@@ -9,7 +9,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        var files = Directory.GetFiles(
+        /*var files = Directory.GetFiles(
             @"B:\Новая_папка\Отметки\Console\net6.0-windows\Attachments"
         );
         foreach (var file in files)
@@ -23,6 +23,6 @@ class Program
                 Console.WriteLine(e.Message);
                 Console.WriteLine(file);
             }
-        }
+        }*/
     }
 }

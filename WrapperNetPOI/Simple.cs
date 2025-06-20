@@ -14,13 +14,6 @@ using Microsoft.Data.Analysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-/* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
-До:
-using System.Threading.Tasks;
-После:
-using System.Security.Cryptography;
-using System.Threading.Tasks;
-*/
 using WrapperNetPOI.Excel;
 
 namespace WrapperNetPOI
@@ -33,15 +26,6 @@ namespace WrapperNetPOI
             WrapperExcel wrapperExcel = new(pathToFile, listView);
             wrapperExcel.Exchange();
             return listView.SheetsNames;
-
-            /* Необъединенное слияние из проекта "WrapperNetPOI (net6.0)"
-            До:
-                    }
-                    public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName="Sheet1", Border border=null,Header header=null)
-            После:
-                    }
-                    public static void InsertToExcel<TInsert>(TInsert value, string pathToFile, string sheetName="Sheet1", Border border=null,Header header=null)
-            */
         }
 
         public static void InsertToExcel<TInsert>(
@@ -197,37 +181,6 @@ namespace WrapperNetPOI
             }
         }
 
-        /*
-        private static void InsertListArray<TValue>(TValue value, string pathToFile, string sheetName, Excel.Border border = null)
-        {
-            Action action=default;
-            List<Type> listType = new() { typeof(IList<string[]>), typeof(IList<int[]>), typeof(IList<double[]>), typeof(IList<bool[]>), typeof(IList<DateTime[]>) };//typeof(IList<string[]>)
-            List<string> valueString=new();
-            if (!listType.Any(x => value.GetType() == x))
-            {
-                foreach (var x in listType)
-                {
-                    valueString.Add(x.ToString());
-                }
-                action =new Action(() => InsertToExcel(valueString, pathToFile, sheetName, border));
-            }
-            else
-            {
-                action = value switch
-                {
-                    IList<string[]> when value is IList<string[]> listStr => new Action(() => InsertListArray<string>(listStr, pathToFile, sheetName, border)),
-                    IList<int[]> when value is IList<int[]> listInt => new Action(() => InsertListArray<int>(listInt, pathToFile, sheetName, border)),
-                    IList<double[]> when value is IList<double[]> listDbl => new Action(() => InsertListArray<Double>(listDbl, pathToFile, sheetName, border)),
-                    IList<bool[]> when value is IList<bool[]> listBool => new Action(() => InsertListArray<Boolean>(listBool, pathToFile, sheetName, border)),
-                    IList<DateTime[]> when value is IList<DateTime[]> listDateTime => new Action(() => InsertListArray<DateTime>(listDateTime, pathToFile, sheetName, border)),
-                    _ => default
-                };
-            }
-            action.Invoke();
-        }
-        */
-
-
         private static void UpdateListArray<TValue>(
             TValue value,
             string pathToFile,
@@ -246,22 +199,6 @@ namespace WrapperNetPOI
             else if (value is IList<DateTime[]> listDateTime)
                 UpdateListArray<DateTime>(listDateTime, pathToFile, sheetName, border);
         }
-
-        /*
-        private static void UpdateListArray<TValue>(TValue value, string pathToFile, string sheetName, Excel.Border border = null)
-        {
-            Action action = value switch
-            {
-                IList<string[]> when value is IList<string[]> listStr => new Action(() => UpdateListArray<string>(listStr, pathToFile, sheetName, border)),
-                IList<int[]> when value is IList<int[]> listInt => new Action(() => UpdateListArray<int>(listInt, pathToFile, sheetName, border)),
-                IList<double[]> when value is IList<double[]> listDbl => new Action(() => UpdateListArray<Double>(listDbl, pathToFile, sheetName, border)),
-                IList<bool[]> when value is IList<bool[]> listBool => new Action(() => UpdateListArray<Boolean>(listBool, pathToFile, sheetName, border)),
-                IList<DateTime[]> when value is IList<DateTime[]> listDateTime => new Action(() => UpdateListArray<DateTime>(listDateTime, pathToFile, sheetName, border)),
-                _ => default
-            };
-            action.Invoke();
-        }
-        */
 
         private static ReturnValue GetListArrayChoise<ReturnValue>(
             dynamic value,
@@ -334,16 +271,6 @@ namespace WrapperNetPOI
             wrapper.Exchange();
         }
 
-        /*
-        public static void GetFromExcelListArray<ReturnType>(out IList<ReturnType[]> value, string pathToFile, string sheetName, Excel.Border border = null) //where ReturnType : new()
-        {
-                var exchangeClass = new Excel.MatrixViewGeneric<ReturnType>(ExchangeOperation.Read, sheetName, null, border, null);
-                Excel.WrapperExcel wrapper = new(pathToFile, exchangeClass, null) { };
-                wrapper.Exchange();
-                value = exchangeClass.ExchangeValue;
-                return;
-        }
-        */
         public static void GetFromExcel(
             out DataFrame value,
             string pathToFile,

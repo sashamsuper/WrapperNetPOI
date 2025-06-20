@@ -5,7 +5,7 @@
             "name": "VsCodeTest",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceFolder}\\VsCodeTest\\bin\\Debug\\net6.0\\VsCodeTest.dll",
+            "program": "${workspaceFolder}\\VsCodeTest\\bin\\Debug\\net8.0\\VsCodeTest.dll",
             "args": [],
             "preLaunchTask": "buildVsCodeTest",
             //"cwd": "${workspaceFolder}\\Test\\UnitTest",

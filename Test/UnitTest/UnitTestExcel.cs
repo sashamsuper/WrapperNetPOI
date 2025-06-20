@@ -743,7 +743,8 @@ namespace MsTestWrapper
             var col2 = new StringDataFrameColumn("col2", new String[] { "2", "4", "7" });
             var col3 = new StringDataFrameColumn("col3", new String[] { "3,1", "5,1", "8,1" });
             var sample = new DataFrame(col1, col2, col3).Rows.Select(x => x.ToString()).ToList();
-            CollectionAssert.AreEqual(sample, df.Rows.Select(x => x.ToString()).ToList());
+            var listV = df.Rows.Select(x => x.ToString()).ToList();
+            CollectionAssert.AreEqual(sample, listV);
         }
 
         [TestMethod]
