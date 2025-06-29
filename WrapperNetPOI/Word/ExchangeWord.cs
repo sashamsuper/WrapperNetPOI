@@ -11,12 +11,16 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
+using NPOI.HWPF;
 using NPOI.POIFS.Crypt;
 using NPOI.XWPF.UserModel;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using NPOI.POIFS.FileSystem;
+using NPOI.HSSF.UserModel;
+
 
 namespace WrapperNetPOI.Word
 {
@@ -36,7 +40,7 @@ namespace WrapperNetPOI.Word
         public ExchangeOperation ExchangeOperationEnum { get; set; }
         public Action ExchangeValueFunc { get; set; }
         public List<Tout> ExchangeValue { set; get; }
-        public bool CloseStream { get; set; }
+        public bool CloseStream { get; set; } = true;
         public WordDoc Document { set; get; }
         public string Password { set; get; }
 
@@ -47,35 +51,41 @@ namespace WrapperNetPOI.Word
 
         public void GetInternallyObject(Stream tmpStream, bool addNew)
         {
-            FileStream fs = default;
-            if (Password != null)
-            {
-                NPOI.POIFS.FileSystem.POIFSFileSystem nfs = new(fs);
-                EncryptionInfo info = new(nfs);
-                Decryptor dc = Decryptor.GetInstance(info);
-                //bool b = dc.VerifyPassword(Password);
-                dc.VerifyPassword(Password);
-                tmpStream = dc.GetDataStream(nfs);
-            }
             if (addNew)
             {
-                /*
-                Workbook = new XSSFWorkbook();
-                Workbook.CreateSheet(ActiveSheetName);
-                Ac
-                tiveSheet = Workbook.GetSheet(ActiveSheetName);
-                */
+                
             }
             else
             {
-                XWPFDocument doc;
+                object doc=null;
+                POIFSFileSystem nfs=default;
                 try
                 {
-                    doc = new(tmpStream);
+                    MemoryStream memoryStream = new MemoryStream();
+                    tmpStream.CopyTo(memoryStream); // Ensure the stream is reset to the beginning
+                    memoryStream.Position = 0;
+                    nfs = new(memoryStream);
                 }
-                catch
+                catch (Exception e)
                 {
-                    doc = null;
+                    // If the file is not a POIFSFileSystem, it might be an XWPF document
+                    Logger?.Error("Error reading Word document: {Message}", e.Message);
+                }
+                if (nfs!=default && nfs.Root.HasEntry("WordDocument"))
+                {
+                    doc = new HWPFDocument(nfs);
+                }
+                else
+                {
+                    try
+                    {
+                        tmpStream.Position = 0; // Reset the original stream position
+                        doc = new XWPFDocument(tmpStream);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger?.Error("Error reading Word XWPF document: {Message}", e.Message);
+                    }
                 }
 
                 if (doc != null)

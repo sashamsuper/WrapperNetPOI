@@ -86,6 +86,11 @@
     <ProjectReference Include="..\..\NPOI_WORD\scratchpad\HWPF\HWPF.csproj" />
   </ItemGroup>-->
   <ItemGroup>
+    <ProjectReference Include="..\..\2025npoi_word\scratchpad\HWPF\HWPF.csproj" />
+  </ItemGroup>
+  <!--
+  
+  <ItemGroup>
     <Reference Include="NPOI.ScratchPad.HWPF">
       <HintPath>NPOI.ScratchPad.HWPF.dll</HintPath>
     </Reference>
@@ -93,5 +98,5 @@
       <Pack>true</Pack>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
+  </ItemGroup>-->
 </Project>

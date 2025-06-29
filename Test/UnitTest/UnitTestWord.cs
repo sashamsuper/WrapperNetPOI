@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics;
 using WrapperNetPOI;
 using WrapperNetPOI.Word;
 
@@ -25,14 +26,15 @@ namespace MsTestWrapper
             CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
         }
 
-        //[TestMethod]
-        public void ReadParagraphValueTest()
+        [TestMethod]
+        public void ReadWord2003()
         {
-            const string path = "..//..//..//srcTest//listView2.docx";
+            const string path = "..//..//..//srcTest//word2003.doc";
             ParagraphView exchangeClass = new(ExchangeOperation.Read, null);
             WrapperWord wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
-            //CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
+            var value = exchangeClass.Document.Paragraphs[0].ToString();
+            Assert.AreEqual("gffgn1sdfsdfsdfsdfàâðïààïðàïðàïð\r",value );
         }
 
         //[TestMethod]
