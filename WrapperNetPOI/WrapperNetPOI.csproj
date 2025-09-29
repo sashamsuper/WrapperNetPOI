@@ -20,9 +20,9 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <LangVersion>latestMajor</LangVersion>
     <AssemblyName>WrapperNetPOI</AssemblyName>
-    <Copyright>©sashamsuper, 2020-2023</Copyright>
+    <Copyright>©sashamsuper, 2020-2025</Copyright>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>0.1.18-alpha</Version>
+    <Version>0.1.19-alpha</Version>
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Data.Analysis" Version="0.21.1" />
+    <PackageReference Include="Microsoft.Data.Analysis" Version="0.22.2" />
     <!--<PackageReference Include="Microsoft.Data.Analysis" Version="0.20.1" />-->
     <PackageReference Include="NPOI" Version="2.6.2" />
     <PackageReference Include="Serilog" Version="3.1.1" />
@@ -86,7 +86,8 @@
     <ProjectReference Include="..\..\NPOI_WORD\scratchpad\HWPF\HWPF.csproj" />
   </ItemGroup>-->
   <ItemGroup>
-    <ProjectReference Include="..\..\2025npoi_word\scratchpad\HWPF\HWPF.csproj" />
+    <PackageReference Include="Self.HWPF" Version="2.6.2-alpha" />
+    <!--<ProjectReference Include="..\..\2025npoi_word\scratchpad\HWPF\HWPF.csproj" />-->
   </ItemGroup>
   <!--
   
