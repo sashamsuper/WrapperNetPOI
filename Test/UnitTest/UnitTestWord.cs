@@ -1,7 +1,9 @@
+using NPOI.OpenXmlFormats.Wordprocessing;
 using System.Collections;
 using System.Diagnostics;
 using WrapperNetPOI;
 using WrapperNetPOI.Word;
+using Microsoft.Data.Analysis;
 
 namespace MsTestWrapper
 {
@@ -14,7 +16,7 @@ namespace MsTestWrapper
             const string path = "..//..//..//srcTest//listView2.docx";
             List<string[]> listS = new()
             {
-                new string[]{"1", "2", "7" },
+                new string[]{"133", "244", "7555" },
                 new string[]{"3", "4", "8"}
             };
             List<TableValue> sample = new();
@@ -27,6 +29,33 @@ namespace MsTestWrapper
         }
 
         [TestMethod]
+        public void SimpleReadTableValueTest()
+        {
+            const string path = "..//..//..//srcTest//listView2.docx";
+            List<string[]> listS = new()
+            {
+                new string[]{"133", "244", "7555" },
+                new string[]{"3", "4", "8"}
+            };
+            Simple.GetFromWord(out List<TableValue> sample, path);
+            CollectionAssert.AreEqual(sample.First().Value, listS, new ListComparerClass());
+        }
+
+        [TestMethod]
+        public void SimpleReadTableValueDataFrameTest()
+        {
+            const string path = "..//..//..//srcTest//listView2.docx";
+            List<string[]> listS = new()
+            {
+                new string[]{"133", "244", "7555" },
+                new string[]{"3", "4", "8"}
+            };
+            Simple.GetFromWord(out List<DataFrame> sample, path);
+            var value=sample.First().Rows.ToList().Select(x=>x.ToArray()).ToList();
+            CollectionAssert.AreEqual(value, listS, new ListComparerClass());
+        }
+
+        [TestMethod]
         public void ReadWord2003()
         {
             const string path = "..//..//..//srcTest//word2003.doc";
@@ -34,17 +63,34 @@ namespace MsTestWrapper
             WrapperWord wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
             var value = exchangeClass.Document.Paragraphs[0].ToString();
-            Assert.AreEqual("gffgn1sdfsdfsdfsdfàâðïààïðàïðàïð\r",value );
+            Assert.AreEqual("gffgn1sdfsdfsdfsdfàâðïààïðàïðàïð\r", value);
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void ReadParagraphValueTestInCell()
         {
             const string path = "..//..//..//srcTest//listView2.docx";
             TableView exchangeClass = new(ExchangeOperation.Read, null);
             WrapperWord wrapper = new(path, exchangeClass, null);
             wrapper.Exchange();
-            //CollectionAssert.AreEqual(sample.ToList(), exchangeClass.ExchangeValue.ToList(), new ListComparerClass());
+            List<string[]> right = new()
+            {   new[]{"133", "244", "7555"},
+                new[]{"3",   "4",   "8"}
+            };
+            CollectionAssert.AreEqual(right, exchangeClass.ExchangeValue.First().Value, new ListComparerClass());
+        }
+
+
+        [TestMethod]
+        public void ReadParagraphValueTestInCellSimple()
+        {
+            const string path = "..//..//..//srcTest//listView2.docx";
+            Simple.GetFromWord(out List<TableValue> listValue, path);
+            List<string[]> right = new()
+            {   new[]{"133", "244", "7555"},
+                new[]{"3",   "4",   "8"}
+            };
+            CollectionAssert.AreEqual(right, listValue.First().Value, new ListComparerClass());
         }
 
         public class ListComparerClass : IComparer
@@ -56,8 +102,25 @@ namespace MsTestWrapper
                 {
                     IEnumerator enumeratorX = _x.GetEnumerator();
                     IEnumerator enumeratorY = _y.GetEnumerator();
-                    while (enumeratorX.MoveNext() && enumeratorY.MoveNext())
+                    var move = true;
+                    while (move)
                     {
+                        var enumeratorXMoveNext = enumeratorX.MoveNext();
+                        var enumeratorYMoveNext = enumeratorY.MoveNext();
+                        if (enumeratorXMoveNext && enumeratorYMoveNext)
+                        {
+                            move = true;
+                        }
+                        else if (enumeratorXMoveNext==false && enumeratorYMoveNext==false)
+                        {
+                            move = false;
+                            return 0;
+                        }
+                        else if (enumeratorXMoveNext ^ enumeratorYMoveNext)
+                        {
+                            move = false;
+                            return -1;
+                        }
                         if (new ListComparerClass().Compare(enumeratorX.Current, enumeratorY.Current) != 0)
                         {
                             return -1;

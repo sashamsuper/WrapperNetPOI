@@ -16,12 +16,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
 
-using NPOI.HPSF;
-using NPOI.POIFS.FileSystem;
+using Microsoft.Data.Analysis;
+using NPOI.SS.Formula.Functions;
+using NPOI.SS.UserModel;
 using NPOI.XWPF.UserModel;
 using Serilog;
 using System.Collections.Generic;
 using System.Data;
+
+//using System.Data;
 using System.IO;
 using System.Linq;
 
@@ -73,10 +76,35 @@ namespace WrapperNetPOI.Word
             get { return GetCells(); }
         }
 
+
+        private List<TableValue> tables;
         public List<TableValue> Tables
         {
-            get { return GetTables(); }
+            get 
+            {
+                if (tables == null)
+                { 
+                    tables= GetTables();
+                }
+                return tables; 
+            }
         }
+
+        private List<DataFrame> dataFrames;
+        public List<DataFrame> DataFrames
+        {
+            
+            get 
+            { 
+                if (dataFrames == null)
+                {
+                    dataFrames = GetDataFrames();
+                }
+                return dataFrames; 
+            }
+        }
+
+
 
         public List<string> Paragraphs { set; get; }
 
@@ -105,11 +133,36 @@ namespace WrapperNetPOI.Word
             if (doc is NPOI.HWPF.HWPFDocument _doc)
             {
                 GetParagraphs(_doc);
+                //GetTables();
             }
             else if (doc is XWPFDocument _docx)
             {
                 GetParagraphs(_docx);
+                //GetTables();
             }
+        }
+
+
+        public void CreateColumns(string[] row, DataFrame df)
+        {
+            DataFrameColumn dt;
+            for (int i = 0; i < row.Length; i++)
+            {
+                dt = new StringDataFrameColumn(i.ToString());
+                df.Columns.Add(dt);
+            }
+        }
+
+        protected void AppendOneRow(string[] row, DataFrame dataFrame)
+        {
+            
+            List<KeyValuePair<string, object>> oneRow = new();
+            for (int i = 0; i <dataFrame.Columns.Count; i++)
+            {
+                var value= row.ElementAtOrDefault(i); //value=
+                oneRow.Add(new KeyValuePair<string, object>(dataFrame.Columns[i].Name, value));
+            }
+            dataFrame.Append(oneRow, true);
         }
 
         private List<CellValue> XGetCells(IBody body, ref int tableN, int level = 0)
@@ -192,6 +245,32 @@ namespace WrapperNetPOI.Word
                 return cells;
             }
             return default;
+        }
+
+        private List<DataFrame> GetDataFrames()
+        {
+            GetTables();
+            foreach (var table in Tables)
+            {
+                DataFrame df = new();
+                CreateColumns(table.Value.First(), df);
+                foreach (var row in table.Value)
+                {
+                    if (df.Rows.Count > 0)
+                    {
+                        AppendOneRow(row, df);
+                    }
+                    else
+                    {
+                        AppendOneRow(row, df);
+                    }
+                }
+                if (dataFrames != null && df.Rows.Count > 0)
+                    dataFrames.Add(df);
+                else
+                    dataFrames = new List<DataFrame> { df };
+            }
+            return dataFrames;
         }
 
         private List<TableValue> GetTables()

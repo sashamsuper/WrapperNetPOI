@@ -175,6 +175,54 @@ namespace MsTestWrapper
         }
 
         [TestMethod]
+        public void DataFrameHeaderSimpleTestWithBorder()
+        {
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            
+            Border border = new(firstRow:3,firstColumn:4);
+            Header dataHeader = new() { Rows = new int[] { 0 } };
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet5",dataHeader,border);
+            var columns=df.Columns.Select(x => x.Name).ToArray();
+            string[] d =
+            {
+                "Число",  "Дата",    "Текст"
+            };
+            CollectionAssert.AreEqual(d, columns);
+        }
+        
+        [TestMethod]
+        public void DataFrameHeaderSimpleTestWithBorder2rows()
+        {
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+
+            Border border = new(firstRow: 5, firstColumn: 4);
+            Header dataHeader = new() { Rows = new int[] { 0,1 } };
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet6", dataHeader, border);
+            var columns = df.Columns.Select(x => x.Name).ToArray();
+            string[] d =
+            {
+                "Число1",  "Дата2",    "Текст3","Дробное число4"
+            };
+            CollectionAssert.AreEqual(d, columns);
+        }
+
+        [TestMethod]
+        public void DataFrameHeaderSimpleTestWithBorder2rowsType()
+        {
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+
+            Border border = new(firstRow: 5, firstColumn: 4);
+            Header dataHeader = new() { Rows = new int[] { 0, 1 } };
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet6", dataHeader, border);
+            var columns = df.Columns.Select(x => x.DataType).ToArray();
+            Type[] d =
+            {
+                typeof(int),  typeof(DateTime),   typeof(string),typeof(double)
+            };
+            CollectionAssert.AreEqual(d, columns);
+        }
+
+        [TestMethod]
         public void DictionaryViewTestCreateInsert()
         {
             const string path = "..//..//..//srcTest//listView.xlsx";
@@ -855,6 +903,29 @@ namespace MsTestWrapper
             Debug.WriteLine($"Full Name-{type.FullName}");
             Debug.WriteLine(type.Name);
         }
+
+        [TestMethod]
+        public void ExtensionsAddColumn()
+        {
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet3");
+            df.AddColumn <string>("MyColumn");
+            Console.WriteLine(df); //df.ToString
+            Assert.AreEqual(4, df.Columns.Count);
+        }
+
+        [TestMethod]
+        public void ExtensionsAddColumnDouble()
+        {
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet3");
+            df.AddColumn<Double>("MyColumn");
+            Console.WriteLine(df); //df.ToString
+            Assert.AreEqual(4, df.Columns.Count);
+        }
+
+
+
 
         //[TestMethod]
         public void GetReflection()

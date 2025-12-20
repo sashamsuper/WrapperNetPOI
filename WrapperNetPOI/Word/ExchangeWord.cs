@@ -12,15 +12,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
 using NPOI.HWPF;
-using NPOI.POIFS.Crypt;
+using NPOI.POIFS.FileSystem;
 using NPOI.XWPF.UserModel;
 using Serilog;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using NPOI.POIFS.FileSystem;
-using NPOI.HSSF.UserModel;
-
+using Microsoft.Data.Analysis;
 
 namespace WrapperNetPOI.Word
 {
@@ -53,50 +51,87 @@ namespace WrapperNetPOI.Word
         {
             if (addNew)
             {
-                
+
             }
             else
             {
-                object doc=null;
-                POIFSFileSystem nfs=default;
+                object doc = null; // ќбъект дл€ хранени€ HWPFDocument или XWPFDocument
+
+
+                // --- ѕопытка открыть как HWPF (.doc) ---
+                // ћы объ€вл€ем MemoryStream здесь, чтобы иметь возможность утилизировать его в finally,
+                // если HWPFDocument не возьмет его во владение.
+                MemoryStream memoryStreamForHwpf = null;
+                POIFSFileSystem nfs = null; // POIFSFileSystem не IDisposable, поэтому без "using"
                 try
                 {
-                    MemoryStream memoryStream = new MemoryStream();
-                    tmpStream.CopyTo(memoryStream); // Ensure the stream is reset to the beginning
-                    memoryStream.Position = 0;
-                    nfs = new(memoryStream);
+                    tmpStream.Position = 0; // ”бедитьс€, что оригинальный поток находитс€ в начале дл€ копировани€
+                    memoryStreamForHwpf = new MemoryStream();
+                    tmpStream.CopyTo(memoryStreamForHwpf);
+                    memoryStreamForHwpf.Position = 0; // —бросить скопированный поток дл€ чтени€ POIFSFileSystem
+
+                    nfs = new POIFSFileSystem(memoryStreamForHwpf); // POIFSFileSystem берет на себ€ владение memoryStreamForHwpf
+
+                    // ѕровер€ем наличие специфичной дл€ HWPF записи "WordDocument"
+                    if (nfs.Root.HasEntry("WordDocument"))
+                    {
+                        doc = new HWPFDocument(nfs); // HWPFDocument (IDisposable) берет на себ€ владение nfs.
+                                                     // ѕри утилизации HWPFDocument, он утилизирует nfs,
+                                                     // который в свою очередь утилизирует memoryStreamForHwpf.
+                                                     // ¬ажно: ќбнул€ем memoryStreamForHwpf и nfs, чтобы блок finally не пыталс€ их утилизировать,
+                                                     // так как их владение было передано HWPFDocument.
+                        memoryStreamForHwpf = null;
+                        nfs = null;
+                    }
+                    else
+                    {
+                        // Ёто действительный файл POIFS, но не документ Word.
+                        // memoryStreamForHwpf все еще принадлежит nfs.
+                        // nfs сам не IDisposable, но memoryStreamForHwpf будет утилизирован в блоке finally.
+                        Logger?.Debug("POIFSFileSystem успешно создан, но не содержит 'WordDocument' (попробуем XWPF)");
+                    }
                 }
                 catch (Exception e)
                 {
-                    // If the file is not a POIFSFileSystem, it might be an XWPF document
-                    Logger?.Error("Error reading Word document: {Message}", e.Message);
+                    // ѕерехватывает ошибки копировани€ MemoryStream или создани€ POIFSFileSystem.
+                    Logger?.Error("ќшибка при попытке открыть документ как HWPF (.doc): {Message}", e.Message);
+                    // 'doc' останетс€ null, что приведет к попытке XWPF.
                 }
-                if (nfs!=default && nfs.Root.HasEntry("WordDocument"))
+                finally
                 {
-                    doc = new HWPFDocument(nfs);
+                    // Ётот блок гарантирует, что memoryStreamForHwpf будет утилизирован,
+                    // *только если* его владение не было передано HWPFDocument.
+                    // ≈сли memoryStreamForHwpf все еще содержит ссылку (т.е. HWPFDocument не был создан успешно),
+                    // то мы должны его утилизировать.
+                    memoryStreamForHwpf?.Dispose();
+                    // nfs сам не IDisposable, поэтому не нужно вызывать Dispose().
+                    // ≈сли nfs был создан, но не передан HWPFDocument, он будет собран сборщиком мусора,
+                    // и его принадлежащий поток (memoryStreamForHwpf) будет утилизирован выше.
                 }
-                else
+
+                // --- ≈сли попытка HWPF не удалась, пробуем открыть как XWPF (.docx) ---
+                if (doc == null)
                 {
                     try
                     {
-                        tmpStream.Position = 0; // Reset the original stream position
-                        doc = new XWPFDocument(tmpStream);
+                        tmpStream.Position = 0; // —бросить оригинальный поток дл€ чтени€ XWPF
+                        doc = new XWPFDocument(tmpStream); // XWPFDocument обычно Ќ≈ берет на себ€ владение tmpStream.
+                                                           // ¬ызывающий код дл€ этого блока отвечает за утилизацию tmpStream.
                     }
                     catch (Exception e)
                     {
-                        Logger?.Error("Error reading Word XWPF document: {Message}", e.Message);
+                        Logger?.Error("ќшибка при попытке открыть документ как XWPF (.docx): {Message}", e.Message);
                     }
                 }
 
+                // --- »тоговое присвоение ---
                 if (doc != null)
                 {
+                    // ѕредполагаетс€, что 'Document' - это обертка, котора€ управл€ет жизненным циклом 'doc'
+                    // (т.е. вызывает Dispose() на 'doc', если он IDisposable, как HWPFDocument).
                     Document = new(doc);
+                    ExchangeValueFunc();
                 }
-            }
-            //exchangeClass.ActiveSheet = ActiveSheet;
-            if (Document != null)
-            {
-                ExchangeValueFunc();
             }
         }
 
@@ -115,6 +150,19 @@ namespace WrapperNetPOI.Word
             throw new NotImplementedException();
         }
     }
+
+
+    public class DataFrameView : WordExchange<DataFrame>
+    {
+        public DataFrameView(ExchangeOperation exchange, IProgress<int> progress = null)
+            : base(exchange, progress) { }
+
+        public override void ReadValue()
+        {
+            ExchangeValue = Document.DataFrames;
+        }
+    }
+
 
     public class TableView : WordExchange<TableValue>
     {

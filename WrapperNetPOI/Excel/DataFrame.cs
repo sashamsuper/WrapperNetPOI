@@ -10,9 +10,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ==========================================================================*/
-using MathNet.Numerics.Optimization;
 using Microsoft.Data.Analysis;
-using NPOI.SS.Formula.Functions;
 using NPOI.SS.UserModel;
 using System;
 using System.Collections.Generic;
@@ -65,9 +63,77 @@ namespace WrapperNetPOI.Excel
                 ?.FindingColums;
             return findColumn;
         }
+
+        public static void AddColumn<T>(this DataFrame df, string name)
+        {
+            if (df == null) throw new ArgumentNullException(nameof(df));
+            DataFrameColumn column;
+            long count = df.Rows.Count;
+
+            var t = typeof(T);
+
+            if (t == typeof(string))
+            {
+                column = new StringDataFrameColumn(name, count);
+            }
+            else if (t == typeof(int))
+            {
+                column = new Int32DataFrameColumn(name, count);
+            }
+            else if (t == typeof(long))
+            {
+                column = new Int64DataFrameColumn(name, count);
+            }
+            else if (t == typeof(short))
+            {
+                column = new Int16DataFrameColumn(name, count);
+            }
+            else if (t == typeof(byte))
+            {
+                column = new ByteDataFrameColumn(name, count);
+            }
+            else if (t == typeof(sbyte))
+            {
+                column = new SByteDataFrameColumn(name, count);
+            }
+            else if (t == typeof(float))
+            {
+                column = new SingleDataFrameColumn(name, count);
+            }
+            else if (t == typeof(double))
+            {
+                column = new DoubleDataFrameColumn(name, count);
+            }
+            else if (t == typeof(decimal))
+            {
+                column = new DecimalDataFrameColumn(name, count);
+            }
+            else if (t == typeof(bool))
+            {
+                column = new BooleanDataFrameColumn(name, count);
+            }
+            else if (t == typeof(DateTime))
+            {
+                column = new DateTimeDataFrameColumn(name, count);
+            }
+            else
+            {
+                throw new NotSupportedException($"Type {t} is not supported.");
+                // Для прочих типов используем универсальный примитивный столбец
+                //column = new PrimitiveDataFrameColumn<T>(name, count);
+            }
+            df.Columns.Add(column);
+        }
+        
     }
 
-    public class Header
+
+    
+
+
+
+
+    public class Header:IHeader
     {
         private int[] rows = { 0 };
         public int[] Rows
@@ -95,7 +161,7 @@ namespace WrapperNetPOI.Excel
         }
         public DataColumn[] DataColumns { set; get; }
         private DataFrameView dataFrameView;
-        public DataFrameView DFView
+        internal DataFrameView DFView
         {
             set
             {
@@ -104,7 +170,7 @@ namespace WrapperNetPOI.Excel
             }
             private get { return dataFrameView; }
         }
-        public Border Border { set; get; }
+        internal Border Border { set; get; }
 
         public Header() { }
 
@@ -289,26 +355,9 @@ namespace WrapperNetPOI.Excel
         }
     }
 
-    public class DataColumn
-    {
-        public string Name { set; get; }
-        public int Number { set; get; }
-        public Type Type { set; get; }
+    
 
-        public override string ToString()
-        {
-            return Name;
-        }
-
-        public DataColumn(string name, int columnNumber, Type columnType)
-        {
-            Name = name;
-            Number = columnNumber;
-            Type = columnType;
-        }
-    }
-
-    public class DataFrameView : ExchangeClass<DataFrame>
+    public class DataFrameView : ExchangeClass<DataFrame>, IDataFrameView
     {
         public Header DataHeader { set; get; }
 
@@ -342,6 +391,8 @@ namespace WrapperNetPOI.Excel
             }
             get { return base.ActiveSheet; }
         }
+
+        IHeader IDataFrameView.DataHeader { get; set; }
 
         public override void ReadValue()
         {
@@ -438,13 +489,13 @@ namespace WrapperNetPOI.Excel
             dataFrame.Append(oneRow, true);
         }
 
-        protected internal void ReadHeader()
+        public void ReadHeader()
         {
             DataHeader.GetHeaderRow();
             DataHeader.RenameDoubleHeaderColumn();
         }
 
-        private void CreateColumns()
+        public void CreateColumns()
         {
             DataFrameColumn dt;
             foreach (var column in DataHeader.DataColumns)

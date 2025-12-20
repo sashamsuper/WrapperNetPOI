@@ -102,9 +102,29 @@ namespace UnitTest
             CollectionAssert.AreEqual(s1, s2);
             //DeleteFile(path);
         }
+        
+        [TestMethod]
+        public void DataFrameTestInsertSimple()
+        {
+            var path = Path.GetFullPath("..//..//..//srcTest//dataFrameInsert.xlsx");
+            DeleteFile(path);
 
-        
-        
+            var col1 = new StringDataFrameColumn("col1", new string[] { "a1", "a3", "6" });
+            var col2 = new Int32DataFrameColumn("col2",
+                new int[] { 2, 4, 7 });
+            var col3 = new DoubleDataFrameColumn("col3",
+                new Double[] { 3.1, 5.1, 8.1 });
+            var sample = new DataFrame(col1, col2, col3);
+            Simple.InsertToExcel(sample, path, "Sheet2", null);
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet2");
+            var s1 = sample.Rows.SelectMany(x => x).ToList();
+            var s2 = df.Rows.SelectMany(x => x).ToList();
+            CollectionAssert.AreEqual(s1, s2);
+            //DeleteFile(path);
+        }
+
+
+
 
         [TestMethod]
         public void SimplInsertToExcelString()

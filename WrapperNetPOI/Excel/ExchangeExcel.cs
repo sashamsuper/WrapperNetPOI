@@ -17,7 +17,6 @@ limitations under the License.
 using NPOI.POIFS.Crypt;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using Org.BouncyCastle.Bcpg;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -34,7 +33,13 @@ namespace WrapperNetPOI.Excel
 
 namespace WrapperNetPOI.Excel
 {
-    public class Border // in developing
+
+    
+
+
+
+
+    public class Border:IBorder // in developing
     {
         public ISheet ActiveSheet { get; set; }
         private int? firstColumn;
