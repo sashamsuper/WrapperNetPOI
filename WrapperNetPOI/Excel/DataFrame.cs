@@ -19,14 +19,29 @@ using System.Linq;
 
 namespace System.Runtime.CompilerServices
 {
+    /// <summary>
+    /// The checks if is external init.
+    /// </summary>
     [EditorBrowsable(EditorBrowsableState.Never)]
     internal class IsExternalInit { }
 }
 
 namespace WrapperNetPOI.Excel
 {
+    /// <summary>
+    /// The extensions.
+    /// </summary>
     public static class Extensions
     {
+        /// <summary>
+        /// Try add standart.
+        /// </summary>
+        /// <typeparam name="TKey"/>
+        /// <typeparam name="TValue"/>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A bool</returns>
         public static bool TryAddStandart<TKey, TValue>(
             this Dictionary<TKey, TValue> dictionary,
             TKey key,
@@ -41,6 +56,14 @@ namespace WrapperNetPOI.Excel
             return true;
         }
 
+        /// <summary>
+        /// Try add.
+        /// </summary>
+        /// <typeparam name="TKey"/>
+        /// <typeparam name="TValue"/>
+        /// <param name="dictionary">The dictionary.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>A bool</returns>
         public static bool TryAdd<TKey, TValue>(
             this Dictionary<TKey, TValue> dictionary,
             KeyValuePair<TKey, TValue> value
@@ -49,6 +72,12 @@ namespace WrapperNetPOI.Excel
             return TryAddStandart(dictionary, value.Key, value.Value);
         }
 
+        /// <summary>
+        /// Column name find.
+        /// </summary>
+        /// <param name="df">The df.</param>
+        /// <param name="findingColumnNames">The finding column names.</param>
+        /// <returns>A string</returns>
         public static string ColumnNameFind(
             this DataFrame df,
             IEnumerable<string> findingColumnNames
@@ -64,6 +93,14 @@ namespace WrapperNetPOI.Excel
             return findColumn;
         }
 
+        /// <summary>
+        /// Add the column.
+        /// </summary>
+        /// <typeparam name="T"/>
+        /// <param name="df">The df.</param>
+        /// <param name="name">The name.</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="NotSupportedException"></exception>
         public static void AddColumn<T>(this DataFrame df, string name)
         {
             if (df == null) throw new ArgumentNullException(nameof(df));
@@ -124,18 +161,42 @@ namespace WrapperNetPOI.Excel
             }
             df.Columns.Add(column);
         }
-        
+
+        /// <summary>
+        /// Add V buffer column.
+        /// </summary>
+        /// <typeparam name="T"/>
+        /// <param name="df">The df.</param>
+        /// <param name="name">The name.</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static void AddVBufferColumn<T>(this DataFrame df, string name)
+        {
+            if (df == null) throw new ArgumentNullException(nameof(df));
+            DataFrameColumn column;
+            long count = df.Rows.Count;
+            column = new VBufferDataFrameColumn<T>(name, count);
+            df.Columns.Add(column);
+        }
     }
 
 
-    
 
 
 
 
-    public class Header:IHeader
+
+    /// <summary>
+    /// The header.
+    /// </summary>
+    public class Header : IHeader
     {
+        /// <summary>
+        /// The rows.
+        /// </summary>
         private int[] rows = { 0 };
+        /// <summary>
+        /// Gets or sets the rows.
+        /// </summary>
         public int[] Rows
         {
             set { rows = value; }
@@ -159,8 +220,17 @@ namespace WrapperNetPOI.Excel
                 }
             }
         }
+        /// <summary>
+        /// Gets or sets the data columns.
+        /// </summary>
         public DataColumn[] DataColumns { set; get; }
+        /// <summary>
+        /// The data frame view.
+        /// </summary>
         private DataFrameView dataFrameView;
+        /// <summary>
+        /// Gets or sets the DF view.
+        /// </summary>
         internal DataFrameView DFView
         {
             set
@@ -170,10 +240,21 @@ namespace WrapperNetPOI.Excel
             }
             private get { return dataFrameView; }
         }
+        /// <summary>
+        /// Gets or sets the border.
+        /// </summary>
         internal Border Border { set; get; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Header"/> class.
+        /// </summary>
         public Header() { }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Header"/> class.
+        /// </summary>
+        /// <param name="rows">The rows.</param>
+        /// <param name="columns">The columns.</param>
         public Header(int[] rows, Dictionary<int, Type> columns = null)
         {
             Rows = rows;
@@ -183,6 +264,10 @@ namespace WrapperNetPOI.Excel
             }
         }
 
+        /// <summary>
+        /// Creates header type.
+        /// </summary>
+        /// <param name="columns">The columns.</param>
         public void CreateHeaderType(Dictionary<int, Type> columns)
         {
             List<DataColumn> tmp = new();
@@ -194,6 +279,12 @@ namespace WrapperNetPOI.Excel
             DataColumns = tmp.ToArray();
         }
 
+        /// <summary>
+        /// Get type of cell.
+        /// </summary>
+        /// <param name="activeSheet">The active sheet.</param>
+        /// <param name="columnNumber">The column number.</param>
+        /// <returns>A Type</returns>
         protected internal Type GetTypeOfCell(ISheet activeSheet, int columnNumber)
         {
             Dictionary<Type, int> conversionBall =
@@ -225,6 +316,10 @@ namespace WrapperNetPOI.Excel
             return valueType;
         }
 
+        /// <summary>
+        /// Get number of columns.
+        /// </summary>
+        /// <param name="rowsNumber">The rows number.</param>
         protected internal virtual void GetNumberOfColumns(int rowsNumber)
         {
             {
@@ -245,7 +340,11 @@ namespace WrapperNetPOI.Excel
                     {
                         if (Rows.Length != 0)
                         {
-                            lastColumn = DFView.ActiveSheet.GetRow(Rows[rowsNumber]).LastCellNum;
+                            var row = DFView.ActiveSheet.GetRow(Rows[rowsNumber]);
+                            if (row != null)
+                                lastColumn = DFView.ActiveSheet.GetRow(Rows[rowsNumber]).LastCellNum;
+                            else
+                                lastColumn = 0;
                         }
                         else
                         {
@@ -279,6 +378,9 @@ namespace WrapperNetPOI.Excel
             }
         }
 
+        /// <summary>
+        /// Get columns name.
+        /// </summary>
         protected internal virtual void GetColumnsName()
         {
             string[] tmpColName;
@@ -300,7 +402,15 @@ namespace WrapperNetPOI.Excel
                     }
                     else
                     {
-                        columnName = cell?.ToString().Trim();
+                        var cName= cell?.ToString().Trim();
+                        if (cName == null)
+                        {
+                            columnName = "_";
+                        }
+                        else
+                        {
+                            columnName = cell?.ToString().Trim();
+                        }
                     }
                     //convertType.GetValue<string>(cell);
                     columnName ??= "";
@@ -327,6 +437,9 @@ namespace WrapperNetPOI.Excel
             }
         }
 
+        /// <summary>
+        /// Get header row.
+        /// </summary>
         protected internal virtual void GetHeaderRow()
         {
             if (Rows.Length == 0)
@@ -340,6 +453,9 @@ namespace WrapperNetPOI.Excel
             GetColumnsName();
         }
 
+        /// <summary>
+        /// Rename double header column.
+        /// </summary>
         public void RenameDoubleHeaderColumn()
         {
             for (int i = DataColumns.Length - 1; i >= 0; i--)
@@ -355,12 +471,27 @@ namespace WrapperNetPOI.Excel
         }
     }
 
-    
 
+
+    /// <summary>
+    /// The data frame view.
+    /// </summary>
     public class DataFrameView : ExchangeClass<DataFrame>, IDataFrameView
     {
+        /// <summary>
+        /// Gets or sets the data header.
+        /// </summary>
         public Header DataHeader { set; get; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DataFrameView"/> class.
+        /// </summary>
+        /// <param name="exchangeType">The exchange type.</param>
+        /// <param name="activeSheetName">The active sheet name.</param>
+        /// <param name="exchangeValue">The exchange value.</param>
+        /// <param name="border">The border.</param>
+        /// <param name="header">The header.</param>
+        /// <param name="progress">The progress.</param>
         public DataFrameView(
             ExchangeOperation exchangeType,
             string activeSheetName = "",
@@ -375,6 +506,9 @@ namespace WrapperNetPOI.Excel
             DataHeader = header;
         }
 
+        /// <summary>
+        /// Gets or sets the active sheet.
+        /// </summary>
         public override ISheet ActiveSheet
         {
             set
@@ -392,23 +526,37 @@ namespace WrapperNetPOI.Excel
             get { return base.ActiveSheet; }
         }
 
+        /// <summary>
+        /// Gets or sets the data header.
+        /// </summary>
         IHeader IDataFrameView.DataHeader { get; set; }
 
+        /// <summary>
+        /// Reads the value.
+        /// </summary>
         public override void ReadValue()
         {
             ReadHeader();
             ReadValueHoleSheet();
         }
 
-        public override void InsertValue()
+        /// <summary>
+        /// Inserts the value.
+        /// </summary>
+        public override void UpdateValue()
+        {
+            _UpdateValue();
+        }
+
+        private void _UpdateValue(bool addHeader=true)
         {
             if (DataHeader.Rows.Length != 0)
             {
-                if (ExchangeValue != null)
+                if (addHeader)
                 {
                     AddOneHeaderExcelRow(0);
+                    WorkbookBorder.FirstRow = WorkbookBorder.FirstRow + 1;
                 }
-                WorkbookBorder.FirstRow = WorkbookBorder.FirstRow + 1;
             }
             for (int i = 0; i < ExchangeValue.Rows.Count; i++)
             {
@@ -416,6 +564,26 @@ namespace WrapperNetPOI.Excel
             }
         }
 
+        public override void InsertValue()
+        {
+            int rowsCount = ActiveSheet.RowsCount();
+            WorkbookBorder.FirstRow = rowsCount;
+            if (rowsCount > 0)
+            {
+                _UpdateValue(false);
+            }
+            else 
+            {
+                _UpdateValue();
+            }
+        }
+
+
+
+        /// <summary>
+        /// Add one header excel row.
+        /// </summary>
+        /// <param name="row">The row.</param>
         private void AddOneHeaderExcelRow(int row)
         {
             int viewExcelRow = WorkbookBorder.Row(row);
@@ -435,6 +603,10 @@ namespace WrapperNetPOI.Excel
             }
         }
 
+        /// <summary>
+        /// Add one excel row.
+        /// </summary>
+        /// <param name="row">The row.</param>
         private void AddOneExcelRow(int row)
         {
             int viewExcelRow = WorkbookBorder.Row(row);
@@ -468,6 +640,11 @@ namespace WrapperNetPOI.Excel
             }
         }
 
+        /// <summary>
+        /// Appends one row.
+        /// </summary>
+        /// <param name="row">The row.</param>
+        /// <param name="dataFrame">The data frame.</param>
         protected void AppendOneRow(IRow row, DataFrame dataFrame)
         {
             List<KeyValuePair<string, object>> oneRow = new();
@@ -489,12 +666,18 @@ namespace WrapperNetPOI.Excel
             dataFrame.Append(oneRow, true);
         }
 
+        /// <summary>
+        /// Reads the header.
+        /// </summary>
         public void ReadHeader()
         {
             DataHeader.GetHeaderRow();
             DataHeader.RenameDoubleHeaderColumn();
         }
 
+        /// <summary>
+        /// Creates the columns.
+        /// </summary>
         public void CreateColumns()
         {
             DataFrameColumn dt;
@@ -530,6 +713,9 @@ namespace WrapperNetPOI.Excel
             }
         }
 
+        /// <summary>
+        /// Reads value hole sheet.
+        /// </summary>
         private void ReadValueHoleSheet() //Fast
         {
             ExchangeValue = new DataFrame();

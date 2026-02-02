@@ -47,13 +47,9 @@ namespace WrapperNetPOI
         void CorrectBorder(int? firstRow = null, int? firstColumn = null, int? lastRow = null, int? lastColumn = null);
     }
 
-    public interface IDataFrameView
+    public interface IDataFrameView: IExchange
     {
         IHeader DataHeader { set; get; }
-
-        void ReadValue();
-
-        void InsertValue();
 
         void ReadHeader();
 

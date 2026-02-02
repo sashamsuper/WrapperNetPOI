@@ -31,6 +31,29 @@ namespace UnitTest
     public class UnitExcelInsert
     {
 
+        [TestMethod]
+        public void DataFrameColumnValue()
+        {
+            const string path = "..//..//..//srcTest//dataframe.xlsx";
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet7",new Border(firstRow: 1));
+
+            Dictionary<int, Type> header =
+                new()
+                {
+                    { 0, typeof(String) },
+                    { 1, typeof(String) },
+                    { 2, typeof(String) }
+                };
+            if (df.Columns.Count == 10)
+            {
+                Assert.IsTrue(true);
+            }
+            else
+            {
+                Assert.IsFalse(true);
+            }
+        }
+
         protected static void DeleteFile(string path)
         {
             if (File.Exists(path))
@@ -102,7 +125,42 @@ namespace UnitTest
             CollectionAssert.AreEqual(s1, s2);
             //DeleteFile(path);
         }
+
         
+
+
+        [TestMethod]
+        public void DataFrameTestUpdate()
+        {
+            var path = Path.GetFullPath("..//..//..//srcTest//dataFrameInsert.xlsx");
+            DeleteFile(path);
+
+            var col1 = new StringDataFrameColumn("col1", new string[] { "a1", "a3", "6" });
+            var col2 = new Int32DataFrameColumn("col2",
+                new int[] { 2, 4, 7 });
+            var col3 = new DoubleDataFrameColumn("col3",
+                new Double[] { 3.1, 5.1, 8.1 });
+            var sample = new DataFrame(col1, col2, col3);
+            DataFrameView exchangeClass = new(ExchangeOperation.Insert, "List1", sample, null);
+            Header header = new(new int[] { 0 }, new Dictionary<int, Type>
+            {
+                {0,typeof(string)},
+                {1,typeof(int)},
+                {2,typeof(double)}
+            });
+
+            WrapperExcel wrapper = new(path, exchangeClass, null);
+            wrapper.Exchange();
+            exchangeClass = new(ExchangeOperation.Read, "List1", null, null, header);
+            //exchangeClass.DataHeader.Rows= Array.Empty<int>();
+            wrapper = new(path, exchangeClass, null);
+            wrapper.Exchange();
+            var s1 = sample.Rows.SelectMany(x => x).ToList();
+            var s2 = exchangeClass.ExchangeValue.Rows.SelectMany(x => x).ToList();
+            CollectionAssert.AreEqual(s1, s2);
+            //DeleteFile(path);
+        }
+
         [TestMethod]
         public void DataFrameTestInsertSimple()
         {
@@ -118,6 +176,31 @@ namespace UnitTest
             Simple.InsertToExcel(sample, path, "Sheet2", null);
             Simple.GetFromExcel(out DataFrame df, path, "Sheet2");
             var s1 = sample.Rows.SelectMany(x => x).ToList();
+            var s2 = df.Rows.SelectMany(x => x).ToList();
+            CollectionAssert.AreEqual(s1, s2);
+            //DeleteFile(path);
+        }
+
+        [TestMethod]
+        public void DataFrameTestInsertTwoSimple()
+        {
+            var path = Path.GetFullPath("..//..//..//srcTest//dataFrameInsert.xlsx");
+            DeleteFile(path);
+            var col1 = new StringDataFrameColumn("col1", new string[] { "a1", "a3", "6" });
+            var col2 = new Int32DataFrameColumn("col2",
+                new int[] { 2, 4, 7 });
+            var col3 = new DoubleDataFrameColumn("col3",
+                new Double[] { 3.1, 5.1, 8.1 });
+            var sample1 = new DataFrame(col1, col2, col3);
+            var sample2 = new DataFrame(col1, col2, col3);
+            foreach (var item in sample1.Rows)
+            {
+                sample2.Append(item,inPlace:true);
+            }
+            Simple.InsertToExcel(sample1, path, "Sheet2", null);
+            Simple.InsertToExcel(sample1, path, "Sheet2", null);
+            Simple.GetFromExcel(out DataFrame df, path, "Sheet2");
+            var s1 = sample2.Rows.SelectMany(x => x).ToList();
             var s2 = df.Rows.SelectMany(x => x).ToList();
             CollectionAssert.AreEqual(s1, s2);
             //DeleteFile(path);

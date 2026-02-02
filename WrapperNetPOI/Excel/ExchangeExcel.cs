@@ -33,12 +33,6 @@ namespace WrapperNetPOI.Excel
 
 namespace WrapperNetPOI.Excel
 {
-
-    
-
-
-
-
     public class Border:IBorder // in developing
     {
         public ISheet ActiveSheet { get; set; }
@@ -321,11 +315,6 @@ namespace WrapperNetPOI.Excel
     public interface IExchangeExcel : IExchange
     {
         string ActiveSheetName { set; get; }
-
-        //int FirstViewedRow { get; }
-        //int LastViewedRow { get; }
-        //int FirstViewedColumn { get; }
-        //int LastViewedColumn { get; }
         ISheet ActiveSheet { set; get; }
         IWorkbook Workbook { set; get; }
     }
@@ -388,11 +377,6 @@ namespace WrapperNetPOI.Excel
             }
             get { return activeSheet; }
         }
-
-        //public int FirstViewedRow => WorkbookBorder.FirstRow;
-        //public int FirstViewedColumn => WorkbookBorder.FirstColumn;
-        //public int LastViewedRow => WorkbookBorder.LastRow;
-        //public int LastViewedColumn => WorkbookBorder.LastColumn;
         public Tout ExchangeValue { set; get; }
         public Action ExchangeValueFunc { set; get; }
 

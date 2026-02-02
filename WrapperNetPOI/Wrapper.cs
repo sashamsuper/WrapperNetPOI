@@ -20,6 +20,9 @@ using System.IO;
 
 namespace WrapperNetPOI
 {
+    /// <summary>
+    /// The exchanges operations.
+    /// </summary>
     public enum ExchangeOperation
     {
         Insert,
@@ -28,32 +31,76 @@ namespace WrapperNetPOI
         Delete
     }
 
+    /// <summary>
+    /// The exchange interface.
+    /// </summary>
     public interface IExchange
     {
         //IWorkbook Workbook {set;get;}
+        /// <summary>
+        /// Gets or sets the progress value.
+        /// </summary>
         IProgress<int> ProgressValue { set; get; }
 
+        /// <summary>
+        /// Gets or sets the logger.
+        /// </summary>
         ILogger Logger { set; get; }
+        /// <summary>
+        /// Gets or sets the exchange operation enum.
+        /// </summary>
         ExchangeOperation ExchangeOperationEnum { set; get; }
+        /// <summary>
+        /// Gets or sets the exchange value func.
+        /// </summary>
         Action ExchangeValueFunc { set; get; }
+        /// <summary>
+        /// Gets or sets a value indicating whether close stream.
+        /// </summary>
         bool CloseStream { get; set; }
 
+        /// <summary>
+        /// Get internally object.
+        /// </summary>
+        /// <param name="fs">The fs.</param>
+        /// <param name="addNew">If true, add new.</param>
         void GetInternallyObject(Stream fs, bool addNew);
 
+        /// <summary>
+        /// Reads the value.
+        /// </summary>
         void ReadValue();
 
+        /// <summary>
+        /// Inserts the value.
+        /// </summary>
         void InsertValue();
 
+        /// <summary>
+        /// Update the value.
+        /// </summary>
         void UpdateValue();
 
+        /// <summary>
+        /// Deletes the value.
+        /// </summary>
         void DeleteValue();
     }
 
+    /// <summary>
+    /// The wrapper.
+    /// </summary>
     public abstract class Wrapper : IDisposable //Main class
     {
         // To detect redundant calls
+        /// <summary>
+        /// The disposed.
+        /// </summary>
         private bool disposed = false;
 
+        /// <summary>
+        /// Gets or sets the logger.
+        /// </summary>
         internal static ILogger Logger { set; get; }
 
         ///<summary>
@@ -61,8 +108,14 @@ namespace WrapperNetPOI
         /// </summary>
         public readonly string PathToFile;
 
+        /// <summary>
+        /// File stream.
+        /// </summary>
         protected FileStream fileStream; //For disposed. If need to open in other application
 
+        /// <summary>
+        /// Gets or sets the password.
+        /// </summary>
         public string Password { set; get; } = null;
 
         /// <summary>
@@ -90,6 +143,12 @@ namespace WrapperNetPOI
             }
         }
 
+        /// <summary>
+        /// Return tech file name.
+        /// </summary>
+        /// <param name="predict">The predict.</param>
+        /// <param name="extension">The extension.</param>
+        /// <returns>A string</returns>
         public static string ReturnTechFileName(string predict, string extension)
         {
             int i = 0;
@@ -107,6 +166,14 @@ namespace WrapperNetPOI
             return path;
         }
 
+        /// <summary>
+        /// View the file.
+        /// </summary>
+        /// <param name="fileMode">The file mode.</param>
+        /// <param name="fileAccess">The file access.</param>
+        /// <param name="addNew">If true, add new.</param>
+        /// <param name="closeStream">If true, close stream.</param>
+        /// <param name="fileShare">The file share.</param>
         protected void ViewFile(
             FileMode fileMode,
             FileAccess fileAccess,
@@ -128,26 +195,45 @@ namespace WrapperNetPOI
             }
         }
 
+        /// <summary>
+        /// Inserts the value.
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         protected virtual void InsertValue()
         {
             throw new NotImplementedException("InsertValue");
         }
 
+        /// <summary>
+        /// Reads the value.
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         protected virtual void ReadValue()
         {
             throw new NotImplementedException("ReadValue");
         }
 
+        /// <summary>
+        /// Update the value.
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         protected virtual void UpdateValue()
         {
             throw new NotImplementedException("UpdateValue");
         }
 
+        /// <summary>
+        /// Deletes the value.
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
         protected virtual void DeleteValue()
         {
             throw new NotImplementedException("DeleteValue");
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public void Exchange()
         {
             switch (exchangeClass.ExchangeOperationEnum)
@@ -174,6 +260,10 @@ namespace WrapperNetPOI
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="disposing">If true, disposing.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)
@@ -193,6 +283,9 @@ namespace WrapperNetPOI
 
         // This code added by Visual Basic to
         // correctly implement the disposable pattern.
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             // Do not change this code.
