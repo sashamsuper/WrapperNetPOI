@@ -428,7 +428,7 @@ namespace WrapperNetPOI.Excel
                     }
                     else
                     {
-                        tmpColName[i] = $"constNameValue{j}";
+                        tmpColName[i] = $"{constNameValue}{j}";
                     }
                 }
             }

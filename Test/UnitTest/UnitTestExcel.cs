@@ -140,7 +140,8 @@ namespace MsTestWrapper
                 "asd",
                 "asd25",
                 "asd1",
-                "asdaswer"
+                "asdaswer",
+                "asd2",
             };
             var value2 = exchangeClass.DataHeader.DataColumns.Select(x => x.Name).ToArray();
             CollectionAssert.AreEqual(d, value2);

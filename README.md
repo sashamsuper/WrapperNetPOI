@@ -1,4 +1,4 @@
-©sashamsuper, 2020–2023
+©sashamsuper, 2020–2026
 # WrapperNetPOI
 Wrapper for NPOI lib
 
