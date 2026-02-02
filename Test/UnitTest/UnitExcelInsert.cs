@@ -32,19 +32,11 @@ namespace UnitTest
     {
 
         [TestMethod]
-        public void DataFrameColumnValue()
+        public void DataFrameColumnNoneValue()
         {
             const string path = "..//..//..//srcTest//dataframe.xlsx";
             Simple.GetFromExcel(out DataFrame df, path, "Sheet7",new Border(firstRow: 1));
-
-            Dictionary<int, Type> header =
-                new()
-                {
-                    { 0, typeof(String) },
-                    { 1, typeof(String) },
-                    { 2, typeof(String) }
-                };
-            if (df.Columns.Count == 10)
+            if (df.Columns.Count == 10 && df.Columns.Any(x=>x.Name=="_"))
             {
                 Assert.IsTrue(true);
             }

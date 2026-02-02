@@ -402,36 +402,33 @@ namespace WrapperNetPOI.Excel
                     }
                     else
                     {
-                        var cName= cell?.ToString().Trim();
-                        if (cName == null)
-                        {
-                            columnName = "_";
-                        }
-                        else
-                        {
-                            columnName = cell?.ToString().Trim();
-                        }
+                        columnName = cell?.ToString().Trim();
                     }
                     //convertType.GetValue<string>(cell);
                     columnName ??= "";
                     if (tmpColName[i] != columnName)
                     {
-                        tmpColName[i] = $"{tmpColName[i] ?? ""}{columnName}";
+                        tmpColName[i] = $"{tmpColName[i] ?? ""}{columnName}".Trim();
                     }
                 }
             }
             for (int i = 0; i < DataColumns.Length; i++)
             {
+                if (String.IsNullOrWhiteSpace(tmpColName[i]))
+                {
+                    tmpColName[i] = "_";
+                }
+                var constNameValue = tmpColName[i];
                 for (int j = 1; j < 15; j++)
                 {
                     if (!DataColumns.Select(x => x.Name).Contains(tmpColName[i]))
                     {
-                        DataColumns[i].Name = tmpColName[i].Trim();
+                        DataColumns[i].Name = tmpColName[i];
                         break;
                     }
                     else
                     {
-                        tmpColName[i] = tmpColName[i].Trim() + j;
+                        tmpColName[i] = $"constNameValue{j}";
                     }
                 }
             }
@@ -548,7 +545,7 @@ namespace WrapperNetPOI.Excel
             _UpdateValue();
         }
 
-        private void _UpdateValue(bool addHeader=true)
+        private void _UpdateValue(bool addHeader = true)
         {
             if (DataHeader.Rows.Length != 0)
             {
@@ -572,7 +569,7 @@ namespace WrapperNetPOI.Excel
             {
                 _UpdateValue(false);
             }
-            else 
+            else
             {
                 _UpdateValue();
             }

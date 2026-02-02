@@ -125,6 +125,7 @@ namespace MsTestWrapper
 
             const string path = "..//..//..//srcTest//dataframe.xlsx";
             DataFrameView exchangeClass = new(ExchangeOperation.Read) { DataHeader = header };
+            exchangeClass.ActiveSheetName = "Sheet1";
             WrapperExcel wrapper = new(path, exchangeClass);
             wrapper.Exchange();
             Console.WriteLine(exchangeClass.DataHeader);
