@@ -27,9 +27,9 @@ jobs:
     - name: Test
       run: dotnet test ./WrapperNetPOI/WrapperNetPOI.csproj --no-build --verbosity normal
     - name: Build Release and generate NuGet package
-      run: dotnet ./WrapperNetPOI/WrapperNetPOI.csproj -c Release -o nuget
+      run: dotnet pack ./WrapperNetPOI/WrapperNetPOI.csproj -c Release -o nuget
     - name: Push the package to NuGet
-      run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_KEY_REPR }} --source https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols
+      run: dotnet nuget push ./nuget/*.nupkg --api-key ${{ secrets.NUGET_KEY_REPR }} --source https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols
     #- name: Publish NuGet
     #  uses: brandedoutcast/publish-nuget@v2.5.5
     #  with:
