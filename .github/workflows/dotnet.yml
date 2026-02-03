@@ -34,8 +34,16 @@ jobs:
       run: |
         echo "Созданные пакеты:"
         Get-ChildItem -Path ./WrapperNetPOI/nuget/ -Filter *.nupkg
-    - name: Push the package to NuGet
-      run: dotnet nuget push ./WrapperNetPOI/nuget/*.nupkg --api-key ${{ secrets.NUGET_KEY_REPR }} --source https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols
+    - name: Push to NuGet
+      run: |
+        $files = Get-ChildItem -Path ./WrapperNetPOI/nuget/ -Filter *.nupkg
+        foreach ($file in $files) {
+          dotnet nuget push $file.FullName `
+            --api-key ${{ secrets.NUGET_API_KEY }} `
+            --source https://api.nuget.org/v3/index.json `
+            --skip-duplicate `
+            --no-symbols
+        }
     #- name: Publish NuGet
     #  uses: brandedoutcast/publish-nuget@v2.5.5
     #  with:
