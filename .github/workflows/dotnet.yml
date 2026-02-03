@@ -29,7 +29,11 @@ jobs:
     - name: Build Release
       run: dotnet build ./WrapperNetPOI/WrapperNetPOI.csproj -c Release --no-restore
     - name: Generate NuGet package
-      run: dotnet pack ./WrapperNetPOI/WrapperNetPOI.csproj -c Release -o nuget
+      run: dotnet pack ./WrapperNetPOI/WrapperNetPOI.csproj -c Release --output ./WrapperNetPOI/nuget/
+    - name: Check created packages
+      run: |
+        echo "Созданные пакеты:"
+        Get-ChildItem -Path ./WrapperNetPOI/nuget/ -Filter *.nupkg
     - name: Push the package to NuGet
       run: dotnet nuget push ./WrapperNetPOI/nuget/*.nupkg --api-key ${{ secrets.NUGET_KEY_REPR }} --source https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols
     #- name: Publish NuGet
