@@ -26,7 +26,9 @@ jobs:
       run: dotnet build ./WrapperNetPOI/WrapperNetPOI.csproj --no-restore
     - name: Test
       run: dotnet test ./WrapperNetPOI/WrapperNetPOI.csproj --no-build --verbosity normal
-    - name: Build Release and generate NuGet package
+    - name: Build Release
+      run: dotnet build ./WrapperNetPOI/WrapperNetPOI.csproj -c Release --no-restore
+    - name: Generate NuGet package
       run: dotnet pack ./WrapperNetPOI/WrapperNetPOI.csproj -c Release -o nuget
     - name: Push the package to NuGet
       run: dotnet nuget push ./nuget/*.nupkg --api-key ${{ secrets.NUGET_KEY_REPR }} --source https://api.nuget.org/v3/index.json --skip-duplicate --no-symbols
