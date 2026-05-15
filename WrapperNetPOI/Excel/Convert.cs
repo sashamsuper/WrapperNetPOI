@@ -432,6 +432,8 @@ namespace WrapperNetPOI.Excel
                 DateTime when value is DateTime dateTime
                     => new Action(() => Cell.SetCellValue(dateTime)),
                 Int32 when value is Int32 int32 => new Action(() => Cell.SetCellValue(int32)),
+                Int64 when value is Int64 int64 => new Action(() => Cell.SetCellValue(int64)),
+                Decimal when value is Decimal decimal => new Action(() => Cell.SetCellValue(decimal)),
                 Boolean when value is Boolean boolean
                     => new Action(() => Cell.SetCellValue(boolean)),
                 null when value is null => new Action(() => Cell.SetCellValue("")),
